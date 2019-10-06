@@ -38,18 +38,19 @@ function game:update(dt)
 
     local playerX, playerY = self.player.pos:unpack()
 
-    -- local screenW, screenH = love.graphics.getDimensions()
+    local screenW, screenH = love.graphics.getDimensions()
 
-    -- local viewPortW = math.floor(screenW / self.camera.scale)
-    -- local viewPortH = math.floor(screenH / self.camera.scale)
+    local viewPortW = math.floor(screenW / self.camera.scale)
+    local viewPortH = math.floor(screenH / self.camera.scale)
 
-    -- local halfViewW, halfViewH = math.floor(viewPortW / 2), math.floor(viewPortH / 2)
+    local halfViewW, halfViewH = math.floor(viewPortW / 2), math.floor(viewPortH / 2)
 
-    -- local halfMapW, halfMapH = math.floor(self.map.width / 2), math.floor(self.map.height / 2)
+    local halfMapW, halfMapH = math.floor(self.map.width / 2), math.floor(self.map.height / 2)
 
-    -- local lockX = math.max(playerX, )
+    local lockX = math.max(-halfMapW + halfViewW, math.min(halfMapW - halfViewW, playerX))
+    local lockY = math.max(-halfMapH + halfViewH, math.min(halfMapH - halfViewH, playerY))
 
-    self.camera:lockPosition(playerX, playerY)
+    self.camera:lockPosition(lockX, lockY)
 end
 
 function game:draw()
