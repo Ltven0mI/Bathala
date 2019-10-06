@@ -12,7 +12,7 @@ game.map = nil
 
 local assets = AssetBundle("assets", {
     "player/player_temp.png",
-    "map/temp.png"
+    "maps/level1.lua"
 })
 
 function game:enter()
@@ -21,8 +21,10 @@ function game:enter()
     self.camera = Camera(0, 0)
     self.camera:zoomTo(4)
 
+    self.map = Map(assets.maps.level1)
+    
     self.player = Player(assets.player.player_temp)
-    self.map = Map(assets.map.temp)
+    self.player:setMap(self.map)
 end
 
 function game:leave()
@@ -45,10 +47,10 @@ function game:update(dt)
 
     local halfViewW, halfViewH = math.floor(viewPortW / 2), math.floor(viewPortH / 2)
 
-    local halfMapW, halfMapH = math.floor(self.map.width / 2), math.floor(self.map.height / 2)
+    local mapW, mapH = self.map.width * self.map.tileSize, self.map.height * self.map.tileSize
 
-    local lockX = math.max(-halfMapW + halfViewW, math.min(halfMapW - halfViewW, playerX))
-    local lockY = math.max(-halfMapH + halfViewH, math.min(halfMapH - halfViewH, playerY))
+    local lockX = math.max(halfViewW, math.min(mapW - halfViewW, playerX))
+    local lockY = math.max(halfViewH, math.min(mapH - halfViewH, playerY))
 
     self.camera:lockPosition(lockX, lockY)
 end

@@ -2,8 +2,17 @@ local PathUtil = require "AssetBundle.PathUtil"
 
 local m = {}
 
+local function _loader_lua(path)
+    local chunk, err = love.filesystem.load(path)
+    if chunk == nil then
+        return nil, err
+    end
+    return chunk() or true
+end
+
 m.loaders = {
-    [".png"] = love.graphics.newImage
+    [".png"] = love.graphics.newImage,
+    [".lua"] = _loader_lua
 }
 
 function m.loadFromFile(path)
