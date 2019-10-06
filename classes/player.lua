@@ -29,7 +29,7 @@ function player:correctCollisionLeft()
     gridX2 = gridX2 - 1
     local tile1 = self.map:getTileAt(gridX1, gridY1)
     local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or tile1 == 0) and (tile2 == nil or tile2 == 0) then return end
+    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
 
     local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
     self.pos.x = math.max(self.pos.x, tileX + self.map.tileSize + halfPlayerSize)
@@ -48,7 +48,7 @@ function player:correctCollisionRight()
     gridX2 = gridX2 + 1
     local tile1 = self.map:getTileAt(gridX1, gridY1)
     local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or tile1 == 0) and (tile2 == nil or tile2 == 0) then return end
+    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
 
     local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
     self.pos.x = math.min(self.pos.x, tileX - halfPlayerSize)
@@ -67,7 +67,7 @@ function player:correctCollisionUp()
     gridY2 = gridY2 - 1
     local tile1 = self.map:getTileAt(gridX1, gridY1)
     local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or tile1 == 0) and (tile2 == nil or tile2 == 0) then return end
+    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
 
     local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
     self.pos.y = math.max(self.pos.y, tileY + self.map.tileSize + halfPlayerSize)
@@ -86,7 +86,7 @@ function player:correctCollisionDown()
     gridY2 = gridY2 + 1
     local tile1 = self.map:getTileAt(gridX1, gridY1)
     local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or tile1 == 0) and (tile2 == nil or tile2 == 0) then return end
+    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
 
     local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
     self.pos.y = math.min(self.pos.y, tileY - halfPlayerSize)

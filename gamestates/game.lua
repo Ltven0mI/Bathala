@@ -8,11 +8,13 @@ local game = {}
 
 game.camera = nil
 game.player = nil
+game.tileset = nil
 game.map = nil
 
 local assets = AssetBundle("assets", {
     "player/player_temp.png",
-    "maps/level1.lua"
+    "maps/level1.lua",
+    "tilesets/default_tileset.lua"
 })
 
 function game:enter()
@@ -21,7 +23,11 @@ function game:enter()
     self.camera = Camera(0, 0)
     self.camera:zoomTo(4)
 
-    self.map = Map(assets.maps.level1)
+    self.tileset = assets.tilesets.default_tileset
+    self.tileset.load()
+
+    self.map = Map(assets.maps.level1, self.tileset)
+    self.map:generateGrid()
     
     self.player = Player(assets.player.player_temp)
     self.player:setMap(self.map)
@@ -32,6 +38,10 @@ function game:leave()
 
     self.camera = nil
     self.player = nil
+
+    self.tileset.unload()
+    self.tileset = nil
+
     self.map = nil
 end
 
@@ -58,8 +68,9 @@ end
 function game:draw()
     self.camera:attach()
 
-    self.map:draw()
+    self.map:draw(1, 1)
     self.player:draw()
+    self.map:draw(2)
 
     self.camera:detach()
 end
