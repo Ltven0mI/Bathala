@@ -7,7 +7,7 @@ local player = Class{
         self.moveProgress = 0
         self.img = img
     end,
-    speed = 40
+    speed = 48
 }
 
 function player:update(dt)
@@ -24,7 +24,7 @@ function player:update(dt)
     local flooredProgress = math.floor(self.moveProgress)
     self.moveProgress = self.moveProgress - flooredProgress
 
-    self.pos = self.pos + inputDelta * self.moveProgress
+    self.pos = self.pos + inputDelta * flooredProgress
 end
 
 function player:draw()
