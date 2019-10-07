@@ -11,6 +11,7 @@ local assets = AssetBundle("assets", {
     "tiles/pillar_layer3.png",
     "tiles/pillar_layer4.png",
     "tiles/pillar_layer5.png",
+    "tiles/pillar_layer5_front.png",
 })
 
 t.tiles = {}
@@ -49,6 +50,10 @@ local function createTiles()
     }
     t.tiles["pillar_layer5"] = {
         img = assets.tiles.pillar_layer5,
+        isSolid = true
+    }
+    t.tiles["pillar_layer5_front"] = {
+        img = assets.tiles.pillar_layer5_front,
         isSolid = true
     }
 end
