@@ -12,8 +12,11 @@ game.tileset = nil
 game.map = nil
 
 local assets = AssetBundle("assets", {
+    maps={
+        level1="mapExport.lua"
+    },
     "player/player_temp.png",
-    "maps/level1.lua",
+    "entities/enemy.lua",
     "tilesets/default_tileset.lua"
 })
 
@@ -31,6 +34,9 @@ function game:enter()
     
     self.player = Player(assets.player.player_temp, 0, 0, 10, 16)
     self.player:setMap(self.map)
+
+    local enemy = assets.entities.enemy(8*16, 12*16, 16, 16)
+    self.map:registerEntity(enemy)
 end
 
 function game:leave()
@@ -46,6 +52,7 @@ function game:leave()
 end
 
 function game:update(dt)
+    self.map:update(dt)
     self.player:update(dt)
 
     local playerX, playerY = self.player.pos:unpack()
@@ -70,9 +77,10 @@ end
 function game:draw()
     self.camera:attach()
 
-    self.map:draw(1, 1)
+    self.map:draw(1, 2)
+    self.map:drawEntities()
     self.player:draw()
-    self.map:draw(2)
+    self.map:draw(3)
 
     self.camera:detach()
 

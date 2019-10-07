@@ -9,9 +9,27 @@ local Map = Class{
         self.layerCount = #self.layouts
         self.mapData = mapData
         self.tileset = tileset
+        self.entities = {}
     end,
     tileSize=16
 }
+
+-- TODO: Change entity management to use a non shifting table
+-- and keep track of the index it's inserted at
+function Map:registerEntity(entity)
+    table.insert(self.entities, entity)
+    entity:onRegistered(map)
+end
+
+function Map:unregisterEntity(entity)
+    for k, e in ipairs(self.entities) do
+        if e == entity then
+            table.remove(self.entities, k)
+            break
+        end
+    end
+    entity:onUnregistered()
+end
 
 function Map:worldToGridPos(x, y, layerId)
     local layerId = layerId or 1
@@ -57,6 +75,12 @@ function Map:generateGrid()
     end
 end
 
+function Map:update(dt)
+    for _, entity in ipairs(self.entities) do
+        entity:update(dt)
+    end
+end
+
 function Map:draw(minLayer, maxLayer)
     local minLayer = minLayer or 1
     local maxLayer = maxLayer or self.layerCount
@@ -76,6 +100,12 @@ function Map:draw(minLayer, maxLayer)
                 end
             end
         end
+    end
+end
+
+function Map:drawEntities()
+    for _, entity in ipairs(self.entities) do
+        entity:draw()
     end
 end
 
