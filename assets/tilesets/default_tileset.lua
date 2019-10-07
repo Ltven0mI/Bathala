@@ -16,6 +16,14 @@ local assets = AssetBundle("assets", {
     "tiles/pillar_layer4.png",
     "tiles/pillar_layer5.png",
     "tiles/pillar_layer5_front.png",
+
+    "tiles/statue_base_topleft.png",
+    "tiles/statue_base_topright.png",
+    "tiles/statue_base_bottomleft.png",
+    "tiles/statue_base_bottomright.png",
+
+    "tiles/bathala_statue.png",
+    "tiles/bathala_statue_rubble.png",
 })
 
 t.tiles = {}
@@ -48,6 +56,14 @@ local function createTiles()
     createTile("pillar_layer4", assets.tiles.pillar_layer4, true)
     createTile("pillar_layer5", assets.tiles.pillar_layer5, true)
     createTile("pillar_layer5_front", assets.tiles.pillar_layer5_front, true)
+
+    createTile("statue_base_topleft", assets.tiles.statue_base_topleft, true, {x=4, y=7, w=12, h=9})
+    createTile("statue_base_topright", assets.tiles.statue_base_topright, true, {x=0, y=7, w=12, h=9})
+    createTile("statue_base_bottomleft", assets.tiles.statue_base_bottomleft, true, {x=4, y=0, w=12, h=10})
+    createTile("statue_base_bottomright", assets.tiles.statue_base_bottomright, true, {x=0, y=0, w=12, h=10})
+
+    createTile("bathala_statue", assets.tiles.bathala_statue, false)
+    createTile("bathala_statue_rubble", assets.tiles.bathala_statue_rubble, false)
 end
 
 function t.load()
