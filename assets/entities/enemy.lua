@@ -1,5 +1,6 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
+local Signal = require "hump.signal"
 
 local Entity = require "classes.entity"
 
@@ -7,14 +8,18 @@ local Enemy = Class{
     init = function(self, x, y)
         Entity.init(self, x, y, 16, 24)
         self.target = nil
+        self.targetStatue = nil
         self.path = nil
         self.currentNode = nil
+        self.health = 1
     end,
     __includes = {
         Entity
     },
     speed = 32,
-    img = love.graphics.newImage("assets/desecrator/desecrator_temp.png")
+    stoppingDistance = 16,
+    img = love.graphics.newImage("assets/desecrator/desecrator_temp.png"),
+    type = "enemy"
 }
 
 local function _newPriorityQueue()
@@ -31,6 +36,25 @@ local function _newPriorityQueue()
             return (#self.queue == 0)
         end,
     }
+end
+
+function Enemy:takeDamage(damage)
+    self.health = math.max(0, self.health - damage)
+    if self.health == 0 then
+        self.map:unregisterEntity(self)
+        Signal.emit("enemy-died", self)
+    end
+end
+
+function Enemy:start()
+    self.targetStatue = self.map:findEntityOfType("statue")
+    if self.targetStatue then
+        local statue = self.targetStatue
+        local statueBasePos = statue.pos + statue.baseOffset
+        local randRot = love.math.random(1, 360)
+        local randOffset = Vector(statue.w + self.stoppingDistance, 0):rotated(math.rad(randRot))
+        self:setTarget((statueBasePos + randOffset):unpack())
+    end
 end
 
 function Enemy:calculateCost(current, next)
@@ -80,16 +104,24 @@ function Enemy:updatePath()
         cost_so_far = 0,
     }
 
+    local shortestDist = math.huge
+    local closestNode = nil
+
     while not frontier:isEmpty() do
         local current = frontier:get()
+        local currentNode = nodeGrid[current.pos.x][current.pos.y]
+
+        local distToGoal = Vector(goalX - currentNode.x, goalY - currentNode.y):len()
+        if distToGoal < shortestDist then
+            shortestDist = distToGoal
+            closestNode = currentNode
+        end
         
         if current.pos.x == goalX and current.pos.y == goalY then
             break
         end
 
         local neighbors = self:getNeighboursAt(current.pos.x, current.pos.y)
-
-        local currentNode = nodeGrid[current.pos.x][current.pos.y]
 
         for _, next in ipairs(neighbors) do
             local nextNode = nodeGrid[next.x][next.y]
@@ -115,11 +147,14 @@ function Enemy:updatePath()
     -- * Debug value
     self.nodeGrid = nodeGrid
 
-    local goalNode = nodeGrid[goalX][goalY]
-    if goalNode == nil then
-        -- Handle it not reaching the goal
-        error("Failed to reach goal: "..tostring(goalX)..", "..tostring(goalY))
-    end
+    -- local goalNode = nodeGrid[goalX][goalY]
+    -- if goalNode == nil then
+    --     if 
+    --     -- Handle it not reaching the goal
+    --     error("Failed to reach goal: "..tostring(goalX)..", "..tostring(goalY))
+    -- end
+
+    goalNode = closestNode
 
     self.path = {}
     local currentNode = goalNode
@@ -128,9 +163,9 @@ function Enemy:updatePath()
         currentNode = currentNode.came_from
     end
 
-    for k, v in ipairs(self.path) do
-        print(k, v.x, v.y)
-    end
+    -- for k, v in ipairs(self.path) do
+    --     print(k, v.x, v.y)
+    -- end
 
 
     -- frontier = PriorityQueue()
@@ -171,8 +206,8 @@ function Enemy:update(dt)
 
         local halfTileSize = math.floor(self.map.tileSize / 2)
         local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
-        local targetX = nodeWorldX + halfTileSize - halfEnemyW
-        local targetY = nodeWorldY + halfTileSize - self.h
+        local targetX = nodeWorldX + halfTileSize-- - halfEnemyW
+        local targetY = nodeWorldY + halfTileSize-- - self.h
 
         local delta = Vector(targetX, targetY) - self.pos
         self.pos = self.pos + delta:normalized() * math.min(delta:len(), self.speed * dt)
@@ -180,11 +215,17 @@ function Enemy:update(dt)
             self:nextNode()
         end
     end
+
+    if love.keyboard.isDown("space") then
+        self:start()
+    end
 end
 
 function Enemy:draw()
+    local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, self.pos.x, self.pos.y)
+    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, halfEnemyW, self.h)
+    self:drawCollisionBox()
 
     if self.target then
         love.graphics.setColor(1, 0, 0, 1)

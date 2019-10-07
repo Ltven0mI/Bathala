@@ -13,8 +13,17 @@ local Entity = Class{
     },
 }
 
+function Entity:start()
+
+end
+
 function Entity:update(dt)
 
+end
+
+function Entity:drawCollisionBox()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
 end
 
 function Entity:draw()

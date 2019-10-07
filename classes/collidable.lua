@@ -4,12 +4,12 @@ local Vector = require "hump.vector"
 local Collidable = Class{
     init = function(self, x, y, w, h)
         assert(x and y and w and h, "Collidable must be created with 'x, y, w, h' arguments passed")
-        self.type = "collidable"
         self.pos = Vector(x, y)
         self.w = w
         self.h = h
     end,
     collision_handler = {["*"] = function() end},
+    type = "collidable"
 }
 
 Collidable.collision_handler["collidable"] = function(self, other, dx, dy)

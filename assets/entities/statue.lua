@@ -13,6 +13,9 @@ local Statue = Class{
     },
     aliveImg = love.graphics.newImage("assets/tiles/bathala_statue.png"),
     rubbleImg = love.graphics.newImage("assets/tiles/bathala_statue_rubble.png"),
+
+    type = "statue",
+    baseOffset = Vector(16, 32),
 }
 
 function Statue:update(dt)

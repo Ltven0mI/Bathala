@@ -28,10 +28,12 @@ local assets = AssetBundle("assets", {
     -- Icons --
     icon_desecrator="desecrator/desecrator_temp.png",
     icon_statue="tiles/bathala_statue.png",
+    icon_spawner="tiles/spawner.png",
 
     -- Entities --
     "entities/enemy.lua",
     "entities/statue.lua",
+    "entities/spawner.lua",
 })
 
 t.tiles = {}
@@ -90,6 +92,7 @@ end
 local function createEntities()
     createEntity("enemy", assets.entities.enemy, assets.icon_desecrator)
     createEntity("statue", assets.entities.statue, assets.icon_statue)
+    createEntity("spawner", assets.entities.spawner, assets.icon_spawner)
 end
 
 function t.load()

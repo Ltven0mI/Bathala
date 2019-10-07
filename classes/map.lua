@@ -10,6 +10,7 @@ local Map = Class{
         self.mapData = mapData
         self.tileset = tileset
         self.entities = {}
+        self.hasStarted = false
     end,
     tileSize=16
 }
@@ -29,6 +30,15 @@ function Map:unregisterEntity(entity)
         end
     end
     entity:onUnregistered()
+end
+
+function Map:findEntityOfType(typeStr)
+    for _, entity in ipairs(self.entities) do
+        if entity.type == typeStr then
+            return entity
+        end
+    end
+    return nil
 end
 
 function Map:worldToGridPos(x, y, layerId)
@@ -86,6 +96,13 @@ function Map:generateGrid()
 end
 
 function Map:update(dt)
+    if not self.hasStarted then
+        self.hasStarted = true
+        for _, entity in ipairs(self.entities) do
+            entity:start()
+        end
+    end
+    
     for _, entity in ipairs(self.entities) do
         entity:update(dt)
     end
