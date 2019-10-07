@@ -6,6 +6,10 @@ local assets = AssetBundle("assets", {
     "tiles/carpet_left.png",
     "tiles/carpet_middle.png",
     "tiles/carpet_right.png",
+
+    "tiles/ground_cracked.png",
+    "tiles/ground_smooth.png",
+
     "tiles/pillar_layer1.png",
     "tiles/pillar_layer2.png",
     "tiles/pillar_layer3.png",
@@ -16,55 +20,28 @@ local assets = AssetBundle("assets", {
 
 t.tiles = {}
 
+local function createTile(name, img, isSolid)
+    t.tiles[name] = {
+        name=name,
+        img=img,
+        isSolid=isSolid
+    }
+end
+
 local function createTiles()
-    t.tiles["carpet_left"] = {
-        name = "carpet_left",
-        img = assets.tiles.carpet_left,
-        isSolid = false
-    }
+    createTile("carpet_left", assets.tiles.carpet_left, false)
+    createTile("carpet_middle", assets.tiles.carpet_middle, false)
+    createTile("carpet_right", assets.tiles.carpet_right, false)
     
-    t.tiles["carpet_middle"] = {
-        name = "carpet_middle",
-        img = assets.tiles.carpet_middle,
-        isSolid = false
-    }
-    
-    t.tiles["carpet_right"] = {
-        name = "carpet_right",
-        img = assets.tiles.carpet_right,
-        isSolid = false
-    }
-    
-    t.tiles["pillar_layer1"] = {
-        name = "pillar_layer1",
-        img = assets.tiles.pillar_layer1,
-        isSolid = true
-    }
-    t.tiles["pillar_layer2"] = {
-        name = "pillar_layer2",
-        img = assets.tiles.pillar_layer2,
-        isSolid = true
-    }
-    t.tiles["pillar_layer3"] = {
-        name = "pillar_layer3",
-        img = assets.tiles.pillar_layer3,
-        isSolid = true
-    }
-    t.tiles["pillar_layer4"] = {
-        name = "pillar_layer4",
-        img = assets.tiles.pillar_layer4,
-        isSolid = true
-    }
-    t.tiles["pillar_layer5"] = {
-        name = "pillar_layer5",
-        img = assets.tiles.pillar_layer5,
-        isSolid = true
-    }
-    t.tiles["pillar_layer5_front"] = {
-        name = "pillar_layer5_front",
-        img = assets.tiles.pillar_layer5_front,
-        isSolid = true
-    }
+    createTile("ground_cracked", assets.tiles.ground_cracked, false)
+    createTile("ground_smooth", assets.tiles.ground_smooth, false)
+
+    createTile("pillar_layer1", assets.tiles.pillar_layer1, true)
+    createTile("pillar_layer2", assets.tiles.pillar_layer2, true)
+    createTile("pillar_layer3", assets.tiles.pillar_layer3, true)
+    createTile("pillar_layer4", assets.tiles.pillar_layer4, true)
+    createTile("pillar_layer5", assets.tiles.pillar_layer5, true)
+    createTile("pillar_layer5_front", assets.tiles.pillar_layer5_front, true)
 end
 
 function t.load()

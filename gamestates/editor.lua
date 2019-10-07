@@ -21,7 +21,7 @@ editor.currentLayerId = 1
 
 local assets = AssetBundle("assets", {
     "player/player_temp.png",
-    "maps/level2.lua",
+    "maps/level1.lua",
     "tilesets/default_tileset.lua"
 })
 
@@ -38,7 +38,7 @@ function editor:enter()
     self.tileset = assets.tilesets.default_tileset
     self.tileset.load()
 
-    self.map = Map(assets.maps.level2, self.tileset)
+    self.map = Map(assets.maps.level1, self.tileset)
     self.map:generateGrid()
     
     self.player = Player(assets.player.player_temp)
