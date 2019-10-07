@@ -20,11 +20,17 @@ local assets = AssetBundle("assets", {
 
 t.tiles = {}
 
-local function createTile(name, img, isSolid)
+local function createTile(name, img, isSolid, collider)
+    collider = collider or {}
+    collider.x = collider.x or 0
+    collider.y = collider.y or 0
+    collider.w = collider.w or 16
+    collider.h = collider.h or 16
     t.tiles[name] = {
         name=name,
         img=img,
-        isSolid=isSolid
+        isSolid=isSolid,
+        collider=collider
     }
 end
 

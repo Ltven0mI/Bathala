@@ -29,7 +29,7 @@ function game:enter()
     self.map = Map(assets.maps.level1, self.tileset)
     self.map:generateGrid()
     
-    self.player = Player(assets.player.player_temp)
+    self.player = Player(assets.player.player_temp, 0, 0, 10, 16)
     self.player:setMap(self.map)
 end
 
@@ -59,8 +59,10 @@ function game:update(dt)
 
     local mapW, mapH = self.map.width * self.map.tileSize, self.map.height * self.map.tileSize
 
-    local lockX = math.max(halfViewW, math.min(mapW - halfViewW, playerX))
-    local lockY = math.max(halfViewH, math.min(mapH - halfViewH, playerY))
+    local halfPlayerW, halfPlayerH = math.floor(self.player.w / 2), math.floor(self.player.h / 2)
+
+    local lockX = math.max(halfViewW, math.min(mapW - halfViewW, playerX + halfPlayerW))
+    local lockY = math.max(halfViewH, math.min(mapH - halfViewH, playerY + halfPlayerH))
 
     self.camera:lockPosition(lockX, lockY)
 end
@@ -73,6 +75,10 @@ function game:draw()
     self.map:draw(2)
 
     self.camera:detach()
+
+    -- local screenW, screenH = love.graphics.getDimensions()
+    -- love.graphics.line(0, math.floor(screenH / 2), screenW, math.floor(screenH / 2))
+    -- love.graphics.line(math.floor(screenW / 2), 0, math.floor(screenW / 2), screenH)
 end
 
 return game

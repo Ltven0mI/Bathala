@@ -1,95 +1,21 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
+local Collidable = require "classes.collidable"
+
 local player = Class{
-    init = function(self, img)
-        self.pos = Vector(0, 0)
+    init = function(self, img, x, y, w, h)
+        Collidable.init(self, x, y, w, h)
         self.moveProgress = 0
         self.img = img
         self.map = nil
     end,
     speed = 64,
-    size = 16
 }
+player:include(Collidable)
 
 function player:setMap(map)
     self.map = map
-end
-
-function player:correctCollisionLeft()
-    if not self.map then return end
-    
-    local halfPlayerSize = math.floor(self.size / 2)
-
-    local selfX, selfY = self.pos:unpack()
-
-    local gridX1, gridY1 = self.map:worldToGridPos(selfX, selfY - (halfPlayerSize - 1))
-    local gridX2, gridY2 = self.map:worldToGridPos(selfX, selfY + (halfPlayerSize - 1))
-    gridX1 = gridX1 - 1
-    gridX2 = gridX2 - 1
-    local tile1 = self.map:getTileAt(gridX1, gridY1)
-    local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
-
-    local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
-    self.pos.x = math.max(self.pos.x, tileX + self.map.tileSize + halfPlayerSize)
-end
-
-function player:correctCollisionRight()
-    if not self.map then return end
-    
-    local halfPlayerSize = math.floor(self.size / 2)
-
-    local selfX, selfY = self.pos:unpack()
-
-    local gridX1, gridY1 = self.map:worldToGridPos(selfX, selfY - (halfPlayerSize - 1))
-    local gridX2, gridY2 = self.map:worldToGridPos(selfX, selfY + (halfPlayerSize - 1))
-    gridX1 = gridX1 + 1
-    gridX2 = gridX2 + 1
-    local tile1 = self.map:getTileAt(gridX1, gridY1)
-    local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
-
-    local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
-    self.pos.x = math.min(self.pos.x, tileX - halfPlayerSize)
-end
-
-function player:correctCollisionUp()
-    if not self.map then return end
-    
-    local halfPlayerSize = math.floor(self.size / 2)
-
-    local selfX, selfY = self.pos:unpack()
-
-    local gridX1, gridY1 = self.map:worldToGridPos(selfX - (halfPlayerSize - 1), selfY)
-    local gridX2, gridY2 = self.map:worldToGridPos(selfX + (halfPlayerSize - 1), selfY)
-    gridY1 = gridY1 - 1
-    gridY2 = gridY2 - 1
-    local tile1 = self.map:getTileAt(gridX1, gridY1)
-    local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
-
-    local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
-    self.pos.y = math.max(self.pos.y, tileY + self.map.tileSize + halfPlayerSize)
-end
-
-function player:correctCollisionDown()
-    if not self.map then return end
-    
-    local halfPlayerSize = math.floor(self.size / 2)
-
-    local selfX, selfY = self.pos:unpack()
-
-    local gridX1, gridY1 = self.map:worldToGridPos(selfX - (halfPlayerSize - 1), selfY)
-    local gridX2, gridY2 = self.map:worldToGridPos(selfX + (halfPlayerSize - 1), selfY)
-    gridY1 = gridY1 + 1
-    gridY2 = gridY2 + 1
-    local tile1 = self.map:getTileAt(gridX1, gridY1)
-    local tile2 = self.map:getTileAt(gridX2, gridY2)
-    if (tile1 == nil or not tile1.isSolid) and (tile2 == nil or not tile2.isSolid) then return end
-
-    local tileX, tileY = self.map:gridToWorldPos(gridX1, gridY1)
-    self.pos.y = math.min(self.pos.y, tileY - halfPlayerSize)
 end
 
 function player:update(dt)
@@ -106,26 +32,58 @@ function player:update(dt)
     local flooredProgress = self.moveProgress --math.floor(self.moveProgress)
     self.moveProgress = self.moveProgress - flooredProgress
 
-    self.pos = self.pos + inputDelta * flooredProgress
+    local movementDelta = inputDelta * flooredProgress
 
-    if inputDelta.x < 0 then
-        self:correctCollisionLeft()
-    end
-    if inputDelta.x > 0 then
-        self:correctCollisionRight()
-    end
-    if inputDelta.y < 0 then
-        self:correctCollisionUp()
-    end
-    if inputDelta.y > 0 then
-        self:correctCollisionDown()
+    self.pos = self.pos + movementDelta
+
+    local minX = math.floor(self.pos.x)
+    local maxX = math.floor(self.pos.x + self.w)
+    local minY = math.floor(self.pos.y)
+    local maxY = math.floor(self.pos.y + self.h)
+
+    gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
+    gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
+
+    local collidables = {}
+    for x=gridMinX, gridMaxX do
+        for y=gridMinY, gridMaxY do
+            local tileData = self.map:getTileAt(x, y)
+            if tileData and tileData.isSolid then
+                local worldX, worldY = self.map:gridToWorldPos(x, y)
+                local collidable = Collidable(worldX + tileData.collider.x, worldY + tileData.collider.y, tileData.collider.w, tileData.collider.h)
+                self:checkForCollision(collidable, movementDelta.x, movementDelta.y)
+            end
+        end
     end
 end
 
 function player:draw()
+    -- local minX = math.floor(self.pos.x)
+    -- local maxX = math.floor(self.pos.x + self.w)
+    -- local minY = math.floor(self.pos.y)
+    -- local maxY = math.floor(self.pos.y + self.h)
+
+    -- gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
+    -- gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
+
+    -- for x=gridMinX, gridMaxX do
+    --     for y=gridMinY, gridMaxY do
+    --         local tileData = self.map:getTileAt(x, y)
+    --         if tileData and tileData.isSolid then
+    --             local worldX, worldY = self.map:gridToWorldPos(x, y)
+    --             love.graphics.rectangle("line", worldX + tileData.collider.x, worldY + tileData.collider.y, tileData.collider.w, tileData.collider.h)
+    --         end
+    --     end
+    -- end
+
     love.graphics.setColor(1, 1, 1, 1)
-    local halfPlayerSize = math.floor(self.size / 2)
-    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, halfPlayerSize, halfPlayerSize)
+    local imgW, imgH = self.img:getDimensions()
+    local halfImgW = math.floor(imgW / 2)
+    local halfImgH = math.floor(imgH / 2)
+    local halfPlayerW = math.floor(self.w / 2)
+    local halfPlayerH = math.floor(self.h / 2)
+    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, halfImgW-halfPlayerW, halfImgH-halfPlayerH)
+    -- love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
 end
 
 return player
