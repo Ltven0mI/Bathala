@@ -44,10 +44,9 @@ function player:update(dt)
     gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
     gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
 
-    local collidables = {}
     for x=gridMinX, gridMaxX do
         for y=gridMinY, gridMaxY do
-            local tileData = self.map:getTileAt(x, y)
+            local tileData = self.map:getTileAt(x, y, 2)
             if tileData and tileData.isSolid then
                 local worldX, worldY = self.map:gridToWorldPos(x, y)
                 local collidable = Collidable(worldX + tileData.collider.x, worldY + tileData.collider.y, tileData.collider.w, tileData.collider.h)

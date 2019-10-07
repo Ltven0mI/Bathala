@@ -20,8 +20,10 @@ editor.matchingTiles = {}
 editor.currentLayerId = 1
 
 local assets = AssetBundle("assets", {
+    maps={
+        level1="mapExport.lua"
+    },
     "player/player_temp.png",
-    "maps/level1.lua",
     "tilesets/default_tileset.lua"
 })
 
@@ -102,16 +104,20 @@ function editor:draw()
         self:drawLayerSeperator()
     end
     self.map:draw(1, 1)
-    self.player:draw()
     if self.currentLayerId == 2 then
         self:drawLayerSeperator()
     end
-    self.map:draw(2, math.max(2, math.min(self.currentLayerId-1, self.map.layerCount)))
-    if self.currentLayerId > 2 then
+    self.map:draw(2, 2)
+    self.player:draw()
+    if self.currentLayerId == 3 then
+        self:drawLayerSeperator()
+    end
+    self.map:draw(3, math.max(3, math.min(self.currentLayerId-1, self.map.layerCount)))
+    if self.currentLayerId > 3 then
         self:drawLayerSeperator()
     end
     if self.currentLayerId <= self.map.layerCount then
-        self.map:draw(math.max(3, self.currentLayerId))
+        self.map:draw(math.max(4, self.currentLayerId))
     end
 
     self.camera:detach()

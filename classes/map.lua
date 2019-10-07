@@ -15,12 +15,12 @@ local Map = Class{
 
 function Map:worldToGridPos(x, y, layerId)
     local layerId = layerId or 1
-    return math.floor(x / self.tileSize) + 1, math.floor(y / self.tileSize) + layerId
+    return math.floor(x / self.tileSize) + 1, math.floor(y / self.tileSize) + math.max(1, layerId-1)
 end
 
 function Map:gridToWorldPos(x, y, layerId)
     local layerId = layerId or 1
-    return (x-1) * self.tileSize, (y-layerId) * self.tileSize
+    return (x-1) * self.tileSize, (y-math.max(1, layerId-1)) * self.tileSize
 end
 
 function Map:getTileAt(x, y, layerId)
@@ -41,6 +41,7 @@ end
 
 function Map:generateGrid()
     self.grids = {}
+
     for i=1, #self.layouts do
         self.grids[i] = {}
         for x=1, self.width do
@@ -70,7 +71,7 @@ function Map:draw(minLayer, maxLayer)
                 local tileData = self.grids[i][x][y]
 
                 if tileData ~= nil then
-                    local drawX, drawY = (x-1) * self.tileSize, (y-i) * self.tileSize
+                    local drawX, drawY = (x-1) * self.tileSize, (y-math.max(1, i-1)) * self.tileSize
                     love.graphics.draw(tileData.img, drawX, drawY)
                 end
             end
