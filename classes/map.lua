@@ -13,12 +13,14 @@ local Map = Class{
     tileSize=16
 }
 
-function Map:worldToGridPos(x, y)
-    return math.floor(x / self.tileSize) + 1, math.floor(y / self.tileSize) + 1
+function Map:worldToGridPos(x, y, layerId)
+    local layerId = layerId or 1
+    return math.floor(x / self.tileSize) + 1, math.floor(y / self.tileSize) + layerId
 end
 
-function Map:gridToWorldPos(x, y)
-    return (x-1) * self.tileSize, (y-1) * self.tileSize
+function Map:gridToWorldPos(x, y, layerId)
+    local layerId = layerId or 1
+    return (x-1) * self.tileSize, (y-layerId) * self.tileSize
 end
 
 function Map:getTileAt(x, y, layerId)
@@ -27,6 +29,14 @@ function Map:getTileAt(x, y, layerId)
         return nil
     end
     return self.grids[layerId][x][y]
+end
+
+function Map:setTileAt(tileData, x, y, layerId)
+    local layerId = layerId or 1
+    if x < 1 or y < 1 or x > self.width or y > self.height or layerId < 1 or layerId > self.layerCount then
+        return nil
+    end
+    self.grids[layerId][x][y] = tileData
 end
 
 function Map:generateGrid()

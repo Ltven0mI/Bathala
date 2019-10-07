@@ -1,5 +1,3 @@
-local AssetBundle = require "AssetBundle"
-
 local m = {}
 
 m.width = 16

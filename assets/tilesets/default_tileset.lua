@@ -18,41 +18,50 @@ t.tiles = {}
 
 local function createTiles()
     t.tiles["carpet_left"] = {
+        name = "carpet_left",
         img = assets.tiles.carpet_left,
         isSolid = false
     }
     
     t.tiles["carpet_middle"] = {
+        name = "carpet_middle",
         img = assets.tiles.carpet_middle,
         isSolid = false
     }
     
     t.tiles["carpet_right"] = {
+        name = "carpet_right",
         img = assets.tiles.carpet_right,
         isSolid = false
     }
     
     t.tiles["pillar_layer1"] = {
+        name = "pillar_layer1",
         img = assets.tiles.pillar_layer1,
         isSolid = true
     }
     t.tiles["pillar_layer2"] = {
+        name = "pillar_layer2",
         img = assets.tiles.pillar_layer2,
         isSolid = true
     }
     t.tiles["pillar_layer3"] = {
+        name = "pillar_layer3",
         img = assets.tiles.pillar_layer3,
         isSolid = true
     }
     t.tiles["pillar_layer4"] = {
+        name = "pillar_layer4",
         img = assets.tiles.pillar_layer4,
         isSolid = true
     }
     t.tiles["pillar_layer5"] = {
+        name = "pillar_layer5",
         img = assets.tiles.pillar_layer5,
         isSolid = true
     }
     t.tiles["pillar_layer5_front"] = {
+        name = "pillar_layer5_front",
         img = assets.tiles.pillar_layer5_front,
         isSolid = true
     }
