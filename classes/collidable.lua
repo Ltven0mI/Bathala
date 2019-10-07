@@ -3,6 +3,7 @@ local Vector = require "hump.vector"
 
 local Collidable = Class{
     init = function(self, x, y, w, h)
+        assert(x and y and w and h, "Collidable must be created with 'x, y, w, h' arguments passed")
         self.type = "collidable"
         self.pos = Vector(x, y)
         self.w = w
@@ -53,6 +54,13 @@ function Collidable:intersect(other)
     return (
         self.pos.x < other.pos.x + other.w and self.pos.x + self.w >= other.pos.x and
         self.pos.y < other.pos.y + other.h and self.pos.y + self.h >= other.pos.y
+    )
+end
+
+function Collidable:intersectPoint(x, y)
+    return (
+        x >= self.pos.x and x < self.pos.x + self.w and
+        y >= self.pos.y and y < self.pos.y + self.h
     )
 end
 

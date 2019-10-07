@@ -10,8 +10,8 @@ function menu:draw()
 end
 
 function menu:mousepressed(x, y, btn)
-    Gamestate.switch(game_gamestate)
-    -- Gamestate.switch(editor_gamestate)
+    -- Gamestate.switch(game_gamestate)
+    Gamestate.switch(editor_gamestate)
 end
 
 return menu

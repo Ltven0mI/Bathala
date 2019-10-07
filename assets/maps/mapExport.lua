@@ -18,7 +18,7 @@ m.tileIndex = {
 [14]="pillar_layer5_front",
 [15]="ground_cracked",
 }
-m.layouts={
+m.layouts = {
 [1]={
 [1]={
 [1]=12,
@@ -1758,6 +1758,33 @@ m.layouts={
 [15]=0,
 [16]=2,
 },
+},
+}
+m.entities = {
+[1]={
+["y"]=96,
+["x"]=112,
+["name"]="statue",
+},
+[2]={
+["y"]=112,
+["x"]=80,
+["name"]="enemy",
+},
+[3]={
+["y"]=112,
+["x"]=160,
+["name"]="enemy",
+},
+[4]={
+["y"]=64,
+["x"]=96,
+["name"]="enemy",
+},
+[5]={
+["y"]=64,
+["x"]=144,
+["name"]="enemy",
 },
 }
 return m

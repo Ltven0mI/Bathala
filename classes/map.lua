@@ -18,7 +18,7 @@ local Map = Class{
 -- and keep track of the index it's inserted at
 function Map:registerEntity(entity)
     table.insert(self.entities, entity)
-    entity:onRegistered(map)
+    entity:onRegistered(self)
 end
 
 function Map:unregisterEntity(entity)
@@ -71,6 +71,16 @@ function Map:generateGrid()
                     self.grids[i][x][y] = self.tileset.tiles[tileKey]
                 end
             end
+        end
+    end
+
+    for _, v in ipairs(self.mapData.entities) do
+        local entityData = self.tileset.entities[v.name]
+        if entityData ~= nil then
+            local entityInstance = entityData.entity(v.x, v.y)
+            self:registerEntity(entityInstance)
+        else
+            print("[WARN] Unknown entity with name '"..tostring(v.name).."'")
         end
     end
 end

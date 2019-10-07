@@ -13,12 +13,6 @@ editor.player = nil
 editor.tileset = nil
 editor.map = nil
 
-editor.isSearchSelected = false
-editor.currentSearch = ""
-editor.currentTileEntry = nil
-editor.matchingTiles = {}
-editor.currentLayerId = 1
-
 local assets = AssetBundle("assets", {
     maps={
         level1="mapExport.lua"
@@ -46,11 +40,27 @@ function editor:enter()
     self.player = Player(assets.player.player_temp, 0, 0, 10, 16)
     self.player:setMap(self.map)
 
+    self.isSearchSelected = false
+    self.currentSearch = ""
+    self.searchResults = nil
+    self.tableToSearch = self.tileset.tiles
+    self.selectedSearchResult = nil
+    self.searchType = "tiles"
+    self.currentLayerId = 1
+
     self:updateSearchResults()
 end
 
 function editor:leave()
     AssetBundle.unload(assets)
+
+    self.isSearchSelected = nil
+    self.currentSearch = nil
+    self.selectedSearchResult = nil
+    self.searchResults = nil
+    self.tableToSearch = nil
+    self.currentLayerId = nil
+    self.searchType = nil
 
     self.camera = nil
     self.player = nil
@@ -108,6 +118,7 @@ function editor:draw()
         self:drawLayerSeperator()
     end
     self.map:draw(2, 2)
+    self.map:drawEntities()
     self.player:draw()
     if self.currentLayerId == 3 then
         self:drawLayerSeperator()
@@ -135,8 +146,8 @@ function editor:draw()
 
     local x = 0
     local y = 0
-    for i, entry in ipairs(self.matchingTiles) do
-        if self.currentTileEntry and entry.key == self.currentTileEntry.key then
+    for i, entry in ipairs(self.searchResults) do
+        if self.selectedSearchResult and entry.key == self.selectedSearchResult.key then
             love.graphics.setColor(0, 1, 0, 1)
         else
             love.graphics.setColor(1, 1, 1, 1)
@@ -144,7 +155,7 @@ function editor:draw()
         love.graphics.rectangle("line", 10 + (x * (64 + 4)) - 1, 50 + (y * (64 + 4)) - 1, 64 + 2, 64 + 2)
 
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(entry.tileData.img, 10 + (x * (64 + 4)), 50 + (y * (64 + 4)), 0, 4, 4)
+        love.graphics.draw(entry.data.icon, 10 + (x * (64 + 4)), 50 + (y * (64 + 4)), 0, 4, 4)
         x = x + 1
         if x >= 2 then
             y = y + 1
@@ -158,20 +169,35 @@ function editor:mousepressed(x, y, btn)
         local worldX, worldY = self.camera:worldCoords(x, y)
         local gridX, gridY = self.map:worldToGridPos(worldX, worldY, self.currentLayerId)
 
-        if btn == 1 and self.currentTileEntry ~= nil then
-            self.map:setTileAt(self.currentTileEntry.tileData, gridX, gridY, self.currentLayerId)
-        elseif btn == 2 then
-            self.map:setTileAt(nil, gridX, gridY, self.currentLayerId)
+        if self.searchType == "tiles" then
+            if btn == 1 and self.selectedSearchResult ~= nil then
+                self.map:setTileAt(self.selectedSearchResult.data, gridX, gridY, self.currentLayerId)
+            elseif btn == 2 then
+                self.map:setTileAt(nil, gridX, gridY, self.currentLayerId)
+            end
+        elseif self.searchType == "entities" then
+            if btn == 1 and self.selectedSearchResult ~= nil then
+                local entityInstance = self.selectedSearchResult.data.entity(self.map:gridToWorldPos(gridX, gridY))
+                self.map:registerEntity(entityInstance)
+            elseif btn == 2 then
+                for _, entity in ipairs(self.map.entities) do
+                    if entity:intersectPoint(worldX, worldY) then
+                        self.map:unregisterEntity(entity)
+                        break
+                    end
+                end
+                -- self.map:setTileAt(nil, gridX, gridY, self.currentLayerId)
+            end
         end
     else
         self.isSearchSelected = true
         local xOffset = 0
         local yOffset = 0
-        for i, entry in ipairs(self.matchingTiles) do
+        for i, entry in ipairs(self.searchResults) do
             local drawX, drawY = 10 + (xOffset * (64 + 4)), 50 + (yOffset * (64 + 4))
 
             if x >= drawX and x < drawX + 64 and y >= drawY and y < drawY + 64 then
-                self.currentTileEntry = entry
+                self.selectedSearchResult = entry
                 self.isSearchSelected = false
                 break
             end
@@ -186,10 +212,10 @@ function editor:mousepressed(x, y, btn)
 end
 
 function editor:updateSearchResults()
-    self.matchingTiles = {}
-    for k, v in pairs(self.tileset.tiles) do
+    self.searchResults = {}
+    for k, v in pairs(self.tableToSearch) do
         if string.find(k, self.currentSearch) then
-            table.insert(self.matchingTiles, {key=k, tileData=v})
+            table.insert(self.searchResults, {key=k, data=v})
         end
     end
 end
@@ -216,6 +242,14 @@ function editor:keypressed(key)
         self.currentLayerId = self.currentLayerId + 1
     elseif key == "down" then
         self.currentLayerId = self.currentLayerId - 1
+    elseif key == "left" then
+        self.tableToSearch = self.tileset.tiles
+        self.searchType = "tiles"
+        self:updateSearchResults()
+    elseif key == "right" then
+        self.tableToSearch = self.tileset.entities
+        self.searchType = "entities"
+        self:updateSearchResults()
     end
 
     if key == "s" and not self.isSearchSelected and love.keyboard.isDown("lctrl") then
@@ -303,14 +337,22 @@ m.height = %d]]
         end
     end
 
-    local layoutsPattern = "m.layouts=%s"
+    local layoutsPattern = "m.layouts = %s"
     local layoutsString = string.format(layoutsPattern, _tableToString(decimalLayouts))
+
+    local entityKeyTable = {}
+    for _, entity in ipairs(map.entities) do
+        table.insert(entityKeyTable, {name=entity.name, x=entity.pos.x, y=entity.pos.y})
+    end
+
+    local entitiesPattern = "m.entities = %s"
+    local entitiesString = string.format(entitiesPattern, _tableToString(entityKeyTable))
     
     local footerString = "return m"
 
-    local filePattern = "%s\n%s\n%s\n%s"
+    local filePattern = "%s\n%s\n%s\n%s\n%s"
     local fileString = string.format(filePattern, headerString,
-    tileIndexString, layoutsString, footerString)
+    tileIndexString, layoutsString, entitiesString, footerString)
 
     print(fileString)
 

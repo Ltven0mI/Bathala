@@ -24,21 +24,31 @@ local assets = AssetBundle("assets", {
 
     "tiles/bathala_statue.png",
     "tiles/bathala_statue_rubble.png",
+
+    -- Icons --
+    icon_desecrator="desecrator/desecrator_temp.png",
+    icon_statue="tiles/bathala_statue.png",
+
+    -- Entities --
+    "entities/enemy.lua",
+    "entities/statue.lua",
 })
 
 t.tiles = {}
 
-local function createTile(name, img, isSolid, collider)
+local function createTile(name, img, isSolid, collider, icon)
     collider = collider or {}
     collider.x = collider.x or 0
     collider.y = collider.y or 0
     collider.w = collider.w or 16
     collider.h = collider.h or 16
+    icon = icon or img
     t.tiles[name] = {
         name=name,
         img=img,
         isSolid=isSolid,
-        collider=collider
+        collider=collider,
+        icon=icon
     }
 end
 
@@ -66,9 +76,26 @@ local function createTiles()
     createTile("bathala_statue_rubble", assets.tiles.bathala_statue_rubble, false)
 end
 
+t.entities = {}
+
+local function createEntity(name, entity, icon)
+    entity.name = name
+    t.entities[name] = {
+        name=name,
+        entity=entity,
+        icon=icon
+    }
+end
+
+local function createEntities()
+    createEntity("enemy", assets.entities.enemy, assets.icon_desecrator)
+    createEntity("statue", assets.entities.statue, assets.icon_statue)
+end
+
 function t.load()
     AssetBundle.load(assets)
     createTiles()
+    createEntities()
 end
 
 function t.unload()

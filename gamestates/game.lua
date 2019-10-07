@@ -37,6 +37,8 @@ function game:enter()
 
     local enemy = assets.entities.enemy(8*16, 12*16, 16, 16)
     self.map:registerEntity(enemy)
+
+    enemy:setTarget(8 * 16, 4 * 16)
 end
 
 function game:leave()
