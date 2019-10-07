@@ -4,6 +4,8 @@ local Signal = require "hump.signal"
 
 local Entity = require "classes.entity"
 
+local DesecratorProjectile = require "assets.entities.desecrator_projectile"
+
 local Enemy = Class{
     init = function(self, x, y)
         Entity.init(self, x, y, 16, 24)
@@ -11,13 +13,15 @@ local Enemy = Class{
         self.targetStatue = nil
         self.path = nil
         self.currentNode = nil
-        self.health = 1
+        self.health = 2
+        self.attackTimer = 0
     end,
     __includes = {
         Entity
     },
     speed = 32,
     stoppingDistance = 16,
+    timeBetweenAttacks = 3,
     img = love.graphics.newImage("assets/desecrator/desecrator_temp.png"),
     type = "enemy"
 }
@@ -201,6 +205,16 @@ function Enemy:nextNode()
 end
 
 function Enemy:update(dt)
+    if self.targetStatue and self.targetStatue.health > 0 then
+        self.attackTimer = self.attackTimer + dt
+        if self.attackTimer > self.timeBetweenAttacks then
+            self.attackTimer = 0
+            local dir = (self.targetStatue.pos - self.pos):normalized()
+            self:attack(dir)
+        end
+    end
+
+
     if self.currentNode then
         local nodeWorldX, nodeWorldY = self.map:gridToWorldPos(self.currentNode.x, self.currentNode.y)
 
@@ -225,19 +239,19 @@ function Enemy:draw()
     local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, halfEnemyW, self.h)
-    self:drawCollisionBox()
+    -- self:drawCollisionBox()
 
     if self.target then
-        love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.circle("line", self.target.x, self.target.y, 4)
-        love.graphics.line(self.pos.x, self.pos.y, self.target.x, self.target.y)
+        -- love.graphics.setColor(1, 0, 0, 1)
+        -- love.graphics.circle("line", self.target.x, self.target.y, 4)
+        -- love.graphics.line(self.pos.x, self.pos.y, self.target.x, self.target.y)
 
-        for _, node in ipairs(self.path) do
-            local halfTileSize = math.floor(self.map.tileSize / 2)
-            local drawX, drawY = (node.x-1) * self.map.tileSize, (node.y-1) * self.map.tileSize
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.rectangle("fill", drawX + halfTileSize - 2, drawY + halfTileSize - 2, 4, 4)
-        end
+        -- for _, node in ipairs(self.path) do
+        --     local halfTileSize = math.floor(self.map.tileSize / 2)
+        --     local drawX, drawY = (node.x-1) * self.map.tileSize, (node.y-1) * self.map.tileSize
+        --     love.graphics.setColor(1, 1, 1, 1)
+        --     love.graphics.rectangle("fill", drawX + halfTileSize - 2, drawY + halfTileSize - 2, 4, 4)
+        -- end
 
         -- for x=1, self.map.width do
         --     for y=1, self.map.height do
@@ -259,6 +273,21 @@ function Enemy:draw()
         --     end
         -- end
     end
+end
+
+function Enemy:intersectPoint(x, y)
+    local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
+    return (
+        x >= self.pos.x-halfEnemyW and x < self.pos.x + halfEnemyW and
+        y >= self.pos.y - self.h and y < self.pos.y + halfEnemyH
+    )
+end
+
+function Enemy:attack(dir)
+    local halfW = math.floor(self.w / 2)
+    local halfH = math.floor(self.h / 2)
+    local projectileInstance = DesecratorProjectile(self.pos.x + halfW, self.pos.y + halfH, dir)
+    self.map:registerEntity(projectileInstance)
 end
 
 return Enemy

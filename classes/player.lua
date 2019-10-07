@@ -1,7 +1,10 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
+local Signal = require "hump.signal"
 
 local Collidable = require "classes.collidable"
+
+local Projectile = require "assets.entities.curse_projectile"
 
 local player = Class{
     init = function(self, img, x, y, w, h)
@@ -9,8 +12,13 @@ local player = Class{
         self.moveProgress = 0
         self.img = img
         self.map = nil
+        self.isGameOver = false
+        self.heldItem = nil
+        Signal.register("gameover", function(...) self:onGameOver(...) end)
     end,
     speed = 64,
+    gameoverImg = love.graphics.newImage("assets/player/player_gameover.png"),
+    type="player",
 }
 player:include(Collidable)
 
@@ -19,6 +27,10 @@ function player:setMap(map)
 end
 
 function player:update(dt)
+    if self.isGameOver then
+        return
+    end
+
     local w = love.keyboard.isDown("w")
     local a = love.keyboard.isDown("a")
     local s = love.keyboard.isDown("s")
@@ -81,8 +93,44 @@ function player:draw()
     local halfImgH = math.floor(imgH / 2)
     local halfPlayerW = math.floor(self.w / 2)
     local halfPlayerH = math.floor(self.h / 2)
-    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, halfImgW-halfPlayerW, halfImgH-halfPlayerH)
+    local img = self.img
+    if self.isGameOver then
+        img = self.gameoverImg
+    end
+    love.graphics.draw(img, self.pos.x, self.pos.y, 0, 1, 1, halfImgW-halfPlayerW, halfImgH-halfPlayerH)
+    if self.heldItem then
+        self.heldItem:drawHeld(self.pos.x, self.pos.y)
+    end
     -- love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
+end
+
+function player:attack(dir)
+    if self.isGameOver then
+        return
+    end
+    
+    local halfPlayerW = math.floor(self.w / 2)
+    local halfPlayerH = math.floor(self.h / 2)
+    local pickupable = self.map:getEntityAt(self.pos.x + halfPlayerW, self.pos.y + halfPlayerH, "pickupable")
+    if pickupable then
+        if self.heldItem then
+            self.heldItem:putdown(self.pos.x, self.pos.y)
+        end
+        pickupable:pickup(self)
+    elseif self.heldItem then
+        self.heldItem:use(self.map, self.pos.x, self.pos.y, dir)
+        -- local projectileInstance = Projectile()
+        -- self.map:registerEntity(projectileInstance)
+    end
+    --     local pickupable = self.map:getEntityAt(self.pos.x + halfPlayerW, self.pos.y + halfPlayerH, "pickupable")
+    --     if pickupable then
+    --         pickupable:pickup(self)
+    --     end
+    -- end
+end
+
+function player:onGameOver()
+    self.isGameOver = true
 end
 
 return player

@@ -4,9 +4,14 @@ local editor_gamestate = require "gamestates.editor"
 
 local menu = {}
 
+local titleScreen = love.graphics.newImage("assets/titlescreen/title_screen.png")
+
 function menu:draw()
-    love.graphics.rectangle("line", 20, 20, 300, 30)
-    love.graphics.print("Start Game!", 30, 30)
+    love.graphics.draw(titleScreen, 0, 0, 0, 4, 4)
+end
+
+function menu:keypressed()
+    Gamestate.switch(game_gamestate)
 end
 
 function menu:mousepressed(x, y, btn)

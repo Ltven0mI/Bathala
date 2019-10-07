@@ -10,6 +10,8 @@ local assets = AssetBundle("assets", {
     "tiles/ground_cracked.png",
     "tiles/ground_smooth.png",
 
+    "tiles/pillar_base1.png",
+    "tiles/pillar_base2.png",
     "tiles/pillar_layer1.png",
     "tiles/pillar_layer2.png",
     "tiles/pillar_layer3.png",
@@ -29,11 +31,15 @@ local assets = AssetBundle("assets", {
     icon_desecrator="desecrator/desecrator_temp.png",
     icon_statue="tiles/bathala_statue.png",
     icon_spawner="tiles/spawner.png",
+    icon_vase="tiles/vase.png",
+    icon_player_spawn="tiles/player_spawn.png",
 
     -- Entities --
     "entities/enemy.lua",
     "entities/statue.lua",
     "entities/spawner.lua",
+    "entities/vase.lua",
+    "entities/player_spawn.lua",
 })
 
 t.tiles = {}
@@ -62,6 +68,8 @@ local function createTiles()
     createTile("ground_cracked", assets.tiles.ground_cracked, false)
     createTile("ground_smooth", assets.tiles.ground_smooth, false)
 
+    createTile("pillar_base1", assets.tiles.pillar_base1, true)
+    createTile("pillar_base2", assets.tiles.pillar_base2, true)
     createTile("pillar_layer1", assets.tiles.pillar_layer1, true)
     createTile("pillar_layer2", assets.tiles.pillar_layer2, true)
     createTile("pillar_layer3", assets.tiles.pillar_layer3, true)
@@ -93,6 +101,8 @@ local function createEntities()
     createEntity("enemy", assets.entities.enemy, assets.icon_desecrator)
     createEntity("statue", assets.entities.statue, assets.icon_statue)
     createEntity("spawner", assets.entities.spawner, assets.icon_spawner)
+    createEntity("vase", assets.entities.vase, assets.icon_vase)
+    createEntity("player_spawn", assets.entities.player_spawn, assets.icon_player_spawn)
 end
 
 function t.load()

@@ -1,14 +1,15 @@
+love.graphics.setDefaultFilter("nearest", "nearest")
+
 local Gamestate = require "hump.gamestate"
 local AssetBundle = require "AssetBundle"
 
-local gamestates = {
+Gamestates = {
     menu=require("gamestates.menu"),
-    game=require("gamestates.game")
+    game=require("gamestates.game"),
+    gameover=require("gamestates.gameover")
 }
 
 function love.load()
-    love.graphics.setDefaultFilter("nearest", "nearest")
-
     Gamestate.registerEvents()
-    Gamestate.switch(gamestates.menu)
+    Gamestate.switch(Gamestates.menu)
 end

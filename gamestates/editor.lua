@@ -40,6 +40,13 @@ function editor:enter()
     self.player = Player(assets.player.player_temp, 0, 0, 10, 16)
     self.player:setMap(self.map)
 
+    local playerSpawn = self.map:findEntityOfType("player_spawn")
+    if playerSpawn then
+        self.player.pos.x = playerSpawn.pos.x
+        self.player.pos.y = playerSpawn.pos.y
+    end
+
+
     self.isSearchSelected = false
     self.currentSearch = ""
     self.searchResults = nil
