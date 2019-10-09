@@ -2,6 +2,8 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
+local Peachy = require "lib.peachy"
+
 local Entity = require "classes.entity"
 
 local DesecratorProjectile = require "assets.entities.desecrator_projectile"
@@ -15,6 +17,16 @@ local Enemy = Class{
         self.currentNode = nil
         self.health = 2
         self.attackTimer = 0
+
+        self.velocity = Vector(0, 0)
+        self.lastVelocity = Vector(0, 0)
+
+        self.targetDir = Vector(0, 0)
+
+        self.lookDir = Vector(0, 0)
+
+        self.animation = Peachy.new("assets/desecrator/desecrator.json",
+            love.graphics.newImage("assets/desecrator/desecrator.png"), "walk_up")
     end,
     __includes = {
         Entity
@@ -22,7 +34,6 @@ local Enemy = Class{
     speed = 32,
     stoppingDistance = 16,
     timeBetweenAttacks = 3,
-    img = love.graphics.newImage("assets/desecrator/desecrator_temp.png"),
     type = "enemy"
 }
 
@@ -205,15 +216,9 @@ function Enemy:nextNode()
 end
 
 function Enemy:update(dt)
-    if self.targetStatue and self.targetStatue.health > 0 then
-        self.attackTimer = self.attackTimer + dt
-        if self.attackTimer > self.timeBetweenAttacks then
-            self.attackTimer = 0
-            local dir = (self.targetStatue.pos - self.pos):normalized()
-            self:attack(dir)
-        end
-    end
+    self.animation:update(dt)
 
+    self.lastVelocity = self.velocity
 
     if self.currentNode then
         local nodeWorldX, nodeWorldY = self.map:gridToWorldPos(self.currentNode.x, self.currentNode.y)
@@ -224,21 +229,64 @@ function Enemy:update(dt)
         local targetY = nodeWorldY + halfTileSize-- - self.h
 
         local delta = Vector(targetX, targetY) - self.pos
-        self.pos = self.pos + delta:normalized() * math.min(delta:len(), self.speed * dt)
         if delta:len() <= 0 then
             self:nextNode()
+        else
+            self.velocity = delta:normalized() * math.min(delta:len(), self.speed * dt)
+            self.pos = self.pos + self.velocity
+        end
+    else
+        self.velocity = Vector(0, 0)
+    end
+
+
+    if self.targetStatue and self.targetStatue.health > 0 then
+        self.targetDir = ((self.targetStatue.pos + self.targetStatue.baseOffset) - self.pos):normalized()
+        self.attackTimer = self.attackTimer + dt
+        if self.attackTimer > self.timeBetweenAttacks then
+            self.attackTimer = 0
+            self:attack(self.targetDir)
         end
     end
 
-    if love.keyboard.isDown("space") then
-        self:start()
+
+    local isMoving = self.velocity:len() > 0
+    local wasMoving = self.lastVelocity:len() > 0
+
+    if isMoving then
+        self.lookDir.x = self.velocity.x
+        self.lookDir.y = self.velocity.y
+    end
+
+    if isMoving and not wasMoving then
+        self.animation:play()
+    elseif wasMoving and not isMoving then
+        self.lookDir.x = self.targetDir.x
+        self.lookDir.y = self.targetDir.y
+        self.animation:stop()
+    end
+
+    local absDirX = math.abs(self.lookDir.x)
+    local absDirY = math.abs(self.lookDir.y)
+    if absDirX > absDirY then
+        if self.lookDir.x < 0 then
+            self.animation:setTag("walk_left")
+        elseif self.lookDir.x > 0 then
+            self.animation:setTag("walk_right")
+        end
+    else
+        if self.lookDir.y < 0 then
+            self.animation:setTag("walk_up")
+        elseif self.lookDir.y > 0 then
+            self.animation:setTag("walk_down")
+        end
     end
 end
 
 function Enemy:draw()
     local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, halfEnemyW, self.h)
+    self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfEnemyW, self.h)
     -- self:drawCollisionBox()
 
     if self.target then
