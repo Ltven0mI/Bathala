@@ -67,10 +67,13 @@ function Throwable:drawHeld(x, y)
     love.graphics.draw(self.img, x, y)
 end
 
+function Throwable:canPickUp()
+    return not self.isThrown
+end
+
 function Throwable:use(map, x, y, dir)
-    self:putdown(x, y)
+    self:putDown(x, y, map)
     self.isThrown = true
-    self.canPickUp = false
     self.velocity = dir * self.throwSpeed
 end
 

@@ -11,8 +11,6 @@ local Pickupable = Class{
     __includes = {
         Entity
     },
-
-    canPickUp = true,
     type = "pickupable",
 }
 
@@ -24,25 +22,26 @@ function Pickupable:drawHeld()
     self:drawCollisionBox()
 end
 
+function Pickupable:canPickUp()
+    return true
+end
+
+function Pickupable:use(map, x, y, dir)
+
+end
+
 function Pickupable:pickup(player)
-    if not self.canPickUp then
-        return
-    end
     self.map:unregisterEntity(self)
     self.player = player
     self.player.heldItem = self
 end
 
-function Pickupable:putdown(x, y)
+function Pickupable:putDown(x, y, map)
     self.pos.x = x
     self.pos.y = y
-    self.player.map:registerEntity(self)
+    map:registerEntity(self)
     self.player.heldItem = nil
     self.player = nil
-end
-
-function Pickupable:use(map, x, y, dir)
-
 end
 
 return Pickupable

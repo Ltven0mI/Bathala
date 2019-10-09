@@ -22,6 +22,7 @@ local player = Class{
         self.map = nil
         self.isGameOver = false
         self.heldItem = nil
+        self.currentUseItem = nil
 
         Signal.register("gameover", function(...) self:onGameOver(...) end)
 
@@ -34,6 +35,8 @@ local player = Class{
 
     healthBarImg = love.graphics.newImage("assets/ui/health_bar.png"),
     healthBarFillImg = love.graphics.newImage("assets/ui/health_bar_fill.png"),
+    useItemBgImg = love.graphics.newImage("assets/ui/useitem_bg.png"),
+    useItemTextImg = love.graphics.newImage("assets/ui/useitem_text.png"),
 
     speed = 64,
     maxHealth = 10,
@@ -102,10 +105,19 @@ function player:draw()
     local halfImgH = math.floor(imgH / 2)
     local halfPlayerW = math.floor(self.w / 2)
     local halfPlayerH = math.floor(self.h / 2)
+
+    -- if self.velocity.y < 0 then
+    --     if self.heldItem then
+    --         self.heldItem:drawHeld(self.pos.x, self.pos.y)
+    --     end
+    -- end
     self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfImgW-halfPlayerW, halfImgH-halfPlayerH)
-    if self.heldItem then
-        self.heldItem:drawHeld(self.pos.x, self.pos.y)
-    end
+    -- if self.velocity.y >= 0 then
+        if self.heldItem then
+            self.heldItem:drawHeld(self.pos.x, self.pos.y - 10)
+        end
+    -- end
+    
     -- love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
 end
 
@@ -132,11 +144,26 @@ function player:drawUI(screenW, screenH)
     love.graphics.setCanvas(lastCanvas)
     love.graphics.pop()
 
-    local drawX, drawY = halfScreenW - halfBarW, screenH - barH
+    local drawX, drawY = halfScreenW - halfBarW, screenH - barH - 1
 
     love.graphics.setBlendMode("alpha", "premultiplied")
     love.graphics.draw(self.healthBarCanvas, drawX, drawY)
     love.graphics.setBlendMode("alpha")
+
+    if self.heldItem then
+        love.graphics.setColor(0.7, 0.7, 0.7, 1)
+    end
+
+    local useItemW, useItemH = self.useItemBgImg:getDimensions()
+    local drawX, drawY = drawX + barW + 1, screenH - useItemH - 2
+    love.graphics.draw(self.useItemBgImg, drawX, drawY)
+    if self.currentUseItem then
+        love.graphics.draw(self.currentUseItem.icon, drawX, drawY)
+        if not self.heldItem then
+            love.graphics.draw(self.useItemTextImg, drawX, drawY)
+        end
+    end
+
 end
 
 function player:mousepressed(btn, dir)
@@ -148,15 +175,17 @@ function player:mousepressed(btn, dir)
         if btn == 1 then
             self.heldItem:use(self.map, self.pos.x, self.pos.y, dir)
         elseif btn == 2 then
-            self.heldItem:putdown(self.pos.x, self.pos.y)
+            self:putDownHeldItem()
         end
     else
         if btn == 1 then
             local halfPlayerW = math.floor(self.w / 2)
             local halfPlayerH = math.floor(self.h / 2)
             local pickupable = self.map:getEntityAt(self.pos.x + halfPlayerW, self.pos.y + halfPlayerH, "pickupable")
-            if pickupable then
-                pickupable:pickup(self)
+            if pickupable and pickupable:canPickUp() then
+                self:pickUpItem(pickupable)
+            elseif self.currentUseItem then
+                self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
             end
         end
     end
@@ -193,6 +222,14 @@ function player:doCollisionCheck()
             end
         end
     end
+end
+
+function player:pickUpItem(item)
+    item:pickup(self)
+end
+
+function player:putDownHeldItem()
+    self.heldItem:putDown(self.pos.x, self.pos.y, self.map)
 end
 
 return player
