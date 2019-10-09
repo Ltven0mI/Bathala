@@ -1,4 +1,5 @@
 local AssetBundle = require "AssetBundle"
+local Entities = require "core.entities"
 
 local t = {}
 
@@ -32,14 +33,7 @@ local assets = AssetBundle("assets", {
     icon_statue="tiles/bathala_statue.png",
     icon_spawner="tiles/spawner.png",
     icon_vase="tiles/vase.png",
-    icon_player_spawn="tiles/player_spawn.png",
-
-    -- Entities --
-    "entities/enemy.lua",
-    "entities/statue.lua",
-    "entities/spawner.lua",
-    "entities/vase.lua",
-    "entities/player_spawn.lua",
+    icon_player_spawn="tiles/player_spawn.png"
 })
 
 t.tiles = {}
@@ -88,21 +82,20 @@ end
 
 t.entities = {}
 
-local function createEntity(name, entity, icon)
-    entity.name = name
-    t.entities[name] = {
-        name=name,
+local function createEntity(entity, icon)
+    t.entities[entity.__name] = {
+        name=entity.__name,
         entity=entity,
         icon=icon
     }
 end
 
 local function createEntities()
-    createEntity("enemy", assets.entities.enemy, assets.icon_desecrator)
-    createEntity("statue", assets.entities.statue, assets.icon_statue)
-    createEntity("spawner", assets.entities.spawner, assets.icon_spawner)
-    createEntity("vase", assets.entities.vase, assets.icon_vase)
-    createEntity("player_spawn", assets.entities.player_spawn, assets.icon_player_spawn)
+    createEntity(Entities.get("enemy"), assets.icon_desecrator)
+    createEntity(Entities.get("statue"), assets.icon_statue)
+    createEntity(Entities.get("spawner"), assets.icon_spawner)
+    createEntity(Entities.get("vase"), assets.icon_vase)
+    createEntity(Entities.get("player_spawn"), assets.icon_player_spawn)
 end
 
 function t.load()

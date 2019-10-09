@@ -8,6 +8,8 @@ local AssetBundle = require "AssetBundle"
 local Player = require "classes.player"
 local Map = require "classes.map"
 
+local Entities = require "core.entities"
+
 local game = {}
 
 game.camera = nil
@@ -19,14 +21,7 @@ local assets = AssetBundle("assets", {
     maps={
         level1="mapExport.lua"
     },
-    entities={
-        "boulder.lua",
-        "vase.lua",
-        "curse_powerup.lua",
-        "sinigang_powerup.lua"
-    },
     "player/player_temp.png",
-    "entities/enemy.lua",
     "tilesets/default_tileset.lua"
 })
 
@@ -60,8 +55,8 @@ function game:enter()
     self.enemyCount = 0
 
     self.luckydrops = {
-        assets.entities.curse_powerup,
-        assets.entities.sinigang_powerup
+        Entities.get("curse_powerup"),
+        Entities.get("sinigang_powerup")
     }
 
     self:nextWave()
@@ -173,7 +168,7 @@ function game:spawnEnemies(count)
     end
 
     for i=1, count do
-        local enemyInstance = assets.entities.enemy(spawner.pos.x, spawner.pos.y)
+        local enemyInstance = Entities.new("enemy", spawner.pos.x, spawner.pos.y)
         self.map:registerEntity(enemyInstance)
         enemyInstance:start()
         self.enemyCount = self.enemyCount + 1
@@ -191,7 +186,7 @@ function game:spawnRandomVase(count)
             local tileData = self.map:getTileAt(x, y, 2)
             if tileData == nil or not tileData.isSolid then
                 local worldX, worldY = self.map:gridToWorldPos(x, y)
-                local instance = assets.entities.vase(worldX, worldY)
+                local instance = Entities.new("vase", worldX, worldY)
                 self.map:registerEntity(instance)
                 break
             end
@@ -210,7 +205,7 @@ function game:spawnRandomBoulders(count)
             local tileData = self.map:getTileAt(x, y, 2)
             if tileData == nil or not tileData.isSolid then
                 local worldX, worldY = self.map:gridToWorldPos(x, y)
-                local instance = assets.entities.boulder(worldX, worldY)
+                local instance = Entities.new("boulder", worldX, worldY)
                 self.map:registerEntity(instance)
                 break
             end
