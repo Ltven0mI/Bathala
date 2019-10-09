@@ -13,6 +13,7 @@ local Entities = require "core.entities"
 local game = {}
 
 game.camera = nil
+game.uiCamera = nil
 game.player = nil
 game.tileset = nil
 game.map = nil
@@ -30,6 +31,10 @@ function game:enter()
 
     self.camera = Camera(0, 0)
     self.camera:zoomTo(4)
+
+    local screenW, screenH = love.graphics.getDimensions()
+    local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
+    self.uiCamera = Camera(halfW / 4, halfH / 4, 4)
 
     self.tileset = assets.tilesets.default_tileset
     self.tileset.load()
@@ -66,6 +71,7 @@ function game:leave()
     AssetBundle.unload(assets)
 
     self.camera = nil
+    self.uiCamera = nil
     self.player = nil
 
     self.tileset.unload()
@@ -119,6 +125,14 @@ function game:draw()
     self.map:draw(3)
 
     self.camera:detach()
+
+
+    self.uiCamera:attach()
+
+    local screenW, screenH = self.uiCamera:worldCoords(love.graphics.getDimensions())
+    self.player:drawUI(screenW, screenH)
+
+    self.uiCamera:detach()
 
     -- local screenW, screenH = love.graphics.getDimensions()
     -- love.graphics.line(0, math.floor(screenH / 2), screenW, math.floor(screenH / 2))

@@ -11,6 +11,9 @@ local Projectile = require "assets.entities.curse_projectile"
 local player = Class{
     init = function(self, img, x, y, w, h)
         Collidable.init(self, x, y, w, h)
+
+        self.health = 10
+
         self.moveProgress = 0
 
         self.velocity = Vector(0, 0)
@@ -19,12 +22,21 @@ local player = Class{
         self.map = nil
         self.isGameOver = false
         self.heldItem = nil
+
         Signal.register("gameover", function(...) self:onGameOver(...) end)
+
         self.animation = Peachy.new("assets/player/player.json", love.graphics.newImage("assets/player/player.png"), "walk_down")
         self.animation:onLoop(function() self:animation_loop() end )
         self.animation:stop()
+
+        self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
+
+    healthBarImg = love.graphics.newImage("assets/ui/health_bar.png"),
+    healthBarFillImg = love.graphics.newImage("assets/ui/health_bar_fill.png"),
+
     speed = 64,
+    maxHealth = 10,
     type="player",
 }
 player:include(Collidable)
@@ -95,6 +107,36 @@ function player:draw()
         self.heldItem:drawHeld(self.pos.x, self.pos.y)
     end
     -- love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
+end
+
+function player:drawUI(screenW, screenH)
+    love.graphics.setColor(1, 1, 1, 1)
+
+    local halfScreenW = math.floor(screenW / 2)
+    local barW, barH = self.healthBarImg:getDimensions()
+    local halfBarW = math.floor(barW / 2)
+
+    love.graphics.push("all")
+    love.graphics.origin()
+
+    local lastCanvas = love.graphics.getCanvas()
+    love.graphics.setCanvas(self.healthBarCanvas)
+    love.graphics.clear()
+
+    love.graphics.draw(self.healthBarImg, 0, 0)
+
+    love.graphics.setScissor(13, 0, 53 * (self.health / self.maxHealth), barH)
+    love.graphics.draw(self.healthBarFillImg, 0, 0)
+    love.graphics.setScissor()
+
+    love.graphics.setCanvas(lastCanvas)
+    love.graphics.pop()
+
+    local drawX, drawY = halfScreenW - halfBarW, screenH - barH
+
+    love.graphics.setBlendMode("alpha", "premultiplied")
+    love.graphics.draw(self.healthBarCanvas, drawX, drawY)
+    love.graphics.setBlendMode("alpha")
 end
 
 function player:mousepressed(btn, dir)
