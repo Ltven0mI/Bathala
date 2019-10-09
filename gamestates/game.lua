@@ -126,11 +126,9 @@ function game:draw()
 end
 
 function game:mousepressed(x, y, btn)
-    if btn == 1 then
-        local worldX, worldY = self.camera:worldCoords(x, y)
-        local dir = (Vector(worldX, worldY) - self.player.pos):normalized()
-        self.player:attack(dir)
-    end
+    local worldX, worldY = self.camera:worldCoords(x, y)
+    local dir = (Vector(worldX, worldY) - self.player.pos):normalized()
+    self.player:mousepressed(btn, dir)
 end
 
 function game:vase_smashed(x, y)

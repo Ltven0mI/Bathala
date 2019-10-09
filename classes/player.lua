@@ -69,24 +69,6 @@ function player:update(dt)
 end
 
 function player:draw()
-    -- local minX = math.floor(self.pos.x)
-    -- local maxX = math.floor(self.pos.x + self.w)
-    -- local minY = math.floor(self.pos.y)
-    -- local maxY = math.floor(self.pos.y + self.h)
-
-    -- gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
-    -- gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
-
-    -- for x=gridMinX, gridMaxX do
-    --     for y=gridMinY, gridMaxY do
-    --         local tileData = self.map:getTileAt(x, y)
-    --         if tileData and tileData.isSolid then
-    --             local worldX, worldY = self.map:gridToWorldPos(x, y)
-    --             love.graphics.rectangle("line", worldX + tileData.collider.x, worldY + tileData.collider.y, tileData.collider.w, tileData.collider.h)
-    --         end
-    --     end
-    -- end
-
     love.graphics.setColor(1, 1, 1, 1)
     local imgW, imgH = self.img:getDimensions()
     local halfImgW = math.floor(imgW / 2)
@@ -104,29 +86,27 @@ function player:draw()
     -- love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
 end
 
-function player:attack(dir)
+function player:mousepressed(btn, dir)
     if self.isGameOver then
         return
     end
-    
-    local halfPlayerW = math.floor(self.w / 2)
-    local halfPlayerH = math.floor(self.h / 2)
-    local pickupable = self.map:getEntityAt(self.pos.x + halfPlayerW, self.pos.y + halfPlayerH, "pickupable")
-    if pickupable then
-        if self.heldItem then
+
+    if self.heldItem then
+        if btn == 1 then
+            self.heldItem:use(self.map, self.pos.x, self.pos.y, dir)
+        elseif btn == 2 then
             self.heldItem:putdown(self.pos.x, self.pos.y)
         end
-        pickupable:pickup(self)
-    elseif self.heldItem then
-        self.heldItem:use(self.map, self.pos.x, self.pos.y, dir)
-        -- local projectileInstance = Projectile()
-        -- self.map:registerEntity(projectileInstance)
+    else
+        if btn == 1 then
+            local halfPlayerW = math.floor(self.w / 2)
+            local halfPlayerH = math.floor(self.h / 2)
+            local pickupable = self.map:getEntityAt(self.pos.x + halfPlayerW, self.pos.y + halfPlayerH, "pickupable")
+            if pickupable then
+                pickupable:pickup(self)
+            end
+        end
     end
-    --     local pickupable = self.map:getEntityAt(self.pos.x + halfPlayerW, self.pos.y + halfPlayerH, "pickupable")
-    --     if pickupable then
-    --         pickupable:pickup(self)
-    --     end
-    -- end
 end
 
 function player:onGameOver()
