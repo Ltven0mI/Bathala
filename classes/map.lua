@@ -1,5 +1,8 @@
 local Class = require "hump.class"
 local AssetBundle = require "AssetBundle"
+local Vector = require "hump.vector"
+
+local ColliderBox = require "classes.collider_box"
 
 local Map = Class{
     init = function(self, mapData, tileset)
@@ -12,11 +15,10 @@ local Map = Class{
         self.entities = {}
         self.hasStarted = false
     end,
+    collisionLayer=2,
     tileSize=16
 }
 
--- TODO: Change entity management to use a non shifting table
--- and keep track of the index it's inserted at
 function Map:registerEntity(entity)
     table.insert(self.entities, entity)
     entity:onRegistered(self)
@@ -44,12 +46,57 @@ end
 function Map:getEntityAt(x, y, typeStr)
     for _, entity in ipairs(self.entities) do
         if typeStr == nil or entity.type == typeStr then
-            if entity:intersectPoint(x, y) then
+            if entity.collider:intersectPoint(x, y) then
                 return entity
             end
         end
     end
     return nil
+end
+
+local function _hasEntityGotTag(entity, tagStr)
+    for _, tag in ipairs(tagStr) do
+        if entity.tag == tag then
+            return true
+        end
+    end
+end
+
+function Map:getEntitiesInCollider(collider, tagStr)
+    if tagStr and type(tagStr) ~= "table" then
+        tagStr = {tagStr}
+    end
+    local results = {}
+    for _, entity in ipairs(self.entities) do
+        if entity.collider and tagStr == nil or _hasEntityGotTag(entity, tagStr) then
+            if collider:intersect(entity.collider) then
+                table.insert(results, entity)
+            end
+        end
+    end
+    return #results > 0 and results or nil
+end
+
+function Map:getTilesInCollider(collider)
+    local results = {}
+    local worldX, worldY = collider:getWorldCoords()
+    local minGridX, minGridY = self:worldToGridPos(worldX, worldY)
+    local maxGridX, maxGridY = self:worldToGridPos(worldX + collider.w, worldY + collider.h)
+
+    -- print(minGridX, minGridY, maxGridX, maxGridY)
+
+    for x=minGridX, maxGridX do
+        for y=minGridY, maxGridY do
+            local tileData = self:getTileAt(x, y, self.collisionLayer)
+            if tileData and tileData.isSolid and tileData.collider and
+                collider:intersect(ColliderBox({pos=Vector(self:gridToWorldPos(x, y))},
+                    tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)) then
+                    table.insert(results, tileData)
+            end
+        end
+    end
+
+    return #results > 0 and results or nil
 end
 
 function Map:worldToGridPos(x, y, layerId)

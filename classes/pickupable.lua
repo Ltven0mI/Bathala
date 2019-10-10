@@ -15,11 +15,14 @@ local Pickupable = Class{
 }
 
 function Pickupable:draw()
-    self:drawCollisionBox()
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), self.h)
+    self.collider:drawWireframe()
 end
 
-function Pickupable:drawHeld()
-    self:drawCollisionBox()
+function Pickupable:drawHeld(x, y)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(self.img, x, y, 0, 1, 1, math.floor(self.w / 2), self.h)
 end
 
 function Pickupable:canPickUp()

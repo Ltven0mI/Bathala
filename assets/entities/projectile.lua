@@ -15,6 +15,7 @@ local Projectile = Class{
     damage = 1,
     speed = 64,
     timeToLive = 3,
+    tagMask = nil,
     img = love.graphics.newImage("assets/desecrator/desecrator_projectile.png"),
 
     type = "projectile",
@@ -28,17 +29,14 @@ function Projectile:update(dt)
 
     self.pos = self.pos + self.dir * self.speed * dt
     if self.map then
-        local hitEntity = self.map:getEntityAt(self.pos.x, self.pos.y, "enemy")
-        if hitEntity then
-            hitEntity:takeDamage(self.damage)
+        local hitEntities = self.map:getEntitiesInCollider(self.collider, self.tagMask)
+        if hitEntities and hitEntities[1].takeDamage then
+            hitEntities[1]:takeDamage(self.damage)
             self:destroy()
         else
-            local gridX, gridY = self.map:worldToGridPos(self.pos:unpack())
-            local tileData = self.map:getTileAt(gridX, gridY, 2)
-            if tileData then
-                if tileData.isSolid then
-                    self:destroy()
-                end
+            local hitTiles = self.map:getTilesInCollider(self.collider)
+            if hitTiles then
+                self:destroy()
             end
         end
     end

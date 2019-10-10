@@ -5,12 +5,14 @@ local Signal = require "hump.signal"
 local Peachy = require "lib.peachy"
 
 local Entity = require "classes.entity"
+local ColliderBox = require "classes.collider_box"
 
 local DesecratorProjectile = require "assets.entities.desecrator_projectile"
 
 local Enemy = Class{
     init = function(self, x, y)
         Entity.init(self, x, y, 16, 24)
+        self.collider = ColliderBox(self, -8, -24, 16, 24)
         self.target = nil
         self.targetStatue = nil
         self.path = nil
@@ -34,7 +36,7 @@ local Enemy = Class{
     speed = 32,
     stoppingDistance = 16,
     timeBetweenAttacks = 3,
-    type = "enemy"
+    tag = "enemy"
 }
 
 local function _newPriorityQueue()
@@ -181,28 +183,6 @@ function Enemy:updatePath()
     -- for k, v in ipairs(self.path) do
     --     print(k, v.x, v.y)
     -- end
-
-
-    -- frontier = PriorityQueue()
-    -- frontier.put(start, 0)
-    -- came_from = {}
-    -- cost_so_far = {}
-    -- came_from[start] = None
-    -- cost_so_far[start] = 0
-
-    -- while not frontier.empty():
-    -- current = frontier.get()
-
-    -- if current == goal:
-    --     break
-    
-    -- for next in graph.neighbors(current):
-    --     new_cost = cost_so_far[current] + graph.cost(current, next)
-    --     if next not in cost_so_far or new_cost < cost_so_far[next]:
-    --         cost_so_far[next] = new_cost
-    --         priority = new_cost + heuristic(goal, next)
-    --         frontier.put(next, priority)
-    --         came_from[next] = current
 end
 
 function Enemy:setTarget(x, y)
@@ -287,7 +267,8 @@ function Enemy:draw()
     local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
     love.graphics.setColor(1, 1, 1, 1)
     self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfEnemyW, self.h)
-    -- self:drawCollisionBox()
+    -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
+    -- self.collider:drawWireframe()
 
     if self.target then
         -- love.graphics.setColor(1, 0, 0, 1)
@@ -323,18 +304,18 @@ function Enemy:draw()
     end
 end
 
-function Enemy:intersectPoint(x, y)
-    local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
-    return (
-        x >= self.pos.x-halfEnemyW and x < self.pos.x + halfEnemyW and
-        y >= self.pos.y - self.h and y < self.pos.y + halfEnemyH
-    )
-end
+-- function Enemy:intersectPoint(x, y)
+--     local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
+--     return (
+--         x >= self.pos.x-halfEnemyW and x < self.pos.x + halfEnemyW and
+--         y >= self.pos.y - self.h and y < self.pos.y + halfEnemyH
+--     )
+-- end
 
 function Enemy:attack(dir)
     local halfW = math.floor(self.w / 2)
     local halfH = math.floor(self.h / 2)
-    local projectileInstance = DesecratorProjectile(self.pos.x + halfW, self.pos.y + halfH, dir)
+    local projectileInstance = DesecratorProjectile(self.pos.x, self.pos.y - halfH, dir)
     self.map:registerEntity(projectileInstance)
 end
 

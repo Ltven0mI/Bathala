@@ -139,6 +139,12 @@ function game:draw()
     -- love.graphics.line(math.floor(screenW / 2), 0, math.floor(screenW / 2), screenH)
 end
 
+-- function game:keypressed(key)
+--     if key == "f2" then
+--         love.graphics.captureScreenshot("screenshot.png")
+--     end
+-- end
+
 function game:mousepressed(x, y, btn)
     local worldX, worldY = self.camera:worldCoords(x, y)
     local dir = (Vector(worldX, worldY) - self.player.pos):normalized()
@@ -146,7 +152,7 @@ function game:mousepressed(x, y, btn)
 end
 
 function game:vase_smashed(x, y)
-    local rand = love.math.random(1, 4)
+    local rand = love.math.random(1, 3)
     if rand == 1 then
         local drop = self.luckydrops[love.math.random(1, #self.luckydrops)]
         local dropInstance = drop(x, y)

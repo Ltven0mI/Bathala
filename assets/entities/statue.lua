@@ -17,6 +17,7 @@ local Statue = Class{
     rubbleImg = love.graphics.newImage("assets/tiles/bathala_statue_rubble.png"),
 
     type = "statue",
+    tag = "statue",
     baseOffset = Vector(16, 32),
 }
 
@@ -44,6 +45,7 @@ function Statue:draw()
     end
 
     love.graphics.draw(img, self.pos.x, self.pos.y)
+    self.collider:drawWireframe()
     
     local barX = self.pos.x
     local barY = self.pos.y-3

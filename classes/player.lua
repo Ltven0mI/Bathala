@@ -4,13 +4,19 @@ local Signal = require "hump.signal"
 
 local Peachy = require "lib.peachy"
 
-local Collidable = require "classes.collidable"
+-- local Collidable = require "classes.collidable"
+local ColliderBox = require "classes.collider_box"
 
 local Projectile = require "assets.entities.curse_projectile"
 
 local player = Class{
-    init = function(self, img, x, y, w, h)
-        Collidable.init(self, x, y, w, h)
+    init = function(self, img, x, y)
+        self.pos = Vector(x, y)
+        self.w = 10
+        self.h = 16
+
+        self.collider = ColliderBox(self, -5, -3, 10, 4)
+        -- error("Fix weird bug when colliding with top of tile")
 
         self.health = 10
 
@@ -106,19 +112,12 @@ function player:draw()
     local halfPlayerW = math.floor(self.w / 2)
     local halfPlayerH = math.floor(self.h / 2)
 
-    -- if self.velocity.y < 0 then
-    --     if self.heldItem then
-    --         self.heldItem:drawHeld(self.pos.x, self.pos.y)
-    --     end
-    -- end
-    self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfImgW-halfPlayerW, halfImgH-halfPlayerH)
-    -- if self.velocity.y >= 0 then
-        if self.heldItem then
-            self.heldItem:drawHeld(self.pos.x, self.pos.y - 10)
-        end
-    -- end
-    
-    -- love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
+    self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfImgW, self.h)
+    -- self.collider:drawWireframe()
+    -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
+    if self.heldItem then
+        self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h)
+    end
 end
 
 function player:drawUI(screenW, screenH)
@@ -181,8 +180,17 @@ function player:mousepressed(btn, dir)
         if btn == 1 then
             local halfPlayerW = math.floor(self.w / 2)
             local halfPlayerH = math.floor(self.h / 2)
-            local pickupable = self.map:getEntityAt(self.pos.x + halfPlayerW, self.pos.y + halfPlayerH, "pickupable")
-            if pickupable and pickupable:canPickUp() then
+            local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
+            local pickupable = nil
+            if pickupables then
+                for _, v in ipairs(pickupables) do
+                    if v.canPickUp and v:canPickUp() then
+                        pickupable = v
+                        break
+                    end
+                end
+            end
+            if pickupable then
                 self:pickUpItem(pickupable)
             elseif self.currentUseItem then
                 self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
@@ -204,10 +212,11 @@ function player:animation_loop()
 end
 
 function player:doCollisionCheck()
-    local minX = math.floor(self.pos.x)
-    local maxX = math.floor(self.pos.x + self.w)
-    local minY = math.floor(self.pos.y)
-    local maxY = math.floor(self.pos.y + self.h)
+    local posX, posY = self.collider:getWorldCoords()
+    local minX = math.floor(posX)
+    local maxX = math.floor(posX + self.w)
+    local minY = math.floor(posY)
+    local maxY = math.floor(posY + self.h)
 
     local gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
     local gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
@@ -217,8 +226,9 @@ function player:doCollisionCheck()
             local tileData = self.map:getTileAt(x, y, 2)
             if tileData and tileData.isSolid then
                 local worldX, worldY = self.map:gridToWorldPos(x, y)
-                local collidable = Collidable(worldX + tileData.collider.x, worldY + tileData.collider.y, tileData.collider.w, tileData.collider.h)
-                self:checkForCollision(collidable, self.velocity.x, self.velocity.y)
+                -- TODO: Need to add colliders to tiles.
+                local collider = ColliderBox({pos=Vector(worldX, worldY)}, tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)
+                self.collider:checkAndDispatchCollision(collider, self.velocity.x, self.velocity.y)
             end
         end
     end

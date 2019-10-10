@@ -23,7 +23,7 @@ local Boulder = Class{
     imgBroken = love.graphics.newImage("assets/tiles/boulder_broken.png"),
     smashSfx = Sfx("assets/sound/vase_smash.mp3"),
 
-    type = "pickupable",
+    tag = "pickupable",
 }
 
 return Boulder

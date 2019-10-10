@@ -1,15 +1,17 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
-local Collidable = require "classes.collidable"
+local ColliderBox = require "classes.collider_box"
 
 local Entity = Class{
     init = function(self, x, y, w, h)
-        Collidable.init(self, x, y, w, h)
+        self.collider = ColliderBox(self, 0, 0, w, h)
+        self.pos = Vector(x, y)
+        self.w = w
+        self.h = h
         self.map = nil
     end,
     __includes = {
-        Collidable
     },
 }
 
@@ -19,11 +21,6 @@ end
 
 function Entity:update(dt)
 
-end
-
-function Entity:drawCollisionBox()
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
 end
 
 function Entity:draw()

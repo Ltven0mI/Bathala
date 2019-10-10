@@ -12,7 +12,7 @@ local UseItem = Class{
         Pickupable
     },
     icon=nil,
-    type = "pickupable",
+    tag = "pickupable",
 }
 
 function UseItem:pickup(player)

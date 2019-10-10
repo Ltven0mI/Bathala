@@ -13,6 +13,7 @@ local CurseProjectile = Class{
     damage = 1,
     speed = 64,
     timeToLive = 3,
+    tagMask = "enemy",
     img = love.graphics.newImage("assets/powerups/curse_projectile.png"),
 
     type = "projectile",

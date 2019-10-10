@@ -2,12 +2,15 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
+local ColliderBox = require "classes.collider_box"
+
 local Pickupable = require "classes.pickupable"
 local Sfx = require "classes.sfx"
 
 local Throwable = Class{
     init = function(self, x, y, w, h)
         Pickupable.init(self, x, y, w, h)
+        self.collider = ColliderBox(self, -math.floor(w/2), -h, w, h)
         self.isThrown = false
         self.isSmashed = false
         self.velocity = Vector(0, 0)
@@ -36,17 +39,14 @@ function Throwable:update(dt)
         end
 
         if not self.isSmashed and self.map then
-            local hitEntity = self.map:getEntityAt(self.pos.x, self.pos.y, "enemy")
-            if hitEntity then
-                hitEntity:takeDamage(self.damage)
+            local hitEntities = self.map:getEntitiesInCollider(self.collider, "enemy")
+            if hitEntities then
+                hitEntities[1]:takeDamage(self.damage)
                 self:smash()
             else
-                local gridX, gridY = self.map:worldToGridPos(self.pos:unpack())
-                local tileData = self.map:getTileAt(gridX, gridY, 2)
-                if tileData then
-                    if tileData.isSolid then
-                        self:smash()
-                    end
+                local hitTiles = self.map:getTilesInCollider(self.collider)
+                if hitTiles then
+                    self:smash()
                 end
             end
         end
@@ -59,12 +59,19 @@ function Throwable:draw()
     if self.isSmashed then
         img = self.imgBroken
     end
-    love.graphics.draw(img, self.pos.x, self.pos.y)
-end
+    love.graphics.draw(img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), self.h)
+    -- self.collider:drawWireframe()
 
-function Throwable:drawHeld(x, y)
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, x, y)
+    -- local worldX, worldY = self.collider:getWorldCoords()
+    -- local minGridX, minGridY = self.map:worldToGridPos(worldX, worldY)
+    -- local maxGridX, maxGridY = self.map:worldToGridPos(worldX + self.collider.w, worldY + self.collider.h)
+
+    -- for x=minGridX, maxGridX do
+    --     for y=minGridY, maxGridY do
+    --         local tileWorldX, tileWorldY = self.map:gridToWorldPos(x, y)
+    --         love.graphics.rectangle("line", tileWorldX, tileWorldY, 16, 16)
+    --     end
+    -- end
 end
 
 function Throwable:canPickUp()

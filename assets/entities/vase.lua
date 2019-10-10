@@ -8,9 +8,6 @@ local Sfx = require "classes.sfx"
 local Vase = Class{
     init = function(self, x, y)
         Throwable.init(self, x, y, 16, 16)
-        self.isThrown = false
-        self.isSmashed = false
-        self.velocity = Vector(0, 0)
     end,
     __includes = {
         Throwable
@@ -23,7 +20,7 @@ local Vase = Class{
     imgBroken = love.graphics.newImage("assets/tiles/vase_broken.png"),
     smashSfx = Sfx("assets/sound/vase_smash.mp3"),
 
-    type = "pickupable",
+    tag = "pickupable",
 }
 
 function Vase:smash()
