@@ -1,72 +1,72 @@
-{ "frames": [
-   {
-    "filename": "powerup_curse 0.aseprite",
-    "frame": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 175
-   },
-   {
-    "filename": "powerup_curse 1.aseprite",
-    "frame": { "x": 16, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 175
-   },
-   {
-    "filename": "powerup_curse 2.aseprite",
-    "frame": { "x": 32, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 175
-   },
-   {
-    "filename": "powerup_curse 3.aseprite",
-    "frame": { "x": 48, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 175
-   },
-   {
-    "filename": "powerup_curse 4.aseprite",
-    "frame": { "x": 64, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 175
-   },
-   {
-    "filename": "powerup_curse 5.aseprite",
-    "frame": { "x": 80, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 175
-   }
- ],
- "meta": {
-  "app": "http://www.aseprite.org/",
-  "version": "1.2.15-x64",
-  "image": "curse_powerup.png",
-  "format": "RGBA8888",
-  "size": { "w": 96, "h": 16 },
-  "scale": "1",
-  "frameTags": [
-  ],
-  "layers": [
-   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
-  ],
-  "slices": [
-  ]
- }
+{
+    "frames": [{
+            "filename": "powerup_curse 0.aseprite",
+            "frame": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 },
+            "duration": 175
+        },
+        {
+            "filename": "powerup_curse 1.aseprite",
+            "frame": { "x": 16, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 },
+            "duration": 175
+        },
+        {
+            "filename": "powerup_curse 2.aseprite",
+            "frame": { "x": 32, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 },
+            "duration": 175
+        },
+        {
+            "filename": "powerup_curse 3.aseprite",
+            "frame": { "x": 48, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 },
+            "duration": 175
+        },
+        {
+            "filename": "powerup_curse 4.aseprite",
+            "frame": { "x": 64, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 },
+            "duration": 175
+        },
+        {
+            "filename": "powerup_curse 5.aseprite",
+            "frame": { "x": 80, "y": 0, "w": 16, "h": 16 },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+            "sourceSize": { "w": 16, "h": 16 },
+            "duration": 175
+        }
+    ],
+    "meta": {
+        "app": "http://www.aseprite.org/",
+        "version": "1.2.15-x64",
+        "image": "curse_powerup.png",
+        "format": "RGBA8888",
+        "size": { "w": 96, "h": 16 },
+        "scale": "1",
+        "frameTags": [
+            { "name": "idle", "from": 0, "to": 5, "direction": "forward" }
+        ],
+        "layers": [
+            { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+        ],
+        "slices": []
+    }
 }
