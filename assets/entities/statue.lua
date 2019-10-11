@@ -16,8 +16,8 @@ local Statue = Class{
         Entity
     },
     maxHealth = 60,
-    aliveImg = love.graphics.newImage("assets/tiles/bathala_statue.png"),
-    rubbleImg = love.graphics.newImage("assets/tiles/bathala_statue_rubble.png"),
+    aliveImg = love.graphics.newImage("assets/images/tiles/bathala_statue.png"),
+    rubbleImg = love.graphics.newImage("assets/images/tiles/bathala_statue_rubble.png"),
 
     type = "statue",
     tag = "statue",

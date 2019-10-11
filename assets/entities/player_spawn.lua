@@ -11,7 +11,7 @@ local PlayerSpawn = Class{
         Entity
     },
 
-    img = love.graphics.newImage("assets/tiles/player_spawn.png"),
+    img = love.graphics.newImage("assets/images/tiles/player_spawn.png"),
     type = "player_spawn",
 }
 

@@ -19,8 +19,8 @@ local Vase = Class{
     drag=4,
     velocityCutoff = 48,
     throwSpeed = 256,
-    img = love.graphics.newImage("assets/tiles/vase.png"),
-    imgBroken = love.graphics.newImage("assets/tiles/vase_broken.png"),
+    img = love.graphics.newImage("assets/images/tiles/vase.png"),
+    imgBroken = love.graphics.newImage("assets/images/tiles/vase_broken.png"),
     smashSfx = Sfx("assets/sound/vase_smash.mp3"),
 
     tag = "pickupable",

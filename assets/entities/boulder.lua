@@ -19,8 +19,8 @@ local Boulder = Class{
     drag=4,
     velocityCutoff = 48,
     throwSpeed = 256,
-    img = love.graphics.newImage("assets/tiles/boulder.png"),
-    imgBroken = love.graphics.newImage("assets/tiles/boulder_broken.png"),
+    img = love.graphics.newImage("assets/images/tiles/boulder.png"),
+    imgBroken = love.graphics.newImage("assets/images/tiles/boulder_broken.png"),
     smashSfx = Sfx("assets/sound/vase_smash.mp3"),
 
     tag = "pickupable",

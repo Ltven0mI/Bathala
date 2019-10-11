@@ -11,7 +11,7 @@ local Spawner = Class{
         Entity
     },
 
-    img = love.graphics.newImage("assets/tiles/spawner.png"),
+    img = love.graphics.newImage("assets/images/tiles/spawner.png"),
     type = "spawner",
 }
 

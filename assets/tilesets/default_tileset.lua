@@ -4,36 +4,36 @@ local Entities = require "core.entities"
 local t = {}
 
 local assets = AssetBundle("assets", {
-    "tiles/carpet_left.png",
-    "tiles/carpet_middle.png",
-    "tiles/carpet_right.png",
+    "images/tiles/carpet_left.png",
+    "images/tiles/carpet_middle.png",
+    "images/tiles/carpet_right.png",
 
-    "tiles/ground_cracked.png",
-    "tiles/ground_smooth.png",
+    "images/tiles/ground_cracked.png",
+    "images/tiles/ground_smooth.png",
 
-    "tiles/pillar_base1.png",
-    "tiles/pillar_base2.png",
-    "tiles/pillar_layer1.png",
-    "tiles/pillar_layer2.png",
-    "tiles/pillar_layer3.png",
-    "tiles/pillar_layer4.png",
-    "tiles/pillar_layer5.png",
-    "tiles/pillar_layer5_front.png",
+    "images/tiles/pillar_base1.png",
+    "images/tiles/pillar_base2.png",
+    "images/tiles/pillar_layer1.png",
+    "images/tiles/pillar_layer2.png",
+    "images/tiles/pillar_layer3.png",
+    "images/tiles/pillar_layer4.png",
+    "images/tiles/pillar_layer5.png",
+    "images/tiles/pillar_layer5_front.png",
 
-    "tiles/statue_base_topleft.png",
-    "tiles/statue_base_topright.png",
-    "tiles/statue_base_bottomleft.png",
-    "tiles/statue_base_bottomright.png",
+    "images/tiles/statue_base_topleft.png",
+    "images/tiles/statue_base_topright.png",
+    "images/tiles/statue_base_bottomleft.png",
+    "images/tiles/statue_base_bottomright.png",
 
-    "tiles/bathala_statue.png",
-    "tiles/bathala_statue_rubble.png",
+    "images/tiles/bathala_statue.png",
+    "images/tiles/bathala_statue_rubble.png",
 
     -- Icons --
     icon_desecrator="desecrator/desecrator_temp.png",
-    icon_statue="tiles/bathala_statue.png",
-    icon_spawner="tiles/spawner.png",
-    icon_vase="tiles/vase.png",
-    icon_player_spawn="tiles/player_spawn.png"
+    icon_statue="images/tiles/bathala_statue.png",
+    icon_spawner="images/tiles/spawner.png",
+    icon_vase="images/tiles/vase.png",
+    icon_player_spawn="images/tiles/player_spawn.png"
 })
 
 t.tiles = {}
@@ -55,29 +55,29 @@ local function createTile(name, img, isSolid, collider, icon)
 end
 
 local function createTiles()
-    createTile("carpet_left", assets.tiles.carpet_left, false)
-    createTile("carpet_middle", assets.tiles.carpet_middle, false)
-    createTile("carpet_right", assets.tiles.carpet_right, false)
+    createTile("carpet_left", assets.images.tiles.carpet_left, false)
+    createTile("carpet_middle", assets.images.tiles.carpet_middle, false)
+    createTile("carpet_right", assets.images.tiles.carpet_right, false)
     
-    createTile("ground_cracked", assets.tiles.ground_cracked, false)
-    createTile("ground_smooth", assets.tiles.ground_smooth, false)
+    createTile("ground_cracked", assets.images.tiles.ground_cracked, false)
+    createTile("ground_smooth", assets.images.tiles.ground_smooth, false)
 
-    createTile("pillar_base1", assets.tiles.pillar_base1, true)
-    createTile("pillar_base2", assets.tiles.pillar_base2, true)
-    createTile("pillar_layer1", assets.tiles.pillar_layer1, true)
-    createTile("pillar_layer2", assets.tiles.pillar_layer2, true)
-    createTile("pillar_layer3", assets.tiles.pillar_layer3, true)
-    createTile("pillar_layer4", assets.tiles.pillar_layer4, true)
-    createTile("pillar_layer5", assets.tiles.pillar_layer5, true)
-    createTile("pillar_layer5_front", assets.tiles.pillar_layer5_front, true)
+    createTile("pillar_base1", assets.images.tiles.pillar_base1, true)
+    createTile("pillar_base2", assets.images.tiles.pillar_base2, true)
+    createTile("pillar_layer1", assets.images.tiles.pillar_layer1, true)
+    createTile("pillar_layer2", assets.images.tiles.pillar_layer2, true)
+    createTile("pillar_layer3", assets.images.tiles.pillar_layer3, true)
+    createTile("pillar_layer4", assets.images.tiles.pillar_layer4, true)
+    createTile("pillar_layer5", assets.images.tiles.pillar_layer5, true)
+    createTile("pillar_layer5_front", assets.images.tiles.pillar_layer5_front, true)
 
-    createTile("statue_base_topleft", assets.tiles.statue_base_topleft, true, {x=4, y=7, w=12, h=9})
-    createTile("statue_base_topright", assets.tiles.statue_base_topright, true, {x=0, y=7, w=12, h=9})
-    createTile("statue_base_bottomleft", assets.tiles.statue_base_bottomleft, true, {x=4, y=0, w=12, h=10})
-    createTile("statue_base_bottomright", assets.tiles.statue_base_bottomright, true, {x=0, y=0, w=12, h=10})
+    createTile("statue_base_topleft", assets.images.tiles.statue_base_topleft, true, {x=4, y=7, w=12, h=9})
+    createTile("statue_base_topright", assets.images.tiles.statue_base_topright, true, {x=0, y=7, w=12, h=9})
+    createTile("statue_base_bottomleft", assets.images.tiles.statue_base_bottomleft, true, {x=4, y=0, w=12, h=10})
+    createTile("statue_base_bottomright", assets.images.tiles.statue_base_bottomright, true, {x=0, y=0, w=12, h=10})
 
-    createTile("bathala_statue", assets.tiles.bathala_statue, false)
-    createTile("bathala_statue_rubble", assets.tiles.bathala_statue_rubble, false)
+    createTile("bathala_statue", assets.images.tiles.bathala_statue, false)
+    createTile("bathala_statue_rubble", assets.images.tiles.bathala_statue_rubble, false)
 end
 
 t.entities = {}
