@@ -4,7 +4,7 @@ local editor_gamestate = require "gamestates.editor"
 
 local menu = {}
 
-local titleScreen = love.graphics.newImage("assets/titlescreen/title_screen.png")
+local titleScreen = love.graphics.newImage("assets/images/ui/titlescreen/title_screen.png")
 
 function menu:draw()
     love.graphics.draw(titleScreen, 0, 0, 0, 4, 4)
