@@ -29,7 +29,7 @@ local assets = AssetBundle("assets", {
     "images/tiles/bathala_statue_rubble.png",
 
     -- Icons --
-    icon_desecrator="desecrator/desecrator_temp.png",
+    icon_desecrator="images/desecrator/desecrator_static.png",
     icon_statue="images/tiles/bathala_statue.png",
     icon_spawner="images/tiles/spawner.png",
     icon_vase="images/tiles/vase.png",

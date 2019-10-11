@@ -27,8 +27,8 @@ local Enemy = Class{
 
         self.lookDir = Vector(0, 0)
 
-        self.animation = Peachy.new("assets/desecrator/desecrator.json",
-            love.graphics.newImage("assets/desecrator/desecrator.png"), "walk_up")
+        self.animation = Peachy.new("assets/images/desecrator/desecrator.json",
+            love.graphics.newImage("assets/images/desecrator/desecrator.png"), "walk_up")
     end,
     __includes = {
         Entity
