@@ -12,13 +12,13 @@ local SinigangPowerup = Class{
     init = function(self, x, y)
         Pickupable.init(self, x, y, 16, 16)
         self.collider = ColliderBox(self, -8, -16, 16, 16)
-        self.animation = Peachy.new("assets/powerups/sinigang_powerup.json", love.graphics.newImage("assets/powerups/sinigang_powerup.png"), "idle")
+        self.animation = Peachy.new("assets/images/powerups/sinigang_powerup.json", love.graphics.newImage("assets/images/powerups/sinigang_powerup.png"), "idle")
     end,
     __includes = {
         Pickupable
     },
     healAmount = 20,
-    img = love.graphics.newImage("assets/powerups/sinigang_powerup_temp.png"),
+    img = love.graphics.newImage("assets/images/powerups/sinigang_powerup_held.png"),
 
     tag = "pickupable",
 }

@@ -15,8 +15,8 @@ local Pickupable = Class{
 }
 
 function Pickupable:draw()
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), self.h)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), self.h)
     self.collider:drawWireframe()
 end
 

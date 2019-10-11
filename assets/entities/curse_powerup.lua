@@ -13,7 +13,7 @@ local CursePowerup = Class{
     init = function(self, x, y)
         UseItem.init(self, x, y, 16, 16)
         self.collider = ColliderBox(self, -8, -16, 16, 16)
-        self.animation = Peachy.new("assets/powerups/curse_powerup.json", love.graphics.newImage("assets/powerups/curse_powerup.png"), "idle")
+        self.animation = Peachy.new("assets/images/powerups/curse_powerup.json", love.graphics.newImage("assets/images/powerups/curse_powerup.png"), "idle")
     end,
     __includes = {
         UseItem

@@ -60,18 +60,6 @@ function Throwable:draw()
         img = self.imgBroken
     end
     love.graphics.draw(img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), self.h)
-    -- self.collider:drawWireframe()
-
-    -- local worldX, worldY = self.collider:getWorldCoords()
-    -- local minGridX, minGridY = self.map:worldToGridPos(worldX, worldY)
-    -- local maxGridX, maxGridY = self.map:worldToGridPos(worldX + self.collider.w, worldY + self.collider.h)
-
-    -- for x=minGridX, maxGridX do
-    --     for y=minGridY, maxGridY do
-    --         local tileWorldX, tileWorldY = self.map:gridToWorldPos(x, y)
-    --         love.graphics.rectangle("line", tileWorldX, tileWorldY, 16, 16)
-    --     end
-    -- end
 end
 
 function Throwable:canPickUp()
