@@ -2,12 +2,15 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
+local ColliderBox = require "classes.collider_box"
+
 local Throwable = require "assets.entities.throwable"
 local Sfx = require "classes.sfx"
 
 local Vase = Class{
     init = function(self, x, y)
         Throwable.init(self, x, y, 16, 16)
+        self.collider = ColliderBox(self, -7, -12, 14, 12)
     end,
     __includes = {
         Throwable
