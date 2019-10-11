@@ -22,7 +22,6 @@ local assets = AssetBundle("assets", {
     maps={
         level1="mapExport.lua"
     },
-    "player/player_temp.png",
     "tilesets/default_tileset.lua"
 })
 
@@ -42,7 +41,7 @@ function game:enter()
     self.map = Map(assets.maps.level1, self.tileset)
     self.map:generateGrid()
     
-    self.player = Player(assets.player.player_temp, 0, 0, 10, 16)
+    self.player = Player(0, 0)
     self.player:setMap(self.map)
 
     local playerSpawn = self.map:findEntityOfType("player_spawn")

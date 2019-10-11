@@ -9,7 +9,7 @@ local ColliderBox = require "classes.collider_box"
 local Projectile = require "assets.entities.curse_projectile"
 
 local player = Class{
-    init = function(self, img, x, y)
+    init = function(self, x, y)
         self.pos = Vector(x, y)
         self.w = 10
         self.h = 16
@@ -30,7 +30,7 @@ local player = Class{
 
         Signal.register("gameover", function(...) self:onGameOver(...) end)
 
-        self.animation = Peachy.new("assets/player/player.json", love.graphics.newImage("assets/player/player.png"), "walk_down")
+        self.animation = Peachy.new("assets/images/player/player.json", love.graphics.newImage("assets/images/player/player.png"), "walk_down")
         self.animation:onLoop(function() self:animation_loop() end )
         self.animation:stop()
 
