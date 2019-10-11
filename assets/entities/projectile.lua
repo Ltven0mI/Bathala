@@ -16,7 +16,7 @@ local Projectile = Class{
     speed = 64,
     timeToLive = 3,
     tagMask = nil,
-    img = love.graphics.newImage("assets/desecrator/desecrator_projectile.png"),
+    img = love.graphics.newImage("assets/images/projectiles/desecrator_projectile.png"),
 
     type = "projectile",
 }
