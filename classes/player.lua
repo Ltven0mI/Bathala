@@ -4,7 +4,6 @@ local Signal = require "hump.signal"
 
 local Peachy = require "lib.peachy"
 
--- local Collidable = require "classes.collidable"
 local ColliderBox = require "classes.collider_box"
 
 local Projectile = require "assets.entities.curse_projectile"
@@ -16,7 +15,6 @@ local player = Class{
         self.h = 16
 
         self.collider = ColliderBox(self, -5, -3, 10, 4)
-        -- error("Fix weird bug when colliding with top of tile")
 
         self.health = 10
 
@@ -46,12 +44,19 @@ local player = Class{
 
     speed = 64,
     maxHealth = 10,
+    tag = "player",
     type="player",
 }
-player:include(Collidable)
 
 function player:setMap(map)
     self.map = map
+end
+
+function player:takeDamage(damage)
+    self.health = math.max(0, self.health - damage)
+    if self.health <= 0 then
+        Signal.emit("player-died")
+    end
 end
 
 function player:update(dt)

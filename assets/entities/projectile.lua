@@ -47,6 +47,7 @@ function Projectile:draw()
     local rot = -(self.dir:toPolar().x) + math.pi / 2
     local halfW, halfH = math.floor(self.w / 2), math.floor(self.h / 2)
     love.graphics.draw(self.img, self.pos.x, self.pos.y, rot, 1, 1, halfW, halfH)
+    -- self.collider:drawWireframe()
 end
 
 function Projectile:destroy()
