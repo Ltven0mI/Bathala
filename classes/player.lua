@@ -2,7 +2,7 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
-local Peachy = require "lib.peachy"
+local Peachy = require "peachy"
 
 local ColliderBox = require "classes.collider_box"
 
