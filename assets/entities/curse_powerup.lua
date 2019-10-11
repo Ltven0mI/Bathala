@@ -21,7 +21,7 @@ local CursePowerup = Class{
 
     isUsable=true,
 
-    icon = love.graphics.newImage("assets/powerups/curse_powerup_icon.png"),
+    icon = love.graphics.newImage("assets/images/ui/curse_powerup_icon.png"),
 
     tag = "pickupable",
 }

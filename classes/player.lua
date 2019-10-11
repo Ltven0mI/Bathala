@@ -37,10 +37,10 @@ local player = Class{
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
 
-    healthBarImg = love.graphics.newImage("assets/ui/health_bar.png"),
-    healthBarFillImg = love.graphics.newImage("assets/ui/health_bar_fill.png"),
-    useItemBgImg = love.graphics.newImage("assets/ui/useitem_bg.png"),
-    useItemTextImg = love.graphics.newImage("assets/ui/useitem_text.png"),
+    healthBarImg = love.graphics.newImage("assets/images/ui/health_bar.png"),
+    healthBarFillImg = love.graphics.newImage("assets/images/ui/health_bar_fill.png"),
+    useItemBgImg = love.graphics.newImage("assets/images/ui/useitem_bg.png"),
+    useItemTextImg = love.graphics.newImage("assets/images/ui/useitem_text.png"),
 
     speed = 64,
     maxHealth = 10,
