@@ -2,11 +2,14 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
+local ColliderBox = require "classes.collider_box"
+
 local Entity = require "classes.entity"
 
 local Statue = Class{
     init = function(self, x, y)
         Entity.init(self, x, y, 32, 48)
+        self.collider = ColliderBox(self, -12, -9, 24, 19)
         self.health = 60
     end,
     __includes = {
@@ -18,7 +21,6 @@ local Statue = Class{
 
     type = "statue",
     tag = "statue",
-    baseOffset = Vector(16, 32),
 }
 
 function Statue:takeDamage(damage)
@@ -44,11 +46,11 @@ function Statue:draw()
         img = self.rubbleImg
     end
 
-    love.graphics.draw(img, self.pos.x, self.pos.y)
-    self.collider:drawWireframe()
+    love.graphics.draw(img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), math.floor(self.h / 3) * 2)
+    -- self.collider:drawWireframe()
     
-    local barX = self.pos.x
-    local barY = self.pos.y-3
+    local barX = self.pos.x - math.floor(self.w / 2)
+    local barY = self.pos.y - math.floor(self.h / 3) * 2 - 3
 
     local barW = self.w
     local barH = 2

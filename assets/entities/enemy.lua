@@ -67,10 +67,9 @@ function Enemy:start()
     self.targetStatue = self.map:findEntityOfType("statue")
     if self.targetStatue then
         local statue = self.targetStatue
-        local statueBasePos = statue.pos + statue.baseOffset
         local randRot = love.math.random(1, 360)
         local randOffset = Vector(statue.w + self.stoppingDistance, 0):rotated(math.rad(randRot))
-        self:setTarget((statueBasePos + randOffset):unpack())
+        self:setTarget((statue.pos + randOffset):unpack())
     end
 end
 
@@ -221,7 +220,7 @@ function Enemy:update(dt)
 
 
     if self.targetStatue and self.targetStatue.health > 0 then
-        self.targetDir = ((self.targetStatue.pos + self.targetStatue.baseOffset) - self.pos):normalized()
+        self.targetDir = (self.targetStatue.pos - self.pos):normalized()
         self.attackTimer = self.attackTimer + dt
         if self.attackTimer > self.timeBetweenAttacks then
             self.attackTimer = 0
