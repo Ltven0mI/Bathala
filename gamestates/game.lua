@@ -195,7 +195,8 @@ function game:spawnRandomVase(count)
             local tileData = self.map:getTileAt(x, y, 2)
             if tileData == nil or not tileData.isSolid then
                 local worldX, worldY = self.map:gridToWorldPos(x, y)
-                local instance = Entities.new("vase", worldX, worldY)
+                local halfTileSize = math.floor(self.map.tileSize / 2)
+                local instance = Entities.new("vase", worldX + halfTileSize, worldY + halfTileSize)
                 self.map:registerEntity(instance)
                 break
             end
@@ -214,7 +215,8 @@ function game:spawnRandomBoulders(count)
             local tileData = self.map:getTileAt(x, y, 2)
             if tileData == nil or not tileData.isSolid then
                 local worldX, worldY = self.map:gridToWorldPos(x, y)
-                local instance = Entities.new("boulder", worldX, worldY)
+                local halfTileSize = math.floor(self.map.tileSize / 2)
+                local instance = Entities.new("boulder", worldX + halfTileSize, worldY + halfTileSize)
                 self.map:registerEntity(instance)
                 break
             end
