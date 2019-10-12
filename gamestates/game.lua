@@ -15,14 +15,12 @@ local game = {}
 game.camera = nil
 game.uiCamera = nil
 game.player = nil
-game.tileset = nil
 game.map = nil
 
 local assets = AssetBundle("assets", {
     maps={
         level1="mapExport.lua"
     },
-    "tilesets/default_tileset.lua"
 })
 
 function game:enter()
@@ -35,10 +33,7 @@ function game:enter()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
     self.uiCamera = Camera(halfW / 4, halfH / 4, 4)
 
-    self.tileset = assets.tilesets.default_tileset
-    self.tileset.load()
-
-    self.map = Map(assets.maps.level1, self.tileset)
+    self.map = Map(assets.maps.level1)
     self.map:generateGrid()
     
     self.player = Player(0, 0)
@@ -72,9 +67,6 @@ function game:leave()
     self.camera = nil
     self.uiCamera = nil
     self.player = nil
-
-    self.tileset.unload()
-    self.tileset = nil
 
     self.map = nil
 
@@ -243,7 +235,7 @@ function game:gameover()
 end
 
 function game:restart()
-    self.map = Map(assets.maps.level1, self.tileset)
+    self.map = Map(assets.maps.level1)
     self.map:generateGrid()
     
     self.player = Player(assets.player.player_temp, 0, 0, 10, 16)

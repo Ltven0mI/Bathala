@@ -2,18 +2,18 @@ local Class = require "hump.class"
 local AssetBundle = require "AssetBundle"
 local Vector = require "hump.vector"
 
+local Entities = require "core.entities"
 local Tiles = require "core.tiles"
 
 local ColliderBox = require "classes.collider_box"
 
 local Map = Class{
-    init = function(self, mapData, tileset)
+    init = function(self, mapData)
         self.width = mapData.width
         self.height = mapData.height
         self.layouts = mapData.layouts
         self.layerCount = #self.layouts
         self.mapData = mapData
-        self.tileset = tileset
         self.entities = {}
         self.hasStarted = false
     end,
@@ -145,45 +145,10 @@ function Map:generateGrid()
     end
 
     for _, v in ipairs(self.mapData.entities) do
-        local entityData = self.tileset.entities[v.name]
-        if entityData ~= nil then
-            local entityInstance = entityData.entity(v.x, v.y)
-            self:registerEntity(entityInstance)
-        else
-            print("[WARN] Unknown entity with name '"..tostring(v.name).."'")
-        end
+        local entityInstance = Entities.new(v.name, v.x, v.y)
+        self:registerEntity(entityInstance)
     end
 end
-
--- function Map:generateGridModified()
---     self.grids = {}
-
---     for i=1, #self.layouts do
---         self.grids[i] = {}
---         for x=1, self.width+2 do
---             self.grids[i][x] = {}
---             for y=1, self.height+2 do
---                 local id = self.layouts[i][math.min(math.max(x-1, 1), self.width)][math.min(math.max(y-1, 1), self.height)]
---                 local tileKey = self.mapData.tileIndex[id]
---                 if tileKey then
---                     self.grids[i][x][y] = self.tileset.tiles[tileKey]
---                 end
---             end
---         end
---     end
---     self.width = self.width + 2
---     self.height = self.height + 2
-
---     for _, v in ipairs(self.mapData.entities) do
---         local entityData = self.tileset.entities[v.name]
---         if entityData ~= nil then
---             local entityInstance = entityData.entity(v.x + self.tileSize, v.y + self.tileSize)
---             self:registerEntity(entityInstance)
---         else
---             print("[WARN] Unknown entity with name '"..tostring(v.name).."'")
---         end
---     end
--- end
 
 function Map:update(dt)
     if not self.hasStarted then
