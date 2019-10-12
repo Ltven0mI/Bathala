@@ -14,7 +14,7 @@ local player = Class{
         self.w = 10
         self.h = 16
 
-        self.collider = ColliderBox(self, -5, -3, 10, 4)
+        self.collider = ColliderBox(self, -5, -4, 10, 4)
 
         self.health = 10
 
