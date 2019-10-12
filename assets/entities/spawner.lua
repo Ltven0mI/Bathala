@@ -22,7 +22,8 @@ end
 
 function Spawner:draw()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, self.pos.x, self.pos.y)
+    local halfW, halfH = math.floor(self.w / 2), math.floor(self.h / 2)
+    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, halfW, halfH)
 end
 
 return Spawner

@@ -269,38 +269,38 @@ function Enemy:draw()
     -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
     -- self.collider:drawWireframe()
 
-    if self.target then
-        -- love.graphics.setColor(1, 0, 0, 1)
-        -- love.graphics.circle("line", self.target.x, self.target.y, 4)
-        -- love.graphics.line(self.pos.x, self.pos.y, self.target.x, self.target.y)
+    -- if self.target then
+    --     love.graphics.setColor(1, 0, 0, 1)
+    --     love.graphics.circle("line", self.target.x, self.target.y, 4)
+    --     love.graphics.line(self.pos.x, self.pos.y, self.target.x, self.target.y)
 
-        -- for _, node in ipairs(self.path) do
-        --     local halfTileSize = math.floor(self.map.tileSize / 2)
-        --     local drawX, drawY = (node.x-1) * self.map.tileSize, (node.y-1) * self.map.tileSize
-        --     love.graphics.setColor(1, 1, 1, 1)
-        --     love.graphics.rectangle("fill", drawX + halfTileSize - 2, drawY + halfTileSize - 2, 4, 4)
-        -- end
+    --     for _, node in ipairs(self.path) do
+    --         local halfTileSize = math.floor(self.map.tileSize / 2)
+    --         local drawX, drawY = (node.x-1) * self.map.tileSize, (node.y-1) * self.map.tileSize
+    --         love.graphics.setColor(1, 1, 1, 1)
+    --         love.graphics.rectangle("fill", drawX + halfTileSize - 2, drawY + halfTileSize - 2, 4, 4)
+    --     end
 
-        -- for x=1, self.map.width do
-        --     for y=1, self.map.height do
-        --         local node = self.nodeGrid[x][y]
-        --         if node ~= nil then
-        --             local halfTileSize = math.floor(self.map.tileSize / 2)
-        --             local drawX, drawY = (x-1) * self.map.tileSize, (y-1) * self.map.tileSize
-        --             love.graphics.setColor(1, 1, 1, 1)
-        --             love.graphics.rectangle("fill", drawX + halfTileSize - 2, drawY + halfTileSize - 2, 4, 4)
-        --             love.graphics.setColor(0, 0, 1, 1)
-        --             love.graphics.print(node.cost_so_far, drawX, drawY)
+    --     for x=1, self.map.width do
+    --         for y=1, self.map.height do
+    --             local node = self.nodeGrid[x][y]
+    --             if node ~= nil then
+    --                 local halfTileSize = math.floor(self.map.tileSize / 2)
+    --                 local drawX, drawY = (x-1) * self.map.tileSize, (y-1) * self.map.tileSize
+    --                 love.graphics.setColor(1, 1, 1, 1)
+    --                 love.graphics.rectangle("fill", drawX + halfTileSize - 2, drawY + halfTileSize - 2, 4, 4)
+    --                 love.graphics.setColor(0, 0, 1, 1)
+    --                 love.graphics.print(node.cost_so_far, drawX, drawY)
 
-        --             if node.came_from ~= nil then
-        --                 local drawX2, drawY2 = (node.came_from.x-1) * self.map.tileSize, (node.came_from.y-1) * self.map.tileSize
-        --                 love.graphics.setColor(0, 1, 0, 1)
-        --                 love.graphics.line(drawX + halfTileSize, drawY + halfTileSize, drawX2 + halfTileSize, drawY2 + halfTileSize)
-        --             end
-        --         end
-        --     end
-        -- end
-    end
+    --                 if node.came_from ~= nil then
+    --                     local drawX2, drawY2 = (node.came_from.x-1) * self.map.tileSize, (node.came_from.y-1) * self.map.tileSize
+    --                     love.graphics.setColor(0, 1, 0, 1)
+    --                     love.graphics.line(drawX + halfTileSize, drawY + halfTileSize, drawX2 + halfTileSize, drawY2 + halfTileSize)
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
 end
 
 -- function Enemy:intersectPoint(x, y)
