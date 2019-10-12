@@ -36,6 +36,14 @@ function Map:unregisterEntity(entity)
     entity:onUnregistered()
 end
 
+local function _hasEntityGotTag(entity, tagStr)
+    for _, tag in ipairs(tagStr) do
+        if entity.tag == tag then
+            return true
+        end
+    end
+end
+
 function Map:findEntityOfType(typeStr)
     for _, entity in ipairs(self.entities) do
         if entity.type == typeStr then
@@ -56,12 +64,19 @@ function Map:getEntityAt(x, y, typeStr)
     return nil
 end
 
-local function _hasEntityGotTag(entity, tagStr)
-    for _, tag in ipairs(tagStr) do
-        if entity.tag == tag then
-            return true
+function Map:getAllEntitiesWithTag(tagStr)
+    if tagStr and type(tagStr) ~= "table" then
+        tagStr = {tagStr}
+    end
+
+    local results = {}
+    for _, entity in ipairs(self.entities) do
+        if tagStr == nil or _hasEntityGotTag(entity, tagStr) then
+            table.insert(results, entity)
         end
     end
+
+    return (#results > 0) and results or nil
 end
 
 function Map:getEntitiesInCollider(collider, tagStr)

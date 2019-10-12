@@ -13,6 +13,7 @@ local Spawner = Class{
 
     img = love.graphics.newImage("assets/images/tiles/spawner.png"),
     type = "spawner",
+    tag = "spawner"
 }
 
 function Spawner:update(dt)

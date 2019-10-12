@@ -17,6 +17,11 @@ game.uiCamera = nil
 game.player = nil
 game.map = nil
 
+local _local = {}
+_local.timeBetweenEnemySpawns = 0.75
+_local.timeBetweenWaves = 5
+_local.timeBeforeRestart = 3
+
 local assets = AssetBundle("assets", {
     maps={
         level1="mapExport.lua"
@@ -162,7 +167,7 @@ function game:enemy_died(enemy)
     self.enemyCount = self.enemyCount - 1
     print("EnemyDied! Enemies left: "..self.enemyCount)
     if self.enemyCount == 0 then
-        Timer.after(3, function() self:nextWave() end)
+        Timer.after(_local.timeBetweenWaves, function() self:nextWave() end)
     end
 end
 
@@ -170,18 +175,22 @@ function game:statue_died(statue)
     self:gameover()
 end
 
+function game:spawnEnemy(spawner)
+    local enemyInstance = Entities.new("enemy", spawner.pos.x, spawner.pos.y)
+    self.map:registerEntity(enemyInstance)
+    enemyInstance:start()
+    self.enemyCount = self.enemyCount + 1
+end
+
 function game:spawnEnemies(count)
-    local spawner = self.map:findEntityOfType("spawner")
-    if spawner == nil then
-        error("Failed to spawn enemies: No spawner found!")
+    local spawners = self.map:getAllEntitiesWithTag("spawner")
+    if spawners == nil then
+        error("Failed to spawn enemies: No spawners found!")
     end
 
-    for i=1, count do
-        local enemyInstance = Entities.new("enemy", spawner.pos.x, spawner.pos.y)
-        self.map:registerEntity(enemyInstance)
-        enemyInstance:start()
-        self.enemyCount = self.enemyCount + 1
-    end
+    Timer.every(_local.timeBetweenEnemySpawns, function()
+        self:spawnEnemy(spawners[love.math.random(1, #spawners)])
+    end, count)
 end
 
 function game:spawnRandomVase(count)
@@ -233,14 +242,16 @@ end
 
 function game:gameover()
     Signal.emit("gameover")
-    Timer.after(3, function() self:restart() end)
+    Timer.after(_local.timeBeforeRestart, function() self:restart() end)
 end
 
 function game:restart()
+    Timer.clear()
+
     self.map = Map(assets.maps.level1)
     self.map:generateGrid()
     
-    self.player = Player(assets.player.player_temp, 0, 0, 10, 16)
+    self.player = Player(0, 0)
     self.player:setMap(self.map)
 
     local playerSpawn = self.map:findEntityOfType("player_spawn")
