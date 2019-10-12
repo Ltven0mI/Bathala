@@ -2,6 +2,8 @@ local Class = require "hump.class"
 local AssetBundle = require "AssetBundle"
 local Vector = require "hump.vector"
 
+local Tiles = require "core.tiles"
+
 local ColliderBox = require "classes.collider_box"
 
 local Map = Class{
@@ -136,7 +138,7 @@ function Map:generateGrid()
                 local id = self.layouts[i][x][y]
                 local tileKey = self.mapData.tileIndex[id]
                 if tileKey then
-                    self.grids[i][x][y] = self.tileset.tiles[tileKey]
+                    self.grids[i][x][y] = Tiles.new(tileKey, self, x, y)
                 end
             end
         end

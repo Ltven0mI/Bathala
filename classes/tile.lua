@@ -8,9 +8,10 @@ local Tile = Class{
         self.gridX = x
         self.gridY = y
         self.pos = Vector(map:gridToWorldPos(x, y))
-        self.collider = ColliderBox(0, 0, map.tileSize, map.tileSize)
+        self.collider = ColliderBox(self, 0, 0, map.tileSize, map.tileSize)
         self.map = map
     end,
+    isSolid = false,
 }
 
 function Tile:start()

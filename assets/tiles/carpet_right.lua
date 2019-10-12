@@ -1,12 +1,12 @@
 local Class = require "hump.class"
 local Tile = require "classes.tile"
 
-local CarpetLeft = Class{
+local CarpetRight = Class{
     init = function(self, map, x, y)
         Tile.init(self, map, x, y)
     end,
     __includes={ Tile },
-    img = love.graphics.newImage("assets/images/tiles/carpet_left.png"),
+    img = love.graphics.newImage("assets/images/tiles/carpet_right.png"),
 }
 
-return CarpetLeft
+return CarpetRight
