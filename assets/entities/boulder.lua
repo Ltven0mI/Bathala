@@ -2,12 +2,15 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
+local ColliderBox = require "classes.collider_box"
+
 local Throwable = require "assets.entities.throwable"
 local Sfx = require "classes.sfx"
 
 local Boulder = Class{
     init = function(self, x, y)
         Throwable.init(self, x, y, 16, 16)
+        self.collider = ColliderBox(self, -8, -14, 16, 14)
         self.isThrown = false
         self.isSmashed = false
         self.velocity = Vector(0, 0)
