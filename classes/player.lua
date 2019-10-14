@@ -23,6 +23,8 @@ local player = Class{
         self.velocity = Vector(0, 0)
         self.lastVelocity = Vector(0, 0)
 
+        self.lookDirection = "down"
+
         self.map = nil
         self.isGameOver = false
         self.heldItem = nil
@@ -88,13 +90,17 @@ function player:update(dt)
 
     if deltaY < 0 then
         self.animation:setTag("walk_up")
+        self.lookDirection = "up"
     elseif deltaY > 0 then
         self.animation:setTag("walk_down")
+        self.lookDirection = "down"
     else
         if deltaX < 0 then
             self.animation:setTag("walk_left")
+            self.lookDirection = "left"
         elseif deltaX > 0 then
             self.animation:setTag("walk_right")
+            self.lookDirection = "right"
         end
     end
 

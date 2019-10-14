@@ -4,10 +4,11 @@ local Vector = require "hump.vector"
 local ColliderBox = require "classes.collider_box"
 
 local Tile = Class{
-    init = function(self, map, x, y)
+    init = function(self, map, x, y, layerId)
         self.gridX = x
         self.gridY = y
-        self.pos = Vector(map:gridToWorldPos(x, y))
+        self.layerId = layerId
+        self.pos = Vector(map:gridToWorldPos(x, y, layerId))
         self.collider = ColliderBox(self, 0, 0, map.tileSize, map.tileSize)
         self.map = map
     end,

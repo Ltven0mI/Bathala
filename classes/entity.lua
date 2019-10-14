@@ -13,6 +13,7 @@ local Entity = Class{
     end,
     __includes = {
     },
+    isSolid = false,
 }
 
 function Entity:start()

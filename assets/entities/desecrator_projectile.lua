@@ -18,7 +18,7 @@ local DesecratorProjectile = Class{
     damage = 1,
     speed = 64,
     timeToLive = 3,
-    tagMask = {"player", "statue"},
+    tagMask = {"player", "statue", "barricade"},
     img = love.graphics.newImage("assets/images/projectiles/desecrator_projectile.png"),
 
     type = "projectile",

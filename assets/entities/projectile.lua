@@ -19,6 +19,7 @@ local Projectile = Class{
     img = love.graphics.newImage("assets/images/projectiles/desecrator_projectile.png"),
 
     type = "projectile",
+    tag = "projectile",
 }
 
 function Projectile:update(dt)
@@ -30,12 +31,13 @@ function Projectile:update(dt)
     self.pos = self.pos + self.dir * self.speed * dt
     if self.map then
         local hitEntities = self.map:getEntitiesInCollider(self.collider, self.tagMask)
-        if hitEntities and hitEntities[1].takeDamage then
-            hitEntities[1]:takeDamage(self.damage)
+        if hitEntities then
+            if hitEntities[1].takeDamage then hitEntities[1]:takeDamage(self.damage) end
             self:destroy()
         else
-            local hitTiles = self.map:getTilesInCollider(self.collider)
+            local hitTiles = self.map:getTilesInCollider(self.collider, self.tagMask)
             if hitTiles then
+                if hitTiles[1].takeDamage then hitTiles[1]:takeDamage(self.damage) end
                 self:destroy()
             end
         end

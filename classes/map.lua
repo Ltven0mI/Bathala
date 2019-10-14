@@ -94,7 +94,11 @@ function Map:getEntitiesInCollider(collider, tagStr)
     return #results > 0 and results or nil
 end
 
-function Map:getTilesInCollider(collider)
+function Map:getTilesInCollider(collider, tagStr)
+    if tagStr and type(tagStr) ~= "table" then
+        tagStr = {tagStr}
+    end
+
     local results = {}
     local worldX, worldY = collider:getWorldCoords()
     local minGridX, minGridY = self:worldToGridPos(worldX, worldY)
@@ -105,7 +109,7 @@ function Map:getTilesInCollider(collider)
     for x=minGridX, maxGridX do
         for y=minGridY, maxGridY do
             local tileData = self:getTileAt(x, y, self.collisionLayer)
-            if tileData and tileData.isSolid and tileData.collider and
+            if tileData and tileData.isSolid and tileData.collider and (tileData.tag == nil or tagStr == nil or _hasEntityGotTag(tileData, tagStr)) and
                 collider:intersect(ColliderBox({pos=Vector(self:gridToWorldPos(x, y))},
                     tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)) then
                     table.insert(results, tileData)
@@ -153,7 +157,7 @@ function Map:generateGrid()
                 local id = self.layouts[i][x][y]
                 local tileKey = self.mapData.tileIndex[id]
                 if tileKey then
-                    self.grids[i][x][y] = Tiles.new(tileKey, self, x, y)
+                    self.grids[i][x][y] = Tiles.new(tileKey, self, x, y, i)
                 end
             end
         end
@@ -193,7 +197,7 @@ function Map:draw(minLayer, maxLayer)
 
                 if tileData ~= nil then
                     local drawX, drawY = (x-1) * self.tileSize, (y-math.max(1, i-1)) * self.tileSize
-                    love.graphics.draw(tileData.img, drawX, drawY)
+                    tileData:draw(drawX, drawY)
                 end
             end
         end

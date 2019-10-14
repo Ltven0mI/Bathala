@@ -60,7 +60,9 @@ function game:enter()
 
     self.luckydrops = {
         Entities.get("curse_powerup"),
-        Entities.get("sinigang_powerup")
+        Entities.get("sinigang_powerup"),
+        Entities.get("barricade_item"),
+        Entities.get("barricade_item")
     }
 
     self:nextWave()
@@ -148,7 +150,7 @@ function game:mousepressed(x, y, btn)
 end
 
 function game:vase_smashed(x, y)
-    local rand = love.math.random(1, 3)
+    local rand = 1 --love.math.random(1, 2)
     if rand == 1 then
         local drop = self.luckydrops[love.math.random(1, #self.luckydrops)]
         local dropInstance = drop(x, y)
@@ -165,8 +167,10 @@ end
 
 function game:enemy_died(enemy)
     self.enemyCount = self.enemyCount - 1
-    print("EnemyDied! Enemies left: "..self.enemyCount)
-    if self.enemyCount == 0 then
+    local foundEnemies = self.map:getAllEntitiesWithTag("enemy")
+
+    print("EnemyDied! Enemies left: "..(foundEnemies and #foundEnemies or 0))
+    if foundEnemies == nil then
         Timer.after(_local.timeBetweenWaves, function() self:nextWave() end)
     end
 end

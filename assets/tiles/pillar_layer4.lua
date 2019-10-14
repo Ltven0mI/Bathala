@@ -2,8 +2,8 @@ local Class = require "hump.class"
 local Tile = require "classes.tile"
 
 local PillarLayer4 = Class{
-    init = function(self, map, x, y)
-        Tile.init(self, map, x, y)
+    init = function(self, map, x, y, layerId)
+        Tile.init(self, map, x, y, layerId)
     end,
     __includes={ Tile },
     isSolid = true,
