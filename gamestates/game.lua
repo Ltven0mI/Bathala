@@ -16,6 +16,7 @@ game.camera = nil
 game.uiCamera = nil
 game.player = nil
 game.map = nil
+game.currentWave = nil
 
 local _local = {}
 _local.timeBetweenEnemySpawns = 0.75
@@ -28,8 +29,12 @@ local assets = AssetBundle("assets", {
     },
 })
 
-function game:enter()
+function game:init()
     AssetBundle.load(assets)
+end
+
+function game:enter()
+    -- AssetBundle.load(assets)
 
     self.camera = Camera(0, 0)
     self.camera:zoomTo(4)
@@ -55,8 +60,12 @@ function game:enter()
     Signal.register("enemy-died", function(...) self.enemy_died(self, ...) end)
     Signal.register("statue-died", function(...) self.statue_died(self, ...) end)
 
-    self.currentWave = 0
-    self.enemyCount = 0
+    self.currentWave = {
+        num = 0,
+        spawnedEnemyCount = 0,
+        totalEnemies = 0
+    }
+    -- self.enemyCount = 0
 
     self.luckydrops = {
         Entities.get("curse_powerup"),
@@ -69,7 +78,7 @@ function game:enter()
 end
 
 function game:leave()
-    AssetBundle.unload(assets)
+    -- AssetBundle.unload(assets)
 
     self.camera = nil
     self.uiCamera = nil
@@ -166,11 +175,12 @@ function game:statue_heal(amount)
 end
 
 function game:enemy_died(enemy)
-    self.enemyCount = self.enemyCount - 1
+    -- self.enemyCount = self.enemyCount - 1
     local foundEnemies = self.map:getAllEntitiesWithTag("enemy")
 
     print("EnemyDied! Enemies left: "..(foundEnemies and #foundEnemies or 0))
-    if foundEnemies == nil then
+    print(self.currentWave.spawnedEnemyCount, self.currentWave.totalEnemies)
+    if self.currentWave.spawnedEnemyCount == self.currentWave.totalEnemies and foundEnemies == nil then
         Timer.after(_local.timeBetweenWaves, function() self:nextWave() end)
     end
 end
@@ -183,7 +193,7 @@ function game:spawnEnemy(spawner)
     local enemyInstance = Entities.new("enemy", spawner.pos.x, spawner.pos.y)
     self.map:registerEntity(enemyInstance)
     enemyInstance:start()
-    self.enemyCount = self.enemyCount + 1
+    self.currentWave.spawnedEnemyCount = self.currentWave.spawnedEnemyCount + 1
 end
 
 function game:spawnEnemies(count)
@@ -191,6 +201,8 @@ function game:spawnEnemies(count)
     if spawners == nil then
         error("Failed to spawn enemies: No spawners found!")
     end
+
+    self.currentWave.totalEnemies = count
 
     Timer.every(_local.timeBetweenEnemySpawns, function()
         self:spawnEnemy(spawners[love.math.random(1, #spawners)])
@@ -238,8 +250,10 @@ function game:spawnRandomBoulders(count)
 end
 
 function game:nextWave()
-    self.currentWave = self.currentWave + 1
-    self:spawnEnemies(self.currentWave)
+    self.currentWave.num = self.currentWave.num + 1
+    self.currentWave.spawnedEnemyCount = 0
+    self.totalEnemies = 0
+    self:spawnEnemies(self.currentWave.num)
     self:spawnRandomVase(love.math.random(-1, 3))
     self:spawnRandomBoulders(love.math.random(-1, 3))
 end
@@ -251,23 +265,7 @@ end
 
 function game:restart()
     Timer.clear()
-
-    self.map = Map(assets.maps.level1)
-    self.map:generateGrid()
-    
-    self.player = Player(0, 0)
-    self.player:setMap(self.map)
-
-    local playerSpawn = self.map:findEntityOfType("player_spawn")
-    if playerSpawn then
-        self.player.pos.x = playerSpawn.pos.x
-        self.player.pos.y = playerSpawn.pos.y
-    end
-
-    self.currentWave = 0
-    self.enemyCount = 0
-
-    self:nextWave()
+    Gamestate.switch(game)
 end
 
 return game
