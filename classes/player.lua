@@ -43,6 +43,7 @@ local player = Class{
     healthBarFillImg = love.graphics.newImage("assets/images/ui/health_bar_fill.png"),
     useItemBgImg = love.graphics.newImage("assets/images/ui/useitem_bg.png"),
     useItemTextImg = love.graphics.newImage("assets/images/ui/useitem_text.png"),
+    pickupText = love.graphics.newImage("assets/images/ui/pickup_text.png"),
 
     speed = 64,
     maxHealth = 10,
@@ -128,6 +129,22 @@ function player:draw()
     -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
     if self.heldItem then
         self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h)
+    end
+
+    local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
+    local pickupable = nil
+    if pickupables then
+        for _, v in ipairs(pickupables) do
+            if v.canPickUp and v:canPickUp() then
+                pickupable = v
+                break
+            end
+        end
+    end
+    if pickupable and self.heldItem == nil then
+        local textW, textH = self.pickupText:getDimensions()
+        local halfTextW, halfTextH = math.floor(textW / 2), math.floor(textH / 2)
+        love.graphics.draw(self.pickupText, self.pos.x - halfTextW, self.pos.y - self.h - textH - 1)
     end
 end
 
