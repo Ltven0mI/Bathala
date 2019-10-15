@@ -59,6 +59,7 @@ function game:enter()
     Signal.register("statue-heal", function(...) self.statue_heal(self, ...) end)
     Signal.register("enemy-died", function(...) self.enemy_died(self, ...) end)
     Signal.register("statue-died", function(...) self.statue_died(self, ...) end)
+    Signal.register("player-died", function(...) self.statue_died(self, ...) end)
 
     self.currentWave = {
         num = 0,
@@ -90,6 +91,7 @@ function game:leave()
     Signal.clear("statue-heal")
     Signal.clear("enemy-died")
     Signal.clear("statue-died")
+    Signal.clear("player-died")
     Signal.clear("gameover")
 
     self.currentWave = nil

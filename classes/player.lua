@@ -114,6 +114,11 @@ function player:update(dt)
     end
 
     self:doCollisionCheck()
+
+    if self.pos.x < 0 or self.pos.x > self.map.width * self.map.tileSize or
+    self.pos.y < 0 or self.pos.y > self.map.height * self.map.tileSize then
+        self:takeDamage(self.health)
+    end
 end
 
 function player:draw()
