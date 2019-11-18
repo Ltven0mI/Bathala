@@ -2,6 +2,9 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
+local Sprites = require "core.sprites"
+local DepthManager = require "core.depthmanager"
+
 local Peachy = require "peachy"
 
 local Entity = require "classes.entity"
@@ -29,6 +32,9 @@ local Enemy = Class{
 
         self.animation = Peachy.new("assets/images/desecrator/desecrator.json",
             love.graphics.newImage("assets/images/desecrator/desecrator.png"), "walk_up")
+
+        self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
+        self.spriteMesh = Sprites.new(self.spriteCanvas)
     end,
     __includes = {
         Entity
@@ -262,10 +268,35 @@ function Enemy:update(dt)
     end
 end
 
-function Enemy:draw()
-    local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
+function Enemy:updateSpriteCanvas()
+    love.graphics.push("all")
+    love.graphics.reset()
+
+    love.graphics.setCanvas(self.spriteCanvas)
+
+    love.graphics.clear()
     love.graphics.setColor(1, 1, 1, 1)
-    self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfEnemyW, self.h)
+    self.animation:draw(0, 0)
+
+    love.graphics.pop()
+end
+
+function Enemy:draw()
+    local imgW = self.animation:getWidth()
+    local halfImgW = math.floor(imgW / 2)
+
+    self:updateSpriteCanvas()
+
+    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
+    local xPos = self.pos.x - halfImgW
+    local yPos = self.pos.y - self.h
+
+    love.graphics.setColor(1, 1, 1, 1)
+    self.spriteMesh:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+
+    -- local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfEnemyW, self.h)
     -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
     -- self.collider:drawWireframe()
 

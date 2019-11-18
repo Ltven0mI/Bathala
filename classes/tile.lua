@@ -1,6 +1,8 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
+local DepthManager = require "core.depthmanager"
+
 local ColliderBox = require "classes.collider_box"
 
 local Tile = Class{
@@ -24,8 +26,12 @@ function Tile:update(dt)
 end
 
 function Tile:draw()
+    local worldX, worldY = self.map:gridToWorldPos(self.gridX, self.gridY, 1)
+    local depth = self.map:getDepthAtWorldPos(worldX, worldY, self.layerId)
+    local transform = DepthManager.getTranslationTransform(self.pos.x, self.pos.y, depth)
+
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, self.pos.x, self.pos.y)
+    self.img:draw(transform)
 end
 
 return Tile

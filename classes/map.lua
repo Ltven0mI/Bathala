@@ -4,6 +4,7 @@ local Vector = require "hump.vector"
 
 local Entities = require "core.entities"
 local Tiles = require "core.tiles"
+local DepthManager = require "core.depthmanager"
 
 local ColliderBox = require "classes.collider_box"
 
@@ -18,7 +19,9 @@ local Map = Class{
         self.hasStarted = false
     end,
     collisionLayer=2,
-    tileSize=16
+    tileSize=16,
+
+    LAYER_COLLISION=2
 }
 
 function Map:registerEntity(entity)
@@ -169,6 +172,21 @@ function Map:generateGrid()
     end
 end
 
+function Map:getDepthRange()
+    return self.height + self.layerCount
+end
+
+function Map:getDepthAtWorldPos(x, y, layerId, doDebug)
+    local gridY = (y / self.tileSize) -- Between 0 and Map.height-1
+    local tileDepth = self.height - gridY -- Between Map.height and 1
+    local finalDepth = tileDepth - math.min(layerId-1, 1) -- Between Map.height and 0 (Accounts for different layers)
+    local result = finalDepth * self.tileSize--(finalDepth / self.height)*9
+    if doDebug then
+        print(string.format("Y '%s', LayerId '%s', GridY '%s', TileDepth '%s', FinalDepth '%s', Result '%s'", y, layerId, gridY, tileDepth, finalDepth, result))
+    end
+    return result
+end
+
 function Map:update(dt)
     if not self.hasStarted then
         self.hasStarted = true
@@ -190,14 +208,19 @@ function Map:draw(minLayer, maxLayer)
     -- local offsetX = math.floor(self.width * self.tileSize / 2)
     -- local offsetY = math.floor(self.height * self.tileSize / 2)
 
+    local depthRange = self:getDepthRange()
+
     for i=minLayer, maxLayer do
         for x=1, self.width do
             for y=1, self.height do
+                -- DepthManager.setDepth(1-((y+math.min(i, 2)) / depthRange), 1-((y+math.min(i+1, 2)) / depthRange))
+                -- DepthManager.setDepth(1-((y-1) / (self.height-1)))
                 local tileData = self.grids[i][x][y]
 
                 if tileData ~= nil then
-                    local drawX, drawY = (x-1) * self.tileSize, (y-math.max(1, i-1)) * self.tileSize
-                    tileData:draw(drawX, drawY)
+                    -- local worldX, worldY = self:gridToWorldPos(x, y, 1)
+                    -- DepthManager.setDepth(self:getDepthAtWorldPos(worldX, worldY, i))
+                    tileData:draw()
                 end
             end
         end

@@ -2,6 +2,9 @@ local Class = require "hump.class"
 local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
+local DepthManager = require "core.depthmanager"
+local Sprites = require "core.sprites"
+
 local Peachy = require "peachy"
 
 local ColliderBox = require "classes.collider_box"
@@ -35,6 +38,9 @@ local player = Class{
         self.animation = Peachy.new("assets/images/player/player.json", love.graphics.newImage("assets/images/player/player.png"), "walk_down")
         self.animation:onLoop(function() self:animation_loop() end )
         self.animation:stop()
+
+        self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
+        self.spriteMesh = Sprites.new(self.spriteCanvas)
 
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
@@ -121,19 +127,41 @@ function player:update(dt)
     end
 end
 
-function player:draw()
-    love.graphics.setColor(1, 1, 1, 1)
-    local imgW, imgH = self.animation:getWidth(), self.animation:getHeight()
-    local halfImgW = math.floor(imgW / 2)
-    local halfImgH = math.floor(imgH / 2)
-    local halfPlayerW = math.floor(self.w / 2)
-    local halfPlayerH = math.floor(self.h / 2)
+function player:updateSpriteCanvas()
+    love.graphics.push("all")
+    love.graphics.reset()
 
-    self.animation:draw(self.pos.x, self.pos.y, 0, 1, 1, halfImgW, self.h)
+    love.graphics.setCanvas(self.spriteCanvas)
+
+    love.graphics.clear()
+    love.graphics.setColor(1, 1, 1, 1)
+    self.animation:draw(0, 0)
+
+    love.graphics.pop()
+end
+
+function player:draw()
+    local imgW = self.animation:getWidth()
+    local halfImgW = math.floor(imgW / 2)
+
+    self:updateSpriteCanvas()
+
+    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
+    local xPos = self.pos.x - halfImgW
+    local yPos = self.pos.y - self.h
+
+    love.graphics.setColor(1, 1, 1, 1)
+    self.spriteMesh:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+
+    -- [[ Debug ]] --
+
     -- self.collider:drawWireframe()
     -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
+
+    -- [[ End Debug ]] --
+
     if self.heldItem then
-        self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h)
+        self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h, depth)
     end
 
     local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
@@ -199,6 +227,10 @@ function player:drawUI(screenW, screenH)
 end
 
 function player:mousepressed(btn, dir)
+    if btn == 3 then
+        self.pos.y = self.pos.y - 0.1
+    end
+
     if self.isGameOver then
         return
     end

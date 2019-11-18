@@ -3,6 +3,7 @@ local Vector = require "hump.vector"
 local Signal = require "hump.signal"
 
 local ColliderBox = require "classes.collider_box"
+local Sprites = require "core.sprites"
 
 local Throwable = require "assets.entities.throwable"
 local Sfx = require "classes.sfx"
@@ -19,8 +20,8 @@ local Vase = Class{
     drag=4,
     velocityCutoff = 48,
     throwSpeed = 256,
-    img = love.graphics.newImage("assets/images/tiles/vase.png"),
-    imgBroken = love.graphics.newImage("assets/images/tiles/vase_broken.png"),
+    img = Sprites.new("assets/images/tiles/vase.png"),
+    imgBroken = Sprites.new("assets/images/tiles/vase_broken.png", {isGround=true}),
     smashSfx = Sfx("assets/sound/vase_smash.mp3"),
 
     tag = "pickupable",

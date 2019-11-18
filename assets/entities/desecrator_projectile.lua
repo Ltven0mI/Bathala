@@ -1,6 +1,9 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
+local Sprites = require "core.sprites"
+local DepthManager = require "core.depthmanager"
+
 local ColliderBox = require "classes.collider_box"
 
 local Projectile = require "assets.entities.projectile"
@@ -19,7 +22,7 @@ local DesecratorProjectile = Class{
     speed = 64,
     timeToLive = 3,
     tagMask = {"player", "statue", "barricade"},
-    img = love.graphics.newImage("assets/images/projectiles/desecrator_projectile.png"),
+    img = Sprites.new("assets/images/projectiles/desecrator_projectile.png"),
 
     type = "projectile",
 }

@@ -1,5 +1,6 @@
 local Class = require "hump.class"
 local Tile = require "classes.tile"
+local Sprites = require "core.sprites"
 
 local ColliderBox = require "classes.collider_box"
 
@@ -10,7 +11,7 @@ local StatueBaseBottomRight = Class{
     end,
     __includes={ Tile },
     isSolid = true,
-    img = love.graphics.newImage("assets/images/tiles/statue_base_bottomright.png"),
+    img = Sprites.new("assets/images/tiles/statue_base_bottomright.png"),
 }
 
 return StatueBaseBottomRight

@@ -1,6 +1,8 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
+local DepthManager = require "core.depthmanager"
+
 local Entity = require "classes.entity"
 
 local Pickupable = Class{
@@ -20,9 +22,12 @@ function Pickupable:draw()
     self.collider:drawWireframe()
 end
 
-function Pickupable:drawHeld(x, y)
+function Pickupable:drawHeld(x, y, z)
+    local xPos = x - math.floor(self.w / 2)
+    local yPos = y - self.h
+
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, x, y, 0, 1, 1, math.floor(self.w / 2), self.h)
+    self.img:draw(DepthManager.getTranslationTransform(xPos, yPos, z))
 end
 
 function Pickupable:canPickUp()

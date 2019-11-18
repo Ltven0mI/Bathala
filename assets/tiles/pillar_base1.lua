@@ -1,5 +1,6 @@
 local Class = require "hump.class"
 local Tile = require "classes.tile"
+local Sprites = require "core.sprites"
 
 local PillarBase1 = Class{
     init = function(self, map, x, y, layerId)
@@ -7,7 +8,7 @@ local PillarBase1 = Class{
     end,
     __includes={ Tile },
     isSolid = true,
-    img = love.graphics.newImage("assets/images/tiles/pillar_base1.png"),
+    img = Sprites.new("assets/images/tiles/pillar_base1.png"),
 }
 
 return PillarBase1

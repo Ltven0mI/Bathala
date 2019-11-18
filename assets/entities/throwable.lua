@@ -4,8 +4,11 @@ local Signal = require "hump.signal"
 
 local ColliderBox = require "classes.collider_box"
 
+local Entity = require "classes.entity"
 local Pickupable = require "classes.pickupable"
 local Sfx = require "classes.sfx"
+local Sprites = require "core.sprites"
+local DepthManager = require "core.depthmanager"
 
 local Throwable = Class{
     init = function(self, x, y, w, h)
@@ -22,8 +25,8 @@ local Throwable = Class{
     drag=4,
     velocityCutoff = 48,
     throwSpeed = 256,
-    img = love.graphics.newImage("assets/images/tiles/boulder.png"),
-    imgBroken = love.graphics.newImage("assets/images/tiles/boulder_broken.png"),
+    img = Sprites.new("assets/images/tiles/boulder.png"),
+    imgBroken = Sprites.new("assets/images/tiles/boulder_broken.png"),
     smashSfx = nil,
 
     type = "pickupable",
@@ -59,7 +62,21 @@ function Throwable:draw()
     if self.isSmashed then
         img = self.imgBroken
     end
-    love.graphics.draw(img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), self.h)
+
+    local depth = self:getDepth()
+    local xPos = self.pos.x - math.floor(self.w / 2)
+    local yPos = self.pos.y - self.h
+
+    love.graphics.setColor(1, 1, 1, 1)
+    img:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+end
+
+function Throwable:getDepth()
+    if self.isSmashed then
+        return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 1)
+    else
+        return Entity.getDepth(self)
+    end
 end
 
 function Throwable:canPickUp()

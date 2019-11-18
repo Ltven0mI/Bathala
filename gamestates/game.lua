@@ -9,6 +9,7 @@ local Player = require "classes.player"
 local Map = require "classes.map"
 
 local Entities = require "core.entities"
+local DepthManager = require "core.depthmanager"
 
 local game = {}
 
@@ -29,6 +30,9 @@ local assets = AssetBundle("assets", {
     },
 })
 
+
+-- [[ Callbacks ]] --
+
 function game:init()
     AssetBundle.load(assets)
 end
@@ -38,6 +42,8 @@ function game:enter()
 
     self.camera = Camera(0, 0)
     self.camera:zoomTo(4)
+
+    DepthManager.init()
 
     local screenW, screenH = love.graphics.getDimensions()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
@@ -55,11 +61,7 @@ function game:enter()
         self.player.pos.y = playerSpawn.pos.y
     end
 
-    Signal.register("vase-smashed", function(...) self.vase_smashed(self, ...) end)
-    Signal.register("statue-heal", function(...) self.statue_heal(self, ...) end)
-    Signal.register("enemy-died", function(...) self.enemy_died(self, ...) end)
-    Signal.register("statue-died", function(...) self.statue_died(self, ...) end)
-    Signal.register("player-died", function(...) self.statue_died(self, ...) end)
+    self:registerSignalCallbacks()
 
     self.currentWave = {
         num = 0,
@@ -83,16 +85,13 @@ function game:leave()
 
     self.camera = nil
     self.uiCamera = nil
-    self.player = nil
 
+    DepthManager.cleanup()
+
+    self.player = nil
     self.map = nil
 
-    Signal.clear("vase-smashed")
-    Signal.clear("statue-heal")
-    Signal.clear("enemy-died")
-    Signal.clear("statue-died")
-    Signal.clear("player-died")
-    Signal.clear("gameover")
+    self:clearSignalCallbacks()
 
     self.currentWave = nil
     self.enemyCount = nil
@@ -106,34 +105,38 @@ function game:update(dt)
     self.map:update(dt)
     self.player:update(dt)
 
-    local playerX, playerY = self.player.pos:unpack()
-
-    local screenW, screenH = love.graphics.getDimensions()
-
-    local viewPortW = math.floor(screenW / self.camera.scale)
-    local viewPortH = math.floor(screenH / self.camera.scale)
-
-    local halfViewW, halfViewH = math.floor(viewPortW / 2), math.floor(viewPortH / 2)
-
-    local mapW, mapH = self.map.width * self.map.tileSize, self.map.height * self.map.tileSize
-
-    local halfPlayerW, halfPlayerH = math.floor(self.player.w / 2), math.floor(self.player.h / 2)
-
-    local lockX = math.max(halfViewW, math.min(mapW - halfViewW, playerX + halfPlayerW))
-    local lockY = math.max(halfViewH, math.min(mapH - halfViewH, playerY + halfPlayerH))
-
-    self.camera:lockPosition(lockX, lockY)
+    self:lockCameraToPlayer()
 end
 
 function game:draw()
-    self.camera:attach()
+    
+    love.graphics.push("all")
 
-    self.map:draw(1, 2)
+    self.camera:attach()
+    love.graphics.applyTransform(DepthManager.depthCorrectionTransform)
+    love.graphics.circle("line", 64, 64, 10)
+    DepthManager.enable()
+
+
+    -- DepthManager.setIsAlpha(false)
+    self.map:draw()
     self.map:drawEntities()
     self.player:draw()
-    self.map:draw(3)
 
     self.camera:detach()
+    DepthManager.disable()
+
+    self.camera:attach()
+    love.graphics.circle("fill", 0, 0, 4)
+    self.camera:detach()
+
+    love.graphics.pop()
+
+
+    if DRAWDEPTH then
+        love.graphics.setColor(1, 1, 1, 1)
+        DepthManager.drawDepthTexture(0, 0)
+    end
 
 
     self.uiCamera:attach()
@@ -142,6 +145,9 @@ function game:draw()
     self.player:drawUI(screenW, screenH)
 
     self.uiCamera:detach()
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(love.timer.getFPS())
 
     -- local screenW, screenH = love.graphics.getDimensions()
     -- love.graphics.line(0, math.floor(screenH / 2), screenW, math.floor(screenH / 2))
@@ -160,35 +166,31 @@ function game:mousepressed(x, y, btn)
     self.player:mousepressed(btn, dir)
 end
 
-function game:vase_smashed(x, y)
-    local rand = 1 --love.math.random(1, 2)
-    if rand == 1 then
-        local drop = self.luckydrops[love.math.random(1, #self.luckydrops)]
-        local dropInstance = drop(x, y)
-        self.map:registerEntity(dropInstance)
+function game:keypressed(key)
+    if key == "space" then
+        DRAWDEPTH = not DRAWDEPTH
     end
 end
 
-function game:statue_heal(amount)
-    local statue = self.map:findEntityOfType("statue")
-    if statue then
-        statue:heal(amount)
-    end
-end
 
-function game:enemy_died(enemy)
-    -- self.enemyCount = self.enemyCount - 1
-    local foundEnemies = self.map:getAllEntitiesWithTag("enemy")
+-- [[ Util Functions ]] --
 
-    print("EnemyDied! Enemies left: "..(foundEnemies and #foundEnemies or 0))
-    print(self.currentWave.spawnedEnemyCount, self.currentWave.totalEnemies)
-    if self.currentWave.spawnedEnemyCount == self.currentWave.totalEnemies and foundEnemies == nil then
-        Timer.after(_local.timeBetweenWaves, function() self:nextWave() end)
-    end
-end
+function game:lockCameraToPlayer()
 
-function game:statue_died(statue)
-    self:gameover()
+    local screenW, screenH = love.graphics.getDimensions()
+    local viewPortW = math.floor(screenW / self.camera.scale)
+    local viewPortH = math.floor(screenH / self.camera.scale)
+
+    local halfViewW, halfViewH = math.floor(viewPortW / 2), math.floor(viewPortH / 2)
+    local mapW, mapH = self.map.width * self.map.tileSize, self.map.height * self.map.tileSize
+    local halfPlayerW, halfPlayerH = math.floor(self.player.w / 2), math.floor(self.player.h / 2)
+
+    local playerX, playerY = self.player.pos:unpack()
+
+    local lockX = math.max(halfViewW, math.min(mapW - halfViewW, playerX))
+    local lockY = math.max(halfViewH, math.min(mapH - halfViewH, playerY - halfPlayerH))
+
+    self.camera:lockPosition(lockX, lockY)
 end
 
 function game:spawnEnemy(spawner)
@@ -211,53 +213,39 @@ function game:spawnEnemies(count)
     end, count)
 end
 
-function game:spawnRandomVase(count)
-    if count < 1 then
-        return
-    end
+function game:spawnEntitiesRandomly(entityType, count)
+    -- No point continuing if count is less than 1 lmao
+    if count < 1 then return end
+
     for i=1, count do
         while true do
-            local x = love.math.random(1, self.map.width)
-            local y = love.math.random(1, self.map.height)
-            local tileData = self.map:getTileAt(x, y, 2)
-            if tileData == nil or not tileData.isSolid then
-                local worldX, worldY = self.map:gridToWorldPos(x, y)
+            local randX = love.math.random(1, self.map.width)
+            local randY = love.math.random(1, self.map.height)
+
+            local tileData = self.map:getTileAt(randX, randY, Map.LAYER_COLLISION)
+            if tileData == nil or tileData.isSolid == false then
+                local worldX, worldY = self.map:gridToWorldPos(randX, randY)
                 local halfTileSize = math.floor(self.map.tileSize / 2)
-                local instance = Entities.new("vase", worldX + halfTileSize, worldY + halfTileSize)
+
+                local instance = Entities.new(entityType, worldX + halfTileSize, worldY + halfTileSize)
                 self.map:registerEntity(instance)
+
+                -- Succesfully spawned a new element so break out of while loop
                 break
             end
         end
     end
 end
 
-function game:spawnRandomBoulders(count)
-    if count < 1 then
-        return
-    end
-    for i=1, count do
-        while true do
-            local x = love.math.random(1, self.map.width)
-            local y = love.math.random(1, self.map.height)
-            local tileData = self.map:getTileAt(x, y, 2)
-            if tileData == nil or not tileData.isSolid then
-                local worldX, worldY = self.map:gridToWorldPos(x, y)
-                local halfTileSize = math.floor(self.map.tileSize / 2)
-                local instance = Entities.new("boulder", worldX + halfTileSize, worldY + halfTileSize)
-                self.map:registerEntity(instance)
-                break
-            end
-        end
-    end
-end
+-- [[ Game State Functions ]] --
 
 function game:nextWave()
     self.currentWave.num = self.currentWave.num + 1
     self.currentWave.spawnedEnemyCount = 0
     self.totalEnemies = 0
     self:spawnEnemies(self.currentWave.num)
-    self:spawnRandomVase(love.math.random(-1, 3))
-    self:spawnRandomBoulders(love.math.random(-1, 3))
+    self:spawnEntitiesRandomly("vase", love.math.random(-1, 3))
+    self:spawnEntitiesRandomly("boulder", love.math.random(-1, 3))
 end
 
 function game:gameover()
@@ -269,5 +257,57 @@ function game:restart()
     Timer.clear()
     Gamestate.switch(game)
 end
+
+
+-- [[ Signal Callbacks ]] --
+
+function game:registerSignalCallbacks()
+    Signal.register("vase-smashed", function(...) self.vase_smashed(self, ...) end)
+    Signal.register("statue-heal", function(...) self.statue_heal(self, ...) end)
+    Signal.register("enemy-died", function(...) self.enemy_died(self, ...) end)
+    Signal.register("statue-died", function(...) self.statue_died(self, ...) end)
+    Signal.register("player-died", function(...) self.statue_died(self, ...) end)
+end
+
+function game:clearSignalCallbacks()
+    Signal.clear("vase-smashed")
+    Signal.clear("statue-heal")
+    Signal.clear("enemy-died")
+    Signal.clear("statue-died")
+    Signal.clear("player-died")
+    Signal.clear("gameover")
+end
+
+function game:vase_smashed(x, y)
+    local rand = 1 --love.math.random(1, 2)
+    if rand == 1 then
+        local drop = self.luckydrops[love.math.random(1, #self.luckydrops)]
+        local dropInstance = drop(x, y)
+        self.map:registerEntity(dropInstance)
+    end
+end
+
+function game:enemy_died(enemy)
+    -- self.enemyCount = self.enemyCount - 1
+    local foundEnemies = self.map:getAllEntitiesWithTag("enemy")
+
+    print("EnemyDied! Enemies left: "..(foundEnemies and #foundEnemies or 0))
+    print(self.currentWave.spawnedEnemyCount, self.currentWave.totalEnemies)
+    if self.currentWave.spawnedEnemyCount == self.currentWave.totalEnemies and foundEnemies == nil then
+        Timer.after(_local.timeBetweenWaves, function() self:nextWave() end)
+    end
+end
+
+function game:statue_heal(amount)
+    local statue = self.map:findEntityOfType("statue")
+    if statue then
+        statue:heal(amount)
+    end
+end
+
+function game:statue_died(statue)
+    self:gameover()
+end
+
 
 return game

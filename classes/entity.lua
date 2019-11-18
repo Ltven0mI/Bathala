@@ -1,6 +1,8 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
+local DepthManager = require "core.depthmanager"
+
 local ColliderBox = require "classes.collider_box"
 
 local Entity = Class{
@@ -26,6 +28,10 @@ end
 
 function Entity:draw()
     love.graphics.rectangle("line", self.pos.x, self.pos.y, self.w, self.h)
+end
+
+function Entity:getDepth()
+    return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
 end
 
 function Entity:onRegistered(map)
