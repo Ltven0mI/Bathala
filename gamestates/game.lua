@@ -8,6 +8,7 @@ local AssetBundle = require "AssetBundle"
 local Player = require "classes.player"
 local Map = require "classes.map"
 
+local Animations = require "core.animations"
 local Entities = require "core.entities"
 local DepthManager = require "core.depthmanager"
 
@@ -154,12 +155,6 @@ function game:draw()
     -- love.graphics.line(math.floor(screenW / 2), 0, math.floor(screenW / 2), screenH)
 end
 
--- function game:keypressed(key)
---     if key == "f2" then
---         love.graphics.captureScreenshot("screenshot.png")
---     end
--- end
-
 function game:mousepressed(x, y, btn)
     local worldX, worldY = self.camera:worldCoords(x, y)
     local dir = (Vector(worldX, worldY) - self.player.pos):normalized()
@@ -169,6 +164,9 @@ end
 function game:keypressed(key)
     if key == "space" then
         DRAWDEPTH = not DRAWDEPTH
+    elseif key == "f2" then
+        print("CAPTURED SCREENSHOT")
+        love.graphics.captureScreenshot(string.format("screenshot_%s.png", os.date("%Y%m%d_%H%M%S")))
     end
 end
 

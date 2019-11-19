@@ -1,7 +1,9 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
+local Animations = require "core.animations"
 local Sprites = require "core.sprites"
+local Entities = require "core.entities"
 local DepthManager = require "core.depthmanager"
 
 local Entity = require "classes.entity"
@@ -66,6 +68,8 @@ function Projectile:draw()
 end
 
 function Projectile:destroy()
+    local explosion = Entities.new("vfx", self.pos.x, self.pos.y, Animations.new("magic_explosion", "default"), love.timer.getTime() * 60)
+    self.map:registerEntity(explosion)
     self.map:unregisterEntity(self)
 end
 

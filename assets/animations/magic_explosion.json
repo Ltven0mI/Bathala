@@ -1,0 +1,217 @@
+{ "frames": [
+   {
+    "filename": "magic_explosion 0.ase",
+    "frame": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 1.ase",
+    "frame": { "x": 26, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 2.ase",
+    "frame": { "x": 52, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 3.ase",
+    "frame": { "x": 78, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 4.ase",
+    "frame": { "x": 104, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 5.ase",
+    "frame": { "x": 130, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 6.ase",
+    "frame": { "x": 156, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 7.ase",
+    "frame": { "x": 182, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 8.ase",
+    "frame": { "x": 208, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 9.ase",
+    "frame": { "x": 234, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 10.ase",
+    "frame": { "x": 260, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 11.ase",
+    "frame": { "x": 286, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 12.ase",
+    "frame": { "x": 312, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 13.ase",
+    "frame": { "x": 338, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 14.ase",
+    "frame": { "x": 364, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 15.ase",
+    "frame": { "x": 390, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 16.ase",
+    "frame": { "x": 416, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 17.ase",
+    "frame": { "x": 442, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 18.ase",
+    "frame": { "x": 468, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 19.ase",
+    "frame": { "x": 494, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 20.ase",
+    "frame": { "x": 520, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   },
+   {
+    "filename": "magic_explosion 21.ase",
+    "frame": { "x": 546, "y": 0, "w": 26, "h": 26 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 26, "h": 26 },
+    "sourceSize": { "w": 26, "h": 26 },
+    "duration": 16
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.15-x64",
+  "image": "magic_explosion.png",
+  "format": "RGBA8888",
+  "size": { "w": 572, "h": 26 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "default", "from": 0, "to": 21, "direction": "forward" }
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

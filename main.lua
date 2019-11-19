@@ -5,6 +5,7 @@ local AssetBundle = require "AssetBundle"
 
 local Entities = require "core.entities"
 local Tiles = require "core.tiles"
+local Animations = require "core.animations"
 
 Gamestates = {
     menu=require("gamestates.menu"),
@@ -15,6 +16,7 @@ Gamestates = {
 function love.load()
     Gamestate.registerEvents()
 
+    Animations.loadAnimations()
     Entities.loadEntities()
     Tiles.loadTiles()
 
