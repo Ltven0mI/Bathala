@@ -1,9 +1,11 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
 local DepthManager = require "core.depthmanager"
+local Util3D = require "core.util3d"
 local Sprites = require "core.sprites"
+local OBJParser = require "core.objparser"
 
 local Peachy = require "peachy"
 
@@ -11,9 +13,17 @@ local ColliderBox = require "classes.collider_box"
 
 local Projectile = require "assets.entities.curse_projectile"
 
+local meshData = OBJParser.unitTest("assets/models/pillar_base1.obj")
+local newMeshTest = love.graphics.newMesh({
+    {"VertexPosition", "float", 3}, -- The x, y, z position of each vertex.
+    {"VertexTexCoord", "float", 2}, -- The u,v texture coordinates of each vertex.
+    {"VertexColor", "byte", 4} -- The r,g,b,a color of each vertex.meshData.vertices, )
+}, meshData.vertices, "triangles")
+newMeshTest:setVertexMap(meshData.indices)
+
 local player = Class{
-    init = function(self, x, y)
-        self.pos = Vector(x, y)
+    init = function(self, x, y, z)
+        self.pos = Maf.vector(x, y, z)
         self.w = 10
         self.h = 16
 
@@ -23,8 +33,8 @@ local player = Class{
 
         self.moveProgress = 0
 
-        self.velocity = Vector(0, 0)
-        self.lastVelocity = Vector(0, 0)
+        self.velocity = Maf.vector(0, 0, 0)
+        self.lastVelocity = Maf.vector(0, 0, 0)
 
         self.lookDirection = "down"
 
@@ -85,9 +95,9 @@ function player:update(dt)
 
     local deltaX = (a and -1 or 0) + (d and 1 or 0)
     local deltaY = (w and -1 or 0) + (s and 1 or 0)
-    local inputDelta = Vector(deltaX, deltaY):normalized()
+    local inputDelta = Maf.vector(deltaX, deltaY):normalize()
 
-    self.moveProgress = self.moveProgress + inputDelta:len() * self.speed * dt
+    self.moveProgress = self.moveProgress + #inputDelta * self.speed * dt
     local flooredProgress = self.moveProgress --math.floor(self.moveProgress)
     self.moveProgress = self.moveProgress - flooredProgress
 
@@ -111,8 +121,8 @@ function player:update(dt)
         end
     end
 
-    local isMovingNow = self.velocity:len() > 0
-    local wasMovingBefore = self.lastVelocity:len() > 0
+    local isMovingNow = #self.velocity > 0
+    local wasMovingBefore = #self.lastVelocity > 0
     if isMovingNow and not wasMovingBefore then
         self.animation:play()
     elseif wasMovingBefore and not isMovingNow then
@@ -151,7 +161,8 @@ function player:draw()
     local yPos = self.pos.y - self.h
 
     love.graphics.setColor(1, 1, 1, 1)
-    self.spriteMesh:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+    -- self.spriteMesh:draw(Util3D.getTranslationTransform(self.pos:unpack()))
+    love.graphics.draw(newMeshTest, Util3D.getTranslationTransform(self.pos:unpack()))
 
     -- [[ Debug ]] --
 
@@ -292,7 +303,7 @@ function player:doCollisionCheck()
             if tileData and tileData.isSolid then
                 local worldX, worldY = self.map:gridToWorldPos(x, y)
                 -- TODO: Need to add colliders to tiles.
-                local collider = ColliderBox({pos=Vector(worldX, worldY)}, tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)
+                local collider = ColliderBox({pos=Maf.vector(worldX, worldY)}, tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)
                 self.collider:checkAndDispatchCollision(collider, self.velocity.x, self.velocity.y)
             end
         end
