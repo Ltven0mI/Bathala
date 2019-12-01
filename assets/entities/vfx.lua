@@ -33,10 +33,6 @@ function VFX:update(dt)
     self.animation:update(dt)
 end
 
-function VFX:getDepth()
-    return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y--[[ + math.floor(self.h / 2)]], 2)
-end
-
 function VFX:updateSpriteCanvas()
     love.graphics.push("all")
     love.graphics.reset()
@@ -59,9 +55,9 @@ function VFX:draw()
 
     self:updateSpriteCanvas()
 
-    local depth = self:getDepth()
-    local xPos = self.pos.x - halfW
-    local yPos = self.pos.y - halfH
+    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y + halfH, 2)
+    local xPos = math.floor(self.pos.x - halfW)
+    local yPos = math.floor(self.pos.y - halfH)
 
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))

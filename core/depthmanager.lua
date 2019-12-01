@@ -46,6 +46,16 @@ function m.drawDepthTexture(x, y)
     love.graphics.draw(_local.depthBuffer, x, y)
 end
 
+function m.sampleDepthAt(x, y)
+    local canvas = love.graphics.newCanvas(_local.depthBuffer:getDimensions())
+    canvas:renderTo(function()
+        love.graphics.clear()
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(_local.depthBuffer, 0, 0)
+    end)
+    return canvas:newImageData():getPixel(x, y)
+end
+
 --[[
     Determines whether to write to the depthbuffer or not.
     isAlpha == true then don't write,

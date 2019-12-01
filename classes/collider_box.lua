@@ -55,6 +55,10 @@ ColliderBox.collisionHandlers["box"] = function(self, other, dx, dy)
     end
 end
 
+function ColliderBox:getBounds()
+    return self.x, self.y, self.w, self.h
+end
+
 function ColliderBox:drawWireframe()
     local selfWorldX, selfWorldY = self:getWorldCoords()
     love.graphics.rectangle("fill", selfWorldX, selfWorldY, self.w, 1)

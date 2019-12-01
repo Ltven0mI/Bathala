@@ -28,6 +28,10 @@ function ColliderBase:getWorldCoords()
     return self.obj.pos.x + self.x, self.obj.pos.y + self.y
 end
 
+function ColliderBase:getBounds()
+    error(string.format("getBounds() was called but is not implemented for collider type '%s'", self.colliderType))
+end
+
 function ColliderBase:drawWireframe()
     error(string.format("drawWireframe() was called but is not implemented for collider type '%s'", self.colliderType))
 end

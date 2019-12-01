@@ -73,7 +73,7 @@ end
 
 function Throwable:getDepth()
     if self.isSmashed then
-        return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 1)
+        return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 1.125)
     else
         return Entity.getDepth(self)
     end

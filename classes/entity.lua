@@ -31,7 +31,7 @@ function Entity:draw()
 end
 
 function Entity:getDepth()
-    return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
+    return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 1.25)
 end
 
 function Entity:onRegistered(map)

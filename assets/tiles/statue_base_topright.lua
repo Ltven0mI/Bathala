@@ -2,6 +2,8 @@ local Class = require "hump.class"
 local Tile = require "classes.tile"
 local Sprites = require "core.sprites"
 
+local DepthManager = require "core.depthmanager"
+
 local ColliderBox = require "classes.collider_box"
 
 local StatueBaseTopRight = Class{
@@ -11,7 +13,10 @@ local StatueBaseTopRight = Class{
     end,
     __includes={ Tile },
     isSolid = true,
-    img = Sprites.new("assets/images/tiles/statue_base_topright.png"),
+    layerHeight = 0.25,
+    offsetX = 0,
+    offsetY = 7,
+    img = Sprites.new("assets/images/tiles/statue_base_topright.png", {isGround=true}),
 }
 
 return StatueBaseTopRight

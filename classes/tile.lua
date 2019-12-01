@@ -15,6 +15,9 @@ local Tile = Class{
         self.map = map
     end,
     isSolid = false,
+    layerHeight = 1,
+    offsetX = 0,
+    offsetY = 0,
 }
 
 function Tile:start()
@@ -26,9 +29,10 @@ function Tile:update(dt)
 end
 
 function Tile:draw()
+    local imgH = self.img.image:getHeight()
     local worldX, worldY = self.map:gridToWorldPos(self.gridX, self.gridY, 1)
-    local depth = self.map:getDepthAtWorldPos(worldX, worldY, self.layerId)
-    local transform = DepthManager.getTranslationTransform(self.pos.x, self.pos.y, depth)
+    local depth = self.map:getDepthAtWorldPos(worldX + self.offsetX, worldY + self.offsetY + imgH, (self.layerId - 1) + self.layerHeight)
+    local transform = DepthManager.getTranslationTransform(self.pos.x + self.offsetX, self.pos.y + self.offsetY, depth)
 
     love.graphics.setColor(1, 1, 1, 1)
     self.img:draw(transform)

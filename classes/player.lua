@@ -146,7 +146,7 @@ function player:draw()
 
     self:updateSpriteCanvas()
 
-    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
+    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 1.25)
     local xPos = self.pos.x - halfImgW
     local yPos = self.pos.y - self.h
 
@@ -161,7 +161,7 @@ function player:draw()
     -- [[ End Debug ]] --
 
     if self.heldItem then
-        self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h, depth)
+        self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h, depth - self.h)
     end
 
     local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")

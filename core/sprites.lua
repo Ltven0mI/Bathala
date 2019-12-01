@@ -24,7 +24,7 @@ end
 
 function _local.newMesh(image, isGround)
     local imgW, imgH = image:getDimensions()
-    local bottomDepth = isGround and imgH or 0
+    local topDepth = isGround and -imgH or imgH
     local meshInstance = love.graphics.newMesh(
     {
         {"VertexPosition", "float", 3}, -- The x,y position of each vertex.
@@ -32,8 +32,8 @@ function _local.newMesh(image, isGround)
         {"VertexColor", "byte", 4} -- The r,g,b,a color of each vertex.
     },
     {
-        {0, 0, -bottomDepth, 0, 0, 1, 1, 1, 1}, -- Top Left
-        {imgW, 0, -bottomDepth, 1, 0, 1, 1, 1, 1}, -- Top Right
+        {0, 0, topDepth, 0, 0, 1, 1, 1, 1}, -- Top Left
+        {imgW, 0, topDepth, 1, 0, 1, 1, 1, 1}, -- Top Right
         {imgW, imgH, 0, 1, 1, 1, 1, 1, 1}, -- Bottom Right
         {0, imgH, 0, 0, 1, 1, 1, 1, 1} -- Bottom Left
     })

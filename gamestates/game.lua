@@ -101,6 +101,8 @@ function game:leave()
 end
 
 function game:update(dt)
+    if DRAWDEPTH then return end
+
     Timer.update(dt)
 
     self.map:update(dt)
@@ -137,6 +139,7 @@ function game:draw()
     if DRAWDEPTH then
         love.graphics.setColor(1, 1, 1, 1)
         DepthManager.drawDepthTexture(0, 0)
+        -- print(DepthManager.sampleDepthAt(love.mouse.getPosition()))
     end
 
 
