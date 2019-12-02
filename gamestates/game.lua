@@ -134,8 +134,9 @@ function game:draw()
     -- DepthManager.enable()
 
 
-    -- DepthManager.setIsAlpha(false)
-    -- self.map:draw()
+    self.camera:setIsAlpha(false)
+
+    self.map:draw()
     -- self.map:drawEntities()
     self.player:draw()
 
@@ -232,27 +233,28 @@ function game:spawnEnemies(count)
 end
 
 function game:spawnEntitiesRandomly(entityType, count)
-    -- No point continuing if count is less than 1 lmao
-    if count < 1 then return end
+    -- TODO: Need to reimplement this
+    -- -- No point continuing if count is less than 1 lmao
+    -- if count < 1 then return end
 
-    for i=1, count do
-        while true do
-            local randX = love.math.random(1, self.map.width)
-            local randY = love.math.random(1, self.map.height)
+    -- for i=1, count do
+    --     while true do
+    --         local randX = love.math.random(1, self.map.width)
+    --         local randY = love.math.random(1, self.map.height)
 
-            local tileData = self.map:getTileAt(randX, randY, Map.LAYER_COLLISION)
-            if tileData == nil or tileData.isSolid == false then
-                local worldX, worldY = self.map:gridToWorldPos(randX, randY)
-                local halfTileSize = math.floor(self.map.tileSize / 2)
+    --         local tileData = self.map:getTileAt(randX, randY, Map.LAYER_COLLISION)
+    --         if tileData == nil or tileData.isSolid == false then
+    --             local worldX, worldY = self.map:gridToWorldPos(randX, randY)
+    --             local halfTileSize = math.floor(self.map.tileSize / 2)
 
-                local instance = Entities.new(entityType, worldX + halfTileSize, worldY + halfTileSize)
-                self.map:registerEntity(instance)
+    --             local instance = Entities.new(entityType, worldX + halfTileSize, worldY + halfTileSize)
+    --             self.map:registerEntity(instance)
 
-                -- Succesfully spawned a new element so break out of while loop
-                break
-            end
-        end
-    end
+    --             -- Succesfully spawned a new element so break out of while loop
+    --             break
+    --         end
+    --     end
+    -- end
 end
 
 -- [[ Game State Functions ]] --

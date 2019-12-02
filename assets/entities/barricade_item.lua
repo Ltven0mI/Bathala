@@ -59,15 +59,16 @@ function BarricadeItem:draw()
 end
 
 function BarricadeItem:use(map, x, y, dir)
-    local gridX, gridY = map:worldToGridPos(x, y)
-    local tileInPlace = map:getTileAt(gridX, gridY, 2)
-    if tileInPlace then return end
+    -- TODO: Need to reimplement this
+    -- local gridX, gridY = map:worldToGridPos(x, y)
+    -- local tileInPlace = map:getTileAt(gridX, gridY, 2)
+    -- if tileInPlace then return end
 
-    local tileInstance = Tiles.new("barricade", map, gridX, gridY, 2, self.player.lookDirection)
-    map:setTileAt(tileInstance, gridX, gridY, 2)
+    -- local tileInstance = Tiles.new("barricade", map, gridX, gridY, 2, self.player.lookDirection)
+    -- map:setTileAt(tileInstance, gridX, gridY, 2)
 
-    self.player.heldItem = nil
-    self.player = nil
+    -- self.player.heldItem = nil
+    -- self.player = nil
 end
 
 return BarricadeItem

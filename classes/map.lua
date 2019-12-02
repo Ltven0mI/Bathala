@@ -11,7 +11,9 @@ local ColliderBox = require "classes.collider_box"
 local Map = Class{
     init = function(self, mapData)
         self.width = mapData.width
-        self.height = mapData.height
+        self.height = #mapData.layouts
+        self.depth = mapData.height -- TODO: This data property needs to be renamed
+
         self.layouts = mapData.layouts
         self.layerCount = #self.layouts
         self.mapData = mapData
@@ -98,29 +100,31 @@ function Map:getEntitiesInCollider(collider, tagStr)
 end
 
 function Map:getTilesInCollider(collider, tagStr)
-    if tagStr and type(tagStr) ~= "table" then
-        tagStr = {tagStr}
-    end
+    -- TODO: Reimplement this
+    return nil
+    -- if tagStr and type(tagStr) ~= "table" then
+    --     tagStr = {tagStr}
+    -- end
 
-    local results = {}
-    local worldX, worldY = collider:getWorldCoords()
-    local minGridX, minGridY = self:worldToGridPos(worldX, worldY)
-    local maxGridX, maxGridY = self:worldToGridPos(worldX + collider.w, worldY + collider.h)
+    -- local results = {}
+    -- local worldX, worldY = collider:getWorldCoords()
+    -- local minGridX, minGridY = self:worldToGridPos(worldX, worldY)
+    -- local maxGridX, maxGridY = self:worldToGridPos(worldX + collider.w, worldY + collider.h)
 
-    -- print(minGridX, minGridY, maxGridX, maxGridY)
+    -- -- print(minGridX, minGridY, maxGridX, maxGridY)
 
-    for x=minGridX, maxGridX do
-        for y=minGridY, maxGridY do
-            local tileData = self:getTileAt(x, y, self.collisionLayer)
-            if tileData and tileData.isSolid and tileData.collider and (tileData.tag == nil or tagStr == nil or _hasEntityGotTag(tileData, tagStr)) and
-                collider:intersect(ColliderBox({pos=Vector(self:gridToWorldPos(x, y))},
-                    tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)) then
-                    table.insert(results, tileData)
-            end
-        end
-    end
+    -- for x=minGridX, maxGridX do
+    --     for y=minGridY, maxGridY do
+    --         local tileData = self:getTileAt(x, y, self.collisionLayer)
+    --         if tileData and tileData.isSolid and tileData.collider and (tileData.tag == nil or tagStr == nil or _hasEntityGotTag(tileData, tagStr)) and
+    --             collider:intersect(ColliderBox({pos=Vector(self:gridToWorldPos(x, y))},
+    --                 tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)) then
+    --                 table.insert(results, tileData)
+    --         end
+    --     end
+    -- end
 
-    return #results > 0 and results or nil
+    -- return #results > 0 and results or nil
 end
 
 function Map:worldToGridPos(x, y, layerId)
@@ -128,17 +132,15 @@ function Map:worldToGridPos(x, y, layerId)
     return math.floor(x / self.tileSize) + 1, math.floor(y / self.tileSize) + math.max(1, layerId-1)
 end
 
-function Map:gridToWorldPos(x, y, layerId)
-    local layerId = layerId or 1
-    return (x-1) * self.tileSize, (y-math.max(1, layerId-1)) * self.tileSize
+function Map:gridToWorldPos(x, y, z)
+    return (x-1) * self.tileSize, (y-1) * self.tileSize, (z-1) * self.tileSize
 end
 
-function Map:getTileAt(x, y, layerId)
-    local layerId = layerId or 1
-    if x < 1 or y < 1 or x > self.width or y > self.height or layerId < 1 or layerId > self.layerCount then
+function Map:getTileAt(x, y, z)
+    if (x < 1 or y < 1 or z < 1) or (x > self.width or y > self.height or z > self.depth) then
         return nil
     end
-    return self.grids[layerId][x][y]
+    return self.grid[x][y][z]
 end
 
 function Map:setTileAt(tileData, x, y, layerId)
@@ -150,22 +152,23 @@ function Map:setTileAt(tileData, x, y, layerId)
 end
 
 function Map:generateGrid()
-    self.grids = {}
+    self.grid = {}
 
-    for i=1, #self.layouts do
-        self.grids[i] = {}
-        for x=1, self.width do
-            self.grids[i][x] = {}
-            for y=1, self.height do
-                local id = self.layouts[i][x][y]
-                local tileKey = self.mapData.tileIndex[id]
+    for x=1, self.width do
+        self.grid[x] = {}
+        for y=1, self.height do
+            self.grid[x][y] = {}
+            for z=1, self.depth do
+                local tileID = self.layouts[y][x][z]
+                local tileKey = self.mapData.tileIndex[tileID]
                 if tileKey then
-                    self.grids[i][x][y] = Tiles.new(tileKey, self, x, y, i)
+                    self.grid[x][y][z] = Tiles.new(tileKey, self, x, y, z)
                 end
             end
         end
     end
 
+    -- TODO: Need to reimplement this vvv
     for _, v in ipairs(self.mapData.entities) do
         local entityInstance = Entities.new(v.name, v.x, v.y)
         self:registerEntity(entityInstance)
@@ -196,19 +199,15 @@ function Map:update(dt)
     end
 end
 
-function Map:draw(minLayer, maxLayer)
-    local minLayer = minLayer or 1
-    local maxLayer = maxLayer or self.layerCount
-
+function Map:draw()
     love.graphics.setColor(1, 1, 1, 1)
     -- local offsetX = math.floor(self.width * self.tileSize / 2)
     -- local offsetY = math.floor(self.height * self.tileSize / 2)
 
-    for i=minLayer, maxLayer do
-        for x=1, self.width do
-            for y=1, self.height do
-                local tileData = self.grids[i][x][y]
-
+    for x=1, self.width do
+        for y=1, self.height do
+            for z=1, self.depth do
+                local tileData = self.grid[x][y][z]
                 if tileData ~= nil then
                     tileData:draw()
                 end

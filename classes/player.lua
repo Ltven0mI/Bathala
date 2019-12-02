@@ -278,26 +278,27 @@ function player:animation_loop()
 end
 
 function player:doCollisionCheck()
-    local posX, posY = self.collider:getWorldCoords()
-    local minX = math.floor(posX)
-    local maxX = math.floor(posX + self.w)
-    local minY = math.floor(posY)
-    local maxY = math.floor(posY + self.h)
+    -- TODO: Need to reimplement this
+    -- local posX, posY = self.collider:getWorldCoords()
+    -- local minX = math.floor(posX)
+    -- local maxX = math.floor(posX + self.w)
+    -- local minY = math.floor(posY)
+    -- local maxY = math.floor(posY + self.h)
 
-    local gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
-    local gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
+    -- local gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
+    -- local gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
 
-    for x=gridMinX, gridMaxX do
-        for y=gridMinY, gridMaxY do
-            local tileData = self.map:getTileAt(x, y, 2)
-            if tileData and tileData.isSolid then
-                local worldX, worldY = self.map:gridToWorldPos(x, y)
-                -- TODO: Need to add colliders to tiles.
-                local collider = ColliderBox({pos=Maf.vector(worldX, worldY)}, tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)
-                self.collider:checkAndDispatchCollision(collider, self.velocity.x, self.velocity.y)
-            end
-        end
-    end
+    -- for x=gridMinX, gridMaxX do
+    --     for y=gridMinY, gridMaxY do
+    --         local tileData = self.map:getTileAt(x, y, 2)
+    --         if tileData and tileData.isSolid then
+    --             local worldX, worldY = self.map:gridToWorldPos(x, y)
+    --             -- TODO: Need to add colliders to tiles.
+    --             local collider = ColliderBox({pos=Maf.vector(worldX, worldY)}, tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)
+    --             self.collider:checkAndDispatchCollision(collider, self.velocity.x, self.velocity.y)
+    --         end
+    --     end
+    -- end
 end
 
 function player:pickUpItem(item)

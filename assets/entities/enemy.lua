@@ -80,28 +80,32 @@ function Enemy:start()
 end
 
 function Enemy:calculateCost(current, next)
-    local tileData = self.map:getTileAt(next.x, next.y, 2)
-    return ((tileData and tileData.isSolid) and 6 or 1)
+    -- TODO: Need to reimplement this
+    return 1
+    -- local tileData = self.map:getTileAt(next.x, next.y, 2)
+    -- return ((tileData and tileData.isSolid) and 6 or 1)
 end
 
 function Enemy:getNeighboursAt(x, y)
-    local possibleNeighbours = {
-        {x=x-1, y=y},
-        {x=x+1, y=y},
-        {x=x, y=y-1},
-        {x=x, y=y+1}
-    }
+    -- TODO: Need to reimplement this
+    return {}
+    -- local possibleNeighbours = {
+    --     {x=x-1, y=y},
+    --     {x=x+1, y=y},
+    --     {x=x, y=y-1},
+    --     {x=x, y=y+1}
+    -- }
 
-    local neighbours = {}
-    for _, neighbour in ipairs(possibleNeighbours) do
-        local groundTileData = self.map:getTileAt(neighbour.x, neighbour.y, 1)
-        local tileData = self.map:getTileAt(neighbour.x, neighbour.y, 2)
-        if groundTileData ~= nil and (tileData == nil or tileData.isSolid == false) then
-            table.insert(neighbours, neighbour)
-        end
-    end
+    -- local neighbours = {}
+    -- for _, neighbour in ipairs(possibleNeighbours) do
+    --     local groundTileData = self.map:getTileAt(neighbour.x, neighbour.y, 1)
+    --     local tileData = self.map:getTileAt(neighbour.x, neighbour.y, 2)
+    --     if groundTileData ~= nil and (tileData == nil or tileData.isSolid == false) then
+    --         table.insert(neighbours, neighbour)
+    --     end
+    -- end
 
-    return neighbours
+    -- return neighbours
 end
 
 function Enemy:updatePath()
