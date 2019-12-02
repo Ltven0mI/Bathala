@@ -1,6 +1,10 @@
 local m = {}
 local _local = {}
 
+local Util3D = require "core.util3d"
+local OBJParser = require "core.objparser"
+local Sprite = require "classes.sprite"
+
 local _pt = {}
 function _pt.draw(self, transform)
     love.graphics.draw(self.mesh, transform)

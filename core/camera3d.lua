@@ -17,7 +17,7 @@ _local.shader = love.graphics.newShader([[
     vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
     {
         vec4 texcolor = Texel(tex, texture_coords);
-        if (texcolor.a <= 0) discard;
+        //if (texcolor.a <= 0) discard;
         return texcolor * color;
     }
     

@@ -5,6 +5,8 @@ local Vector = require "hump.vector"
 local Timer = require "hump.timer"
 local Gamestate = require "hump.gamestate"
 
+local SpriteRenderer = require "core.spriterenderer"
+
 local AssetBundle = require "AssetBundle"
 local Player = require "classes.player"
 local Map = require "classes.map"
@@ -29,6 +31,10 @@ _local.timeBeforeRestart = 3
 local _const = {}
 _const.Z_NEAR = -128
 _const.Z_FAR = 128
+
+local _debug = {}
+_debug.draw_wireframe = false
+_debug.draw_depth = false
 
 local assets = AssetBundle("assets", {
     maps={
@@ -105,8 +111,6 @@ function game:leave()
 end
 
 function game:update(dt)
-    if DRAWDEPTH then return end
-
     Timer.update(dt)
 
     self.map:update(dt)
@@ -120,6 +124,11 @@ function game:draw()
     love.graphics.push("all")
 
     self.camera:attach()
+
+    if _debug.draw_wireframe then
+        love.graphics.setWireframe(true)
+    end
+
     -- love.graphics.applyTransform(DepthManager.depthCorrectionTransform)
     love.graphics.circle("line", 64, 64, 10)
     -- DepthManager.enable()
@@ -130,13 +139,19 @@ function game:draw()
     -- self.map:drawEntities()
     self.player:draw()
 
+    -- [[ After Drawing Everything ]] --
+    self.camera:setIsAlpha(true)
+    SpriteRenderer.drawTransparentSprites()
+
+    love.graphics.setWireframe(false)
+
     self.camera:detach()
     -- DepthManager.disable()
 
     love.graphics.pop()
 
 
-    if DRAWDEPTH then
+    if _debug.draw_depth then
         love.graphics.setColor(1, 1, 1, 1)
         self.camera:drawDepthBuffer(0, 0)
         -- print(DepthManager.sampleDepthAt(love.mouse.getPosition()))
@@ -166,7 +181,9 @@ end
 
 function game:keypressed(key)
     if key == "space" then
-        DRAWDEPTH = not DRAWDEPTH
+        _debug.draw_depth = not _debug.draw_depth
+    elseif key == "f1" then
+        _debug.draw_wireframe = not _debug.draw_wireframe
     elseif key == "f2" then
         print("CAPTURED SCREENSHOT")
         love.graphics.captureScreenshot(string.format("screenshot_%s.png", os.date("%Y%m%d_%H%M%S")))

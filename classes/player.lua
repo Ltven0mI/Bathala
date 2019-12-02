@@ -3,23 +3,13 @@ local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
 local DepthManager = require "core.depthmanager"
-local Util3D = require "core.util3d"
-local Sprites = require "core.sprites"
-local OBJParser = require "core.objparser"
+local SpriteLoader = require "core.spriteloader"
 
 local Peachy = require "peachy"
 
 local ColliderBox = require "classes.collider_box"
 
 local Projectile = require "assets.entities.curse_projectile"
-
-local meshData = OBJParser.unitTest("assets/models/pillar_base1.obj")
-local newMeshTest = love.graphics.newMesh({
-    {"VertexPosition", "float", 3}, -- The x, y, z position of each vertex.
-    {"VertexTexCoord", "float", 2}, -- The u,v texture coordinates of each vertex.
-    {"VertexColor", "byte", 4} -- The r,g,b,a color of each vertex.meshData.vertices, )
-}, meshData.vertices, "triangles")
-newMeshTest:setVertexMap(meshData.indices)
 
 local player = Class{
     init = function(self, x, y, z)
@@ -50,7 +40,7 @@ local player = Class{
         self.animation:stop()
 
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
-        self.spriteMesh = Sprites.new(self.spriteCanvas)
+        self.sprite = SpriteLoader.loadFromOBJ("assets/meshes/billboard16x16.obj", self.spriteCanvas, true)
 
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
@@ -94,7 +84,7 @@ function player:update(dt)
     local d = love.keyboard.isDown("d")
 
     local deltaX = (a and -1 or 0) + (d and 1 or 0)
-    local deltaY = (w and -1 or 0) + (s and 1 or 0)
+    local deltaY = (w and 1 or 0) + (s and -1 or 0)
     local inputDelta = Maf.vector(deltaX, deltaY):normalize()
 
     self.moveProgress = self.moveProgress + #inputDelta * self.speed * dt
@@ -105,10 +95,10 @@ function player:update(dt)
 
     self.pos = self.pos + self.velocity
 
-    if deltaY < 0 then
+    if deltaY > 0 then
         self.animation:setTag("walk_up")
         self.lookDirection = "up"
-    elseif deltaY > 0 then
+    elseif deltaY < 0 then
         self.animation:setTag("walk_down")
         self.lookDirection = "down"
     else
@@ -161,8 +151,8 @@ function player:draw()
     local yPos = self.pos.y - self.h
 
     love.graphics.setColor(1, 1, 1, 1)
-    -- self.spriteMesh:draw(Util3D.getTranslationTransform(self.pos:unpack()))
-    love.graphics.draw(newMeshTest, Util3D.getTranslationTransform(self.pos:unpack()))
+    self.sprite:draw(self.pos:unpack())
+    -- love.graphics.draw(newMeshTest, Util3D.getTranslationTransform(self.pos:unpack()))
 
     -- [[ Debug ]] --
 
