@@ -9,8 +9,8 @@ local Throwable = require "assets.entities.throwable"
 local Sfx = require "classes.sfx"
 
 local Vase = Class{
-    init = function(self, x, y)
-        Throwable.init(self, x, y, 16, 16)
+    init = function(self, x, y, z)
+        Throwable.init(self, x, y, z, 16, 16)
         self.collider = ColliderBox(self, -7, -12, 14, 12)
     end,
     __includes = {

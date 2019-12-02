@@ -12,8 +12,8 @@ local ColliderBox = require "classes.collider_box"
 local CurseProjectile = require "assets.entities.curse_projectile"
 
 local CursePowerup = Class{
-    init = function(self, x, y)
-        UseItem.init(self, x, y, 16, 16)
+    init = function(self, x, y, z)
+        UseItem.init(self, x, y, z, 16, 16)
         self.collider = ColliderBox(self, -8, -16, 16, 16)
         self.animation = Peachy.new("assets/images/powerups/curse_powerup.json", love.graphics.newImage("assets/images/powerups/curse_powerup.png"), "idle")
 

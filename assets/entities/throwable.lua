@@ -11,8 +11,8 @@ local Sprites = require "core.sprites"
 local DepthManager = require "core.depthmanager"
 
 local Throwable = Class{
-    init = function(self, x, y, w, h)
-        Pickupable.init(self, x, y, w, h)
+    init = function(self, x, y, z, w, h)
+        Pickupable.init(self, x, y, z, w, h)
         self.collider = ColliderBox(self, -math.floor(w/2), -h, w, h)
         self.isThrown = false
         self.isSmashed = false
@@ -56,27 +56,20 @@ function Throwable:update(dt)
     end
 end
 
+-- TODO: Need to reimplement this
 function Throwable:draw()
-    love.graphics.setColor(1, 1, 1, 1)
-    local img = self.img
-    if self.isSmashed then
-        img = self.imgBroken
-    end
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- local img = self.img
+    -- if self.isSmashed then
+    --     img = self.imgBroken
+    -- end
 
-    local depth = self:getDepth()
-    local xPos = self.pos.x - math.floor(self.w / 2)
-    local yPos = self.pos.y - self.h
+    -- local depth = self:getDepth()
+    -- local xPos = self.pos.x - math.floor(self.w / 2)
+    -- local yPos = self.pos.y - self.h
 
-    love.graphics.setColor(1, 1, 1, 1)
-    img:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
-end
-
-function Throwable:getDepth()
-    if self.isSmashed then
-        return self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 1.125)
-    else
-        return Entity.getDepth(self)
-    end
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- img:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
 end
 
 function Throwable:canPickUp()

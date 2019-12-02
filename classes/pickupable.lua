@@ -44,9 +44,11 @@ function Pickupable:pickup(player)
     self.player.heldItem = self
 end
 
-function Pickupable:putDown(x, y, map)
-    self.pos.x = x
-    self.pos.y = y
+function Pickupable:putDown(pos, map)
+    self.pos.x = pos.x
+    self.pos.y = pos.y
+    self.pos.z = pos.z
+    
     map:registerEntity(self)
     self.player.heldItem = nil
     self.player = nil

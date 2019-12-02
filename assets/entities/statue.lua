@@ -9,8 +9,8 @@ local DepthManager = require "core.depthmanager"
 local Entity = require "classes.entity"
 
 local Statue = Class{
-    init = function(self, x, y)
-        Entity.init(self, x, y, 32, 48)
+    init = function(self, x, y, z)
+        Entity.init(self, x, y, z, 32, 48)
         self.collider = ColliderBox(self, -12, -9, 24, 19)
         self.health = 60
 
@@ -66,25 +66,26 @@ function Statue:redrawHealthbarCanvas()
     love.graphics.pop()
 end
 
+-- TODO: Need to reimplement this
 function Statue:draw()
-    love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.setColor(1, 1, 1, 1)
     
-    local img = self.aliveImg
-    if self.health == 0 then
-        img = self.rubbleImg
-    end
+    -- local img = self.aliveImg
+    -- if self.health == 0 then
+    --     img = self.rubbleImg
+    -- end
 
-    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
-    local xPos = self.pos.x - math.floor(self.w / 2)
-    local yPos = self.pos.y - math.floor(self.h / 3) * 2
+    -- local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
+    -- local xPos = self.pos.x - math.floor(self.w / 2)
+    -- local yPos = self.pos.y - math.floor(self.h / 3) * 2
 
-    img:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
-    -- self.collider:drawWireframe()
+    -- img:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+    -- -- self.collider:drawWireframe()
 
-    self:redrawHealthbarCanvas()
-    local barX = self.pos.x - math.floor(self.healthbarW / 2)
-    local barY = self.pos.y - math.floor(self.h / 3) * 2 - self.healthbarH
-    self.healthbarSprite:draw(DepthManager.getTranslationTransform(barX, barY, depth))
+    -- self:redrawHealthbarCanvas()
+    -- local barX = self.pos.x - math.floor(self.healthbarW / 2)
+    -- local barY = self.pos.y - math.floor(self.h / 3) * 2 - self.healthbarH
+    -- self.healthbarSprite:draw(DepthManager.getTranslationTransform(barX, barY, depth))
 end
 
 return Statue

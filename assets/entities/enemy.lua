@@ -13,8 +13,8 @@ local ColliderBox = require "classes.collider_box"
 local DesecratorProjectile = require "assets.entities.desecrator_projectile"
 
 local Enemy = Class{
-    init = function(self, x, y)
-        Entity.init(self, x, y, 16, 24)
+    init = function(self, x, y, z)
+        Entity.init(self, x, y, z, 16, 24)
         self.collider = ColliderBox(self, -8, -24, 16, 24)
         self.target = nil
         self.targetStatue = nil
@@ -69,7 +69,9 @@ function Enemy:takeDamage(damage)
     end
 end
 
+-- TODO: Need to reimplement this
 function Enemy:start()
+    --[[
     self.targetStatue = self.map:findEntityOfType("statue")
     if self.targetStatue then
         local statue = self.targetStatue
@@ -77,6 +79,7 @@ function Enemy:start()
         local randOffset = Vector(statue.w + self.stoppingDistance, 0):rotated(math.rad(randRot))
         self:setTarget((statue.pos + randOffset):unpack())
     end
+    ]]
 end
 
 function Enemy:calculateCost(current, next)
@@ -204,7 +207,9 @@ function Enemy:nextNode()
     self.currentNode = table.remove(self.path, 1)
 end
 
+-- TODO: Need to reimplement this
 function Enemy:update(dt)
+    --[[
     self.animation:update(dt)
 
     self.lastVelocity = self.velocity
@@ -270,6 +275,7 @@ function Enemy:update(dt)
             self.animation:setTag("walk_down")
         end
     end
+    ]]
 end
 
 function Enemy:updateSpriteCanvas()
@@ -285,18 +291,24 @@ function Enemy:updateSpriteCanvas()
     love.graphics.pop()
 end
 
+
+-- TODO: Need to reimplement this
 function Enemy:draw()
-    local imgW = self.animation:getWidth()
-    local halfImgW = math.floor(imgW / 2)
+    -- local imgW = self.animation:getWidth()
+    -- local halfImgW = math.floor(imgW / 2)
 
-    self:updateSpriteCanvas()
+    -- self:updateSpriteCanvas()
 
-    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
-    local xPos = self.pos.x - halfImgW
-    local yPos = self.pos.y - self.h
+    -- local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
+    -- local xPos = self.pos.x - halfImgW
+    -- local yPos = self.pos.y - self.h
 
-    love.graphics.setColor(1, 1, 1, 1)
-    self.spriteMesh:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- self.spriteMesh:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+
+
+
+    -- [[ DEBUG CODE BELOW ]] --
 
     -- local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
     -- love.graphics.setColor(1, 1, 1, 1)

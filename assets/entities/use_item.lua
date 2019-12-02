@@ -4,8 +4,8 @@ local Vector = require "hump.vector"
 local Pickupable = require "classes.pickupable"
 
 local UseItem = Class{
-    init = function(self, x, y, w, h)
-        Pickupable.init(self, x, y, w, h)
+    init = function(self, x, y, z, w, h)
+        Pickupable.init(self, x, y, z, w, h)
         self.player = nil
     end,
     __includes = {

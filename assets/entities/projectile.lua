@@ -9,8 +9,8 @@ local DepthManager = require "core.depthmanager"
 local Entity = require "classes.entity"
 
 local Projectile = Class{
-    init = function(self, x, y, dir)
-        Entity.init(self, x, y, 16, 16)
+    init = function(self, x, y, z, dir)
+        Entity.init(self, x, y, z, 16, 16)
         self.dir = dir
         self.timer = 0
     end,

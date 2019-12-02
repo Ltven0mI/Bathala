@@ -11,8 +11,8 @@ local ColliderBox = require "classes.collider_box"
 local Pickupable = require "classes.pickupable"
 
 local SinigangPowerup = Class{
-    init = function(self, x, y)
-        Pickupable.init(self, x, y, 16, 16)
+    init = function(self, x, y, z)
+        Pickupable.init(self, x, y, z, 16, 16)
         self.collider = ColliderBox(self, -8, -16, 16, 16)
         self.animation = Peachy.new("assets/images/powerups/sinigang_powerup.json", love.graphics.newImage("assets/images/powerups/sinigang_powerup.png"), "idle")
 

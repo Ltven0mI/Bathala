@@ -9,8 +9,8 @@ local DepthManager = require "core.depthmanager"
 local Entity = require "classes.entity"
 
 local VFX = Class{
-    init = function(self, x, y, animation, rotation)
-        Entity.init(self, x, y, animation:getWidth(), animation:getHeight())
+    init = function(self, x, y, z, animation, rotation)
+        Entity.init(self, x, y, z, animation:getWidth(), animation:getHeight())
         self.animation = animation
         self.animation:onLoop(self.destroy, self)
 

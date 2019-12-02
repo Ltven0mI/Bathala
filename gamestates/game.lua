@@ -13,7 +13,6 @@ local Map = require "classes.map"
 
 local Animations = require "core.animations"
 local Entities = require "core.entities"
-local DepthManager = require "core.depthmanager"
 
 local game = {}
 
@@ -38,7 +37,7 @@ _debug.draw_depth = false
 
 local assets = AssetBundle("assets", {
     maps={
-        level1="mapExport.lua"
+        level1="level1.lua"
     },
 })
 
@@ -54,22 +53,19 @@ function game:enter()
 
     self.camera = Camera3D(0, 0, 0, nil, nil, _const.Z_NEAR, _const.Z_FAR, 4)
 
-    -- DepthManager.init()
-
     local screenW, screenH = love.graphics.getDimensions()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
     self.uiCamera = Camera(halfW / 4, halfH / 4, 4)
 
     self.map = Map(assets.maps.level1)
-    self.map:generateGrid()
+    -- self.map:exportMap("testExport.lua")
     
     self.player = Player(0, 0, 0)
     self.player:setMap(self.map)
 
     local playerSpawn = self.map:findEntityOfType("player_spawn")
     if playerSpawn then
-        self.player.pos.x = playerSpawn.pos.x
-        self.player.pos.y = playerSpawn.pos.y
+        self.player:setPos(playerSpawn.pos:unpack())
     end
 
     self:registerSignalCallbacks()
@@ -97,8 +93,6 @@ function game:leave()
     self.camera = nil
     self.uiCamera = nil
 
-    -- DepthManager.cleanup()
-
     self.player = nil
     self.map = nil
 
@@ -120,24 +114,15 @@ function game:update(dt)
 end
 
 function game:draw()
-    
-    love.graphics.push("all")
-
     self.camera:attach()
+    self.camera:setIsAlpha(false)
 
     if _debug.draw_wireframe then
         love.graphics.setWireframe(true)
     end
 
-    -- love.graphics.applyTransform(DepthManager.depthCorrectionTransform)
-    love.graphics.circle("line", 64, 64, 10)
-    -- DepthManager.enable()
-
-
-    self.camera:setIsAlpha(false)
 
     self.map:draw()
-    -- self.map:drawEntities()
     self.player:draw()
 
     -- [[ After Drawing Everything ]] --
@@ -147,15 +132,11 @@ function game:draw()
     love.graphics.setWireframe(false)
 
     self.camera:detach()
-    -- DepthManager.disable()
-
-    love.graphics.pop()
 
 
     if _debug.draw_depth then
         love.graphics.setColor(1, 1, 1, 1)
         self.camera:drawDepthBuffer(0, 0)
-        -- print(DepthManager.sampleDepthAt(love.mouse.getPosition()))
     end
 
 
@@ -213,7 +194,7 @@ function game:lockCameraToPlayer()
 end
 
 function game:spawnEnemy(spawner)
-    local enemyInstance = Entities.new("enemy", spawner.pos.x, spawner.pos.y)
+    local enemyInstance = Entities.new("enemy", spawner.pos.x, spawner.pos.y, spawner.pos.z)
     self.map:registerEntity(enemyInstance)
     enemyInstance:start()
     self.currentWave.spawnedEnemyCount = self.currentWave.spawnedEnemyCount + 1

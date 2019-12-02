@@ -9,8 +9,8 @@ local Throwable = require "assets.entities.throwable"
 local Sfx = require "classes.sfx"
 
 local Boulder = Class{
-    init = function(self, x, y)
-        Throwable.init(self, x, y, 16, 16)
+    init = function(self, x, y, z)
+        Throwable.init(self, x, y, z, 16, 16)
         self.collider = ColliderBox(self, -8, -14, 16, 14)
         self.isThrown = false
         self.isSmashed = false

@@ -4,8 +4,8 @@ local Vector = require "hump.vector"
 local Entity = require "classes.entity"
 
 local Spawner = Class{
-    init = function(self, x, y)
-        Entity.init(self, x, y, 16, 16)
+    init = function(self, x, y, z)
+        Entity.init(self, x, y, z, 16, 16)
     end,
     __includes = {
         Entity

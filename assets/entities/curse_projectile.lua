@@ -9,8 +9,8 @@ local ColliderBox = require "classes.collider_box"
 local Projectile = require "assets.entities.projectile"
 
 local CurseProjectile = Class{
-    init = function(self, x, y, dir)
-        Projectile.init(self, x, y, dir)
+    init = function(self, x, y, z, dir)
+        Projectile.init(self, x, y, z, dir)
         self.w = 16
         self.h = 5
         self.collider = ColliderBox(self, -2.5, -2.5, 5, 5)

@@ -10,8 +10,8 @@ local ColliderBox = require "classes.collider_box"
 local Pickupable = require "classes.pickupable"
 
 local BarricadeItem = Class{
-    init = function(self, x, y)
-        Pickupable.init(self, x, y, 16, 16)
+    init = function(self, x, y, z)
+        Pickupable.init(self, x, y, z, 16, 16)
         self.collider = ColliderBox(self, -8, -8, 16, 16)
         self.animation = Peachy.new("assets/images/powerups/barricade_item.json", love.graphics.newImage("assets/images/powerups/barricade_item.png"), "idle")
 

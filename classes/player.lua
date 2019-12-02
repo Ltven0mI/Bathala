@@ -29,6 +29,7 @@ local player = Class{
         self.lookDirection = "down"
 
         self.map = nil
+        -- ? vvv Probably worth centralizing this variable... vvv
         self.isGameOver = false
         self.heldItem = nil
         self.currentUseItem = nil
@@ -57,6 +58,14 @@ local player = Class{
     type="player",
 }
 
+-- [[ Util Functions ]] --
+
+function player:setPos(x, y, z)
+    self.pos.x = x
+    self.pos.y = y
+    self.pos.z = z
+end
+
 function player:setMap(map)
     self.map = map
 end
@@ -67,6 +76,18 @@ function player:takeDamage(damage)
         Signal.emit("player-died")
     end
 end
+
+function player:pickUpItem(item)
+    item:pickup(self)
+end
+
+function player:putDownHeldItem()
+    self.heldItem:putDown(self.pos, self.map)
+end
+-- \\ End Util Functions // --
+
+
+-- [[ Callback Functions ]] --
 
 function player:update(dt)
     self.animation:update(dt)
@@ -84,8 +105,8 @@ function player:update(dt)
     local d = love.keyboard.isDown("d")
 
     local deltaX = (a and -1 or 0) + (d and 1 or 0)
-    local deltaY = (w and 1 or 0) + (s and -1 or 0)
-    local inputDelta = Maf.vector(deltaX, deltaY):normalize()
+    local deltaZ = (w and 1 or 0) + (s and -1 or 0)
+    local inputDelta = Maf.vector(deltaX, 0, deltaZ):normalize()
 
     self.moveProgress = self.moveProgress + #inputDelta * self.speed * dt
     local flooredProgress = self.moveProgress --math.floor(self.moveProgress)
@@ -95,10 +116,10 @@ function player:update(dt)
 
     self.pos = self.pos + self.velocity
 
-    if deltaY > 0 then
+    if deltaZ > 0 then
         self.animation:setTag("walk_up")
         self.lookDirection = "up"
-    elseif deltaY < 0 then
+    elseif deltaZ < 0 then
         self.animation:setTag("walk_down")
         self.lookDirection = "down"
     else
@@ -122,12 +143,13 @@ function player:update(dt)
     self:doCollisionCheck()
 
     if self.pos.x < 0 or self.pos.x > self.map.width * self.map.tileSize or
-    self.pos.y < 0 or self.pos.y > self.map.height * self.map.tileSize then
+    self.pos.y < 0 or self.pos.y > self.map.height * self.map.tileSize or
+    self.pos.z < 0 or self.pos.z > self.map.depth * self.map.tileSize then
         self:takeDamage(self.health)
     end
 end
 
-function player:updateSpriteCanvas()
+function player:redrawSpriteCanvas()
     love.graphics.push("all")
     love.graphics.reset()
 
@@ -144,15 +166,10 @@ function player:draw()
     local imgW = self.animation:getWidth()
     local halfImgW = math.floor(imgW / 2)
 
-    self:updateSpriteCanvas()
-
-    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 1.25)
-    local xPos = self.pos.x - halfImgW
-    local yPos = self.pos.y - self.h
+    self:redrawSpriteCanvas()
 
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(self.pos:unpack())
-    -- love.graphics.draw(newMeshTest, Util3D.getTranslationTransform(self.pos:unpack()))
 
     -- [[ Debug ]] --
 
@@ -276,6 +293,8 @@ function player:animation_loop()
         self.animation:stop(true)
     end
 end
+-- \\ End Callback Functions // --
+
 
 function player:doCollisionCheck()
     -- TODO: Need to reimplement this
@@ -299,14 +318,6 @@ function player:doCollisionCheck()
     --         end
     --     end
     -- end
-end
-
-function player:pickUpItem(item)
-    item:pickup(self)
-end
-
-function player:putDownHeldItem()
-    self.heldItem:putDown(self.pos.x, self.pos.y, self.map)
 end
 
 return player
