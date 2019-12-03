@@ -37,7 +37,8 @@ _debug.draw_depth = false
 
 local assets = AssetBundle("assets", {
     maps={
-        level1="level1.lua"
+        level1="level1.lua",
+        debug="debug_level.lua"
     },
 })
 
@@ -57,7 +58,7 @@ function game:enter()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
     self.uiCamera = Camera(halfW / 4, halfH / 4, 4)
 
-    self.map = Map(assets.maps.level1)
+    self.map = Map(assets.maps.debug)
     -- self.map:exportMap("testExport.lua")
     
     self.player = Player(0, 0, 0)
@@ -182,13 +183,13 @@ function game:lockCameraToPlayer()
     local viewPortH = math.floor(screenH / self.camera.scale)
 
     local halfViewW, halfViewH = math.floor(viewPortW / 2), math.floor(viewPortH / 2)
-    local mapW, mapH = self.map.width * self.map.tileSize, self.map.height * self.map.tileSize
+    local mapW, mapD = self.map.width * self.map.tileSize, self.map.depth * self.map.tileSize
     local halfPlayerW, halfPlayerH = math.floor(self.player.w / 2), math.floor(self.player.h / 2)
 
     local playerX, playerY, playerZ = self.player.pos:unpack()
 
     local lockX = math.max(halfViewW, math.min(mapW - halfViewW, playerX))
-    local lockZ = math.max(halfViewH, math.min(mapH - halfViewH, playerZ - halfPlayerH))
+    local lockZ = math.max(halfViewH, math.min(mapD - halfViewH, playerZ - halfPlayerH))
 
     self.camera:lockPosition(lockX, 0, lockZ)
 end
@@ -201,16 +202,16 @@ function game:spawnEnemy(spawner)
 end
 
 function game:spawnEnemies(count)
-    local spawners = self.map:getAllEntitiesWithTag("spawner")
-    if spawners == nil then
-        error("Failed to spawn enemies: No spawners found!")
-    end
+    -- local spawners = self.map:getAllEntitiesWithTag("spawner")
+    -- if spawners == nil then
+    --     error("Failed to spawn enemies: No spawners found!")
+    -- end
 
-    self.currentWave.totalEnemies = count
+    -- self.currentWave.totalEnemies = count
 
-    Timer.every(_local.timeBetweenEnemySpawns, function()
-        self:spawnEnemy(spawners[love.math.random(1, #spawners)])
-    end, count)
+    -- Timer.every(_local.timeBetweenEnemySpawns, function()
+    --     self:spawnEnemy(spawners[love.math.random(1, #spawners)])
+    -- end, count)
 end
 
 function game:spawnEntitiesRandomly(entityType, count)

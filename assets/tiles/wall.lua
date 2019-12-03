@@ -12,4 +12,8 @@ local Wall = Class{
     img = Sprites.new("assets/images/tiles/pillar_layer5.png", {isGround=true}),
 }
 
+function Wall:draw()
+    
+end
+
 return Wall

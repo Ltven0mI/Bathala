@@ -1,10 +1,6 @@
 local Class = require "hump.class"
 local Maf = require "core.maf"
-local Util3D = require "core.util3d"
-
 local SpriteLoader = require "core.spriteloader"
-
--- local DepthManager = require "core.depthmanager"
 
 local ColliderBox = require "classes.collider_box"
 
@@ -34,10 +30,6 @@ function Tile:update(dt)
 end
 
 function Tile:draw()
-    -- local imgH = self.img.image:getHeight()
-    -- local worldX, worldY = self.map:gridToWorldPos(self.gridX, self.gridY, 1)
-    -- local depth = self.map:getDepthAtWorldPos(worldX + self.offsetX, worldY + self.offsetY + imgH, (self.layerId - 1) + self.layerHeight)
-
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(self.pos.x + self.offsetX, self.pos.y + self.offsetY, self.pos.z + self.offsetZ)
 end

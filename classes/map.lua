@@ -32,11 +32,11 @@ local Map = Class{
 -- [[ Util Functions ]] --
 
 function Map:worldToGridPos(x, y, z)
-    return math.floor(x / self.tileSize) + 1, math.floor(y / self.tileSize), math.floor(z / self.tileSize)
+    return math.floor((x-0.5) / self.tileSize) + 1, math.floor(y / self.tileSize) + 2, math.floor((z-0.5) / self.tileSize) + 1
 end
 
 function Map:gridToWorldPos(x, y, z)
-    return (x-1) * self.tileSize, (y-1) * self.tileSize, (z-1) * self.tileSize
+    return (x-1 + 0.5) * self.tileSize, (y-2) * self.tileSize, (z-1 + 0.5) * self.tileSize
 end
 -- \\ End Util Functions // --
 
@@ -336,8 +336,7 @@ m.depth = %d]]
 
     local entityDataTable = {}
     for _, entity in ipairs(self.entities) do
-        -- TODO: Will need to revert y and z once coord correction is done
-        table.insert(entityDataTable, {name=entity.__name, x=entity.pos.x, y=entity.pos.z, z=entity.pos.y})
+        table.insert(entityDataTable, {name=entity.__name, x=entity.pos.x, y=entity.pos.y, z=entity.pos.z})
     end
 
     local entitiesPattern = "m.entities = %s"

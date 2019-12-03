@@ -142,11 +142,12 @@ function player:update(dt)
 
     self:doCollisionCheck()
 
-    if self.pos.x < 0 or self.pos.x > self.map.width * self.map.tileSize or
-    self.pos.y < 0 or self.pos.y > self.map.height * self.map.tileSize or
-    self.pos.z < 0 or self.pos.z > self.map.depth * self.map.tileSize then
-        self:takeDamage(self.health)
-    end
+    -- Kill player if outside of map bounds
+    -- if self.pos.x < 0 or self.pos.x > self.map.width * self.map.tileSize or
+    -- self.pos.y < 0 or self.pos.y > self.map.height * self.map.tileSize or
+    -- self.pos.z < 0 or self.pos.z > self.map.depth * self.map.tileSize then
+    --     self:takeDamage(self.health)
+    -- end
 end
 
 function player:redrawSpriteCanvas()
