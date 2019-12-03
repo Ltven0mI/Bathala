@@ -14,6 +14,8 @@ local Map = require "classes.map"
 local Animations = require "core.animations"
 local Entities = require "core.entities"
 
+local Console = require "core.console"
+
 local game = {}
 
 game.camera = nil
@@ -112,6 +114,8 @@ function game:update(dt)
     self.player:update(dt)
 
     self:lockCameraToPlayer()
+
+    Console.update(dt)
 end
 
 function game:draw()
@@ -154,6 +158,8 @@ function game:draw()
     -- local screenW, screenH = love.graphics.getDimensions()
     -- love.graphics.line(0, math.floor(screenH / 2), screenW, math.floor(screenH / 2))
     -- love.graphics.line(math.floor(screenW / 2), 0, math.floor(screenW / 2), screenH)
+
+    Console.draw()
 end
 
 function game:mousepressed(x, y, btn)
@@ -162,7 +168,7 @@ function game:mousepressed(x, y, btn)
     self.player:mousepressed(btn, dir)
 end
 
-function game:keypressed(key)
+function game:keypressed(key, isRepeat)
     if key == "space" then
         _debug.draw_depth = not _debug.draw_depth
     elseif key == "f1" then
@@ -171,6 +177,11 @@ function game:keypressed(key)
         print("CAPTURED SCREENSHOT")
         love.graphics.captureScreenshot(string.format("screenshot_%s.png", os.date("%Y%m%d_%H%M%S")))
     end
+    Console.keypressed(key, isRepeat)
+end
+
+function game:textinput(text)
+    Console.textinput(text)
 end
 
 
