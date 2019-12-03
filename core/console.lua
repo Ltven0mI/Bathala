@@ -6,7 +6,7 @@ local _const = {}
 _const.height = 24
 
 local _local = {}
-_local.text = "fuck"
+_local.text = ""
 _local.exposedVariables = {}
 _local.msgTable = {}
 _local.enabled = false
@@ -78,7 +78,7 @@ end
 
 function m.textinput(text)
     if not _local.enabled then return end
-    
+
     _local.text = _local.text .. text
 end
 
