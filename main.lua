@@ -12,6 +12,7 @@ local Console = require "core.console"
 Gamestates = {
     menu=require("gamestates.menu"),
     game=require("gamestates.game"),
+    mapeditor=require("gamestates.mapeditor"),
     gameover=require("gamestates.gameover")
 }
 

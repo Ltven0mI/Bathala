@@ -3,8 +3,9 @@ local Camera = require "hump.camera"
 
 local Sfx = require "classes.sfx"
 
+local Console = require "core.console"
+
 local game_gamestate = require "gamestates.game"
-local editor_gamestate = require "gamestates.editor"
 
 local menu = {}
 
@@ -49,6 +50,10 @@ function menu:leave()
     self.quitButton = nil
 end
 
+function menu:update(dt)
+    Console.update(dt)
+end
+
 function menu:draw()
     self.uiCamera:attach()
 
@@ -59,6 +64,8 @@ function menu:draw()
     self:drawButton(self.quitButton)
 
     self.uiCamera:detach()
+
+    Console.draw()
 end
 
 function menu:mousepressed(x, y, btn)
@@ -90,6 +97,14 @@ function menu:drawButton(button)
     love.graphics.setColor(1, 1, 1, 1)
     local offsetY = button.isHovered and -1 or 0
     love.graphics.draw(button.img, button.x, button.y + offsetY)
+end
+
+function menu:keypressed(key, isRepeat)
+    Console.keypressed(key, isRepeat)
+end
+
+function menu:textinput(text)
+    Console.textinput(text)
 end
 
 return menu
