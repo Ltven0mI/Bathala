@@ -60,7 +60,7 @@ function game:enter()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
     self.uiCamera = Camera(halfW / 4, halfH / 4, 4)
 
-    self.map = Map(assets.maps.debug)
+    self.map = Map(assets.maps.level1)
     -- self.map:exportMap("testExport.lua")
     
     self.player = Player(0, 0, 0)
