@@ -28,9 +28,21 @@ _debug.draw_wireframe = false
 _debug.draw_depth = false
 
 
+-- [[ Util Functions ]] --
+
+function MapEditor:loadMap(filePath)
+    local map, err = MapLoader.loadFromFile(filePath)
+    if not map then
+        return false, err
+    end
+    self.map = map
+end
+
+
 -- [[ Callbacks ]] --
 
 function MapEditor:init()
+    Console.expose("editor_loadmap", function(filePath) return self:loadMap(filePath) end)
 end
 
 function MapEditor:enter()
