@@ -12,6 +12,8 @@ local Animations = require "core.animations"
 local Entities = require "core.entities"
 local DepthManager = require "core.depthmanager"
 
+local Console = require "core.console"
+
 local game = {}
 
 game.camera = nil
@@ -101,14 +103,14 @@ function game:leave()
 end
 
 function game:update(dt)
-    if DRAWDEPTH then return end
-
     Timer.update(dt)
 
     self.map:update(dt)
     self.player:update(dt)
 
     self:lockCameraToPlayer()
+
+    Console.update(dt)
 end
 
 function game:draw()
@@ -156,6 +158,8 @@ function game:draw()
     -- local screenW, screenH = love.graphics.getDimensions()
     -- love.graphics.line(0, math.floor(screenH / 2), screenW, math.floor(screenH / 2))
     -- love.graphics.line(math.floor(screenW / 2), 0, math.floor(screenW / 2), screenH)
+
+    Console.draw()
 end
 
 function game:mousepressed(x, y, btn)
@@ -164,13 +168,18 @@ function game:mousepressed(x, y, btn)
     self.player:mousepressed(btn, dir)
 end
 
-function game:keypressed(key)
+function game:keypressed(key, isRepeat)
     if key == "space" then
         DRAWDEPTH = not DRAWDEPTH
     elseif key == "f2" then
         print("CAPTURED SCREENSHOT")
         love.graphics.captureScreenshot(string.format("screenshot_%s.png", os.date("%Y%m%d_%H%M%S")))
     end
+    Console.keypressed(key, isRepeat)
+end
+
+function game:textinput(text)
+    Console.textinput(text)
 end
 
 
