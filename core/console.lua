@@ -17,6 +17,10 @@ function m.expose(key, var)
     _local.exposedVariables[key] = var
 end
 
+function m.getIsEnabled()
+    return _local.enabled
+end
+
 function m.update(dt)
     if not _local.enabled then return end
 
