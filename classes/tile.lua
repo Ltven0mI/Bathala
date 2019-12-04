@@ -12,8 +12,12 @@ local Tile = Class{
         self.pos = Maf.vector(map:gridToWorldPos(gridX, gridY, gridZ))
         self.collider = ColliderBox(self, 0, 0, map.tileSize, map.tileSize)
         self.map = map
-        self.sprite = SpriteLoader.loadFromOBJ("assets/meshes/tile_ground.obj", "assets/images/missing_texture.png", false)
+        self.sprite = SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
+    spriteMeshFile="assets/meshes/tile_ground.obj",
+    spriteImgFile="assets/images/missing_texture.png",
+    spriteIsTransparent=false,
+
     isSolid = false,
     layerHeight = 1,
     offsetX = 0,

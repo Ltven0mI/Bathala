@@ -14,11 +14,8 @@ m.tileIndex = {
     [11]="carpet_right",
     [12]="statue_base_topright",
     [13]="carpet_left",
-    [14]="pillar_layer5",
-    [15]="pillar_layer4",
-    [16]="carpet_middle",
-    [17]="pillar_layer5_front",
-    [18]="ground_cracked",
+    [14]="pillar_layer4",
+    [15]="carpet_middle",
 }
 m.tileIndexGrid = {
     [1] = {
@@ -30,7 +27,7 @@ m.tileIndexGrid = {
         [2] = {
             [1] = 7,
             [2] = 0,
-            [3] = 15
+            [3] = 14
         },
         [3] = {
             [1] = 0,
@@ -40,9 +37,9 @@ m.tileIndexGrid = {
     },
     [2] = {
         [1] = {
-            [1] = 16,
-            [2] = 16,
-            [3] = 16
+            [1] = 15,
+            [2] = 15,
+            [3] = 15
         },
         [2] = {
             [1] = 4,
@@ -64,7 +61,7 @@ m.tileIndexGrid = {
         [2] = {
             [1] = 1,
             [2] = 0,
-            [3] = 14
+            [3] = 0
         },
         [3] = {
             [1] = 0,
