@@ -44,6 +44,22 @@ function m.get(tileName)
     return tile
 end
 
+--[[
+    Returns a table containing all tiles thats name matches the pattern.
+]]
+function m.getTilesMatchingPattern(pattern)
+    if pattern == nil or pattern:len() == 0 then
+        pattern = ".*"
+    end
+    local matchedTiles = {}
+    for name, tile in pairs(_local.loadedTiles) do
+        if name:match(pattern) then
+            table.insert(matchedTiles, tile)
+        end
+    end
+    return matchedTiles
+end
+
 function m.setDefaultPath(path)
     if type(path) ~= "string" then
         error(string.format("setDefaultPath() accepts type 'string' not '%s'", type(path)), 2)
