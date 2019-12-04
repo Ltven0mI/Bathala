@@ -23,7 +23,7 @@ function love.load()
     Entities.loadEntities()
     Tiles.loadTiles()
 
-    Gamestate.switch(Gamestates.menu)
+    Gamestate.switch(Gamestates.mapeditor)
 
     Console.expose("set_gamestate", function(gamestateName)
         local gamestate = Gamestates[gamestateName]
