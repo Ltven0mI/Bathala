@@ -1,6 +1,7 @@
 local Class = require "hump.class"
 local Maf = require "core.maf"
 local SpriteLoader = require "core.spriteloader"
+local SpriteRenderer = require "core.spriterenderer"
 
 local ColliderBox = require "classes.collider_box"
 
@@ -36,6 +37,11 @@ end
 function Tile:draw()
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(self.pos.x + self.offsetX, self.pos.y + self.offsetY, self.pos.z + self.offsetZ)
+end
+
+function Tile:renderToImage()
+    local sprite = self.sprite or SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
+    return SpriteRenderer.renderSpriteToImage(sprite)
 end
 
 return Tile

@@ -235,6 +235,11 @@ function MapEditor:drawSearchResults(screenW, screenH)
         local x = layoutX + paddingLeft + column * (_const.UI_UNIT * 2 + _const.UI_HALFUNIT)
         local y = layoutY + paddingTop + row * (_const.UI_UNIT * 5)
 
+        if entry.icon then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(entry.icon, x, y, 0, 2, 2)
+        end
+
         -- [[ Set color based on whether the tile is selected or not ]] --
         if entry == self.selectedTile then
             love.graphics.setColor(1, 1, 1, 1)
