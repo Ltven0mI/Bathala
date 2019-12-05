@@ -47,7 +47,29 @@ function MapEditor:loadMap(filePath)
     if not map then
         return false, err
     end
+    self:setMap(map)
+    return true
+end
+
+function MapEditor:newMap(width, height, depth)
+    self:setMap(MapLoader.newEmptyMap(width, height, depth))
+    return true
+end
+
+function MapEditor:exportMap(filePath)
+    if not self.map then
+        return false, "Failed to export map : No map loaded."
+    end
+    local success, err = self.map:exportMap(filePath)
+    if not success then
+        return false, string.format("Failed to export map to file '%s' : %s", filePath, err)
+    end
+    return true
+end
+
+function MapEditor:setMap(map)
     self.map = map
+    self.mapGrid = Grid(self.map.width, self.map.depth, self.map.tileSize)
 end
 
 function MapEditor:updateSearchResults(pattern)
@@ -59,7 +81,9 @@ end
 -- [[ Callbacks ]] --
 
 function MapEditor:init()
-    Console.expose("editor_loadmap", function(filePath) return self:loadMap(filePath) end)
+    Console.expose("editor_loadmap", function(...) return _local.console_loadmap(self, ...) end)
+    Console.expose("editor_newmap", function(...) return _local.console_newmap(self, ...) end)
+    Console.expose("editor_exportmap", function(...) return _local.console_exportmap(self, ...) end)
 end
 
 function MapEditor:enter()
@@ -69,8 +93,7 @@ function MapEditor:enter()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
     self.uiCamera = Camera(halfW, halfH, 1)
 
-    self.map = MapLoader.loadFromFile("assets/maps/debug_level.lua")
-    self.mapGrid = Grid(self.map.width, self.map.depth, self.map.tileSize)
+    self:loadMap("assets/maps/debug_level.lua")
 
     -- [[ UI ]] --
     self.ui = MapEditorUI(self)
@@ -248,5 +271,33 @@ function MapEditor:updateCameraMovement(dt)
     self.camera:move(cameraMovement:unpack())
 end
 -- \\ End Update Functions // --
+
+
+-- [[ Console Functions ]] --
+
+function _local.console_loadmap(self, filePath)
+    return self:loadMap(filePath)
+end
+
+function _local.console_newmap(self, widthStr, heightStr, depthStr)
+    local widthNum = tonumber(widthStr)
+    if widthNum == nil then
+        return false, string.format("Invalid argument #1 expected number received '%s'", widthStr)
+    end
+    local heightNum = tonumber(heightStr)
+    if heightNum == nil then
+        return false, string.format("Invalid argument #2 expected number received '%s'", heightStr)
+    end
+    local depthNum = tonumber(depthStr)
+    if depthNum == nil then
+        return false, string.format("Invalid argument #3 expected number received '%s'", depthStr)
+    end
+    return self:newMap(widthNum, heightNum, depthNum)
+end
+
+function _local.console_exportmap(self, filePath)
+    return self:exportMap(filePath)
+end
+-- \\ End Console Functions // --
 
 return MapEditor

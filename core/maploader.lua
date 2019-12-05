@@ -25,4 +25,26 @@ function m.loadFromFile(filePath)
     return Map(result_or_err)
 end
 
+function m.newEmptyMap(width, height, depth)
+    local mapData = {
+        width=width,
+        height=height,
+        depth=depth
+    }
+    mapData.tileIndex = {}
+    mapData.tileIndexGrid = {}
+    for x=1, width do
+        mapData.tileIndexGrid[x] = {}
+        for y=1, height do
+            mapData.tileIndexGrid[x][y] = {}
+            for z=1, depth do
+                mapData.tileIndexGrid[x][y][z] = 0
+            end
+        end
+    end
+    mapData.entities = {}
+    
+    return Map(mapData)
+end
+
 return m
