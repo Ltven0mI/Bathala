@@ -27,30 +27,30 @@ lewd.const = {
 }
 
 function lewd.mousepressed(x, y, btn, isTouch, presses)
+    -- First update hovered element
+    local nextHoveredElement = lewd.core.getZoneDataAt(x, y)
+    local lastHoveredElement = lewd.core.hoveredElement
+    lewd.core.hoveredElement = nextHoveredElement
+
+    if nextHoveredElement ~= lastHoveredElement then
+        if lastHoveredElement then
+            lastHoveredElement.isHovered = false
+            if lastHoveredElement.onMouseLeave then lastHoveredElement:onMouseLeave() end
+        end
+        if nextHoveredElement then
+            nextHoveredElement.isHovered = true
+            if nextHoveredElement.onMouseEnter then nextHoveredElement:onMouseEnter(x, y) end
+        end
+    end
+
+    local nextSelectedElement = lewd.core.hoveredElement
+    lewd.core.setSelectedElement(nextSelectedElement)
+    
+    if nextSelectedElement ~= nil then
+        if nextSelectedElement.onMousePressed then nextSelectedElement:onMousePressed(x, y, btn) end
+    end
+        
     if btn == 1 then
-        -- First update hovered element
-        local nextHoveredElement = lewd.core.getZoneDataAt(x, y)
-        local lastHoveredElement = lewd.core.hoveredElement
-        lewd.core.hoveredElement = nextHoveredElement
-
-        if nextHoveredElement ~= lastHoveredElement then
-            if lastHoveredElement then
-                lastHoveredElement.isHovered = false
-                if lastHoveredElement.onMouseLeave then lastHoveredElement:onMouseLeave() end
-            end
-            if nextHoveredElement then
-                nextHoveredElement.isHovered = true
-                if nextHoveredElement.onMouseEnter then nextHoveredElement:onMouseEnter(x, y) end
-            end
-        end
-
-        local nextSelectedElement = lewd.core.hoveredElement
-        lewd.core.setSelectedElement(nextSelectedElement)
-        
-        if nextSelectedElement ~= nil then
-            if nextSelectedElement.onMousePressed then nextSelectedElement:onMousePressed(x, y) end
-        end
-        
         lewd.core.dragStartX = x
         lewd.core.dragStartY = y
         lewd.core.isDragging = true
@@ -94,12 +94,12 @@ function lewd.mousemoved(x, y, dx, dy, isTouch)
 end
 
 function lewd.mousereleased(x, y, btn, isTouch, presses)
-    if btn == 1 then
-        local selectedElement = lewd.core.selectedElement
-        if selectedElement and selectedElement.onMouseReleased then
-            selectedElement:onMouseReleased(x, y)
-        end
+    local selectedElement = lewd.core.selectedElement
+    if selectedElement and selectedElement.onMouseReleased then
+        selectedElement:onMouseReleased(x, y, btn)
+    end
 
+    if btn == 1 then
         local draggedElement = lewd.core.draggedElement
         if draggedElement and draggedElement.onDropped then draggedElement:onDropped(x, y) end
         lewd.core.draggedElement = nil
@@ -376,8 +376,8 @@ lewd.core.newElementType("element", {
 
         return realW + realPadding.left + realPadding.right, realH + realPadding.top + realPadding.bottom
     end,
-    onMouseReleased = function(self, x, y)
-        if self.isHovered then
+    onMouseReleased = function(self, x, y, btn)
+        if btn == 1 and self.isHovered then
             if self.onClick then self:onClick() end
         end
     end,

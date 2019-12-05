@@ -10,14 +10,15 @@ local MapLoader = require "core.maploader"
 local SpriteRenderer = require "core.spriterenderer"
 local SpriteLoader = require "core.spriteloader"
 
+local Console = require "core.console"
 local Tiles = require "core.tiles"
 local Animations = require "core.animations"
 local Entities = require "core.entities"
 
+local Grid = require "classes.grid"
+
+
 local Lewd = require "core.lewd"
-
-local Console = require "core.console"
-
 local MapEditorUI = require "ui.ui_mapeditor"
 
 local MapEditor = {}
@@ -69,17 +70,22 @@ function MapEditor:enter()
     self.uiCamera = Camera(halfW, halfH, 1)
 
     self.map = MapLoader.loadFromFile("assets/maps/debug_level.lua")
+    self.mapGrid = Grid(self.map.width, self.map.depth, self.map.tileSize)
 
     -- [[ UI ]] --
     self.ui = MapEditorUI(self)
-    self.ui.onMousePressed = function(ui, x, y)
+    self.ui.onMousePressed = function(ui, x, y, btn)
         if self.map then
             local worldX, worldY, worldZ = self.camera:worldCoords(x, y)
             local gridX, gridY, gridZ = self.map:worldToGridPos(worldX, worldY, worldZ)
             gridY = self.selectedGridY
-            local selectedTile = self.ui.tileSelectionResultGrid.selectedEntry
-            if selectedTile then
-                self.map:setTileAt(selectedTile(self.map, gridX, gridY, gridZ), gridX, gridY, gridZ)
+            if btn == 1 then
+                local selectedTile = self.ui.tileSelectionResultGrid.selectedEntry
+                if selectedTile then
+                    self.map:setTileAt(selectedTile(self.map, gridX, gridY, gridZ), gridX, gridY, gridZ)
+                end
+            elseif btn == 2 then
+                self.map:setTileAt(nil, gridX, gridY, gridZ)
             end
         end
     end
@@ -106,6 +112,7 @@ function MapEditor:leave()
     self.uiCamera = nil
 
     self.map = nil
+    self.mapGrid = nil
 
     self.ui = nil
     self.searchResults = nil
@@ -122,7 +129,7 @@ function MapEditor:update(dt)
     if self.map then
         self.map:update(dt)
 
-        if not Console.getIsEnabled() then
+        if not Console.getIsEnabled() and not self.ui.tileSelectionSearchBar.isSelected then
             self:updateCameraMovement(dt)
         end
     end
@@ -140,6 +147,8 @@ function MapEditor:draw()
 
     if self.map then
         self.map:draw()
+        love.graphics.setColor(0.6, 0.6, 0.6, 1)
+        self.mapGrid:draw(0, -1, 1)
 
         if self.selectedTileSprite then
             local mx, my = love.mouse.getPosition()
@@ -199,16 +208,19 @@ end
 function MapEditor:keypressed(key, scancode, isRepeat)
     Lewd.keypressed(key, scancode, isRepeat)
 
-    if key == "up" then
-        self.selectedGridY = self.selectedGridY + 1
-    elseif key == "down" then
-        self.selectedGridY = self.selectedGridY - 1
-    end
+    if not Console.getIsEnabled() and not self.ui.tileSelectionSearchBar.isSelected then
+        if key == "up" then
+            self.selectedGridY = self.selectedGridY + 1
+        elseif key == "down" then
+            self.selectedGridY = self.selectedGridY - 1
+        end
+        self.selectedGridY = math.max(1, math.min(self.map.height, self.selectedGridY))
 
-    if key == "space" then
-        _debug.draw_depth = not _debug.draw_depth
-    elseif key == "f1" then
-        _debug.draw_wireframe = not _debug.draw_wireframe
+        if key == "space" then
+            _debug.draw_depth = not _debug.draw_depth
+        elseif key == "f1" then
+            _debug.draw_wireframe = not _debug.draw_wireframe
+        end
     end
     Console.keypressed(key, isRepeat)
 end
