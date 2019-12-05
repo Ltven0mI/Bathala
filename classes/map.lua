@@ -6,6 +6,8 @@ local Entities = require "core.entities"
 local Tiles = require "core.tiles"
 local DepthManager = require "core.depthmanager"
 
+local PathUtil = require "AssetBundle.PathUtil"
+
 local ColliderBox = require "classes.collider_box"
 
 local _local = {}
@@ -351,9 +353,19 @@ m.depth = %d]]
     local fileString = string.format(filePattern, headerString,
     tileIndexString, gridString, entitiesString, footerString)
 
-    print(fileString)
+    -- print(fileString)
 
-    love.filesystem.write(filePath, fileString)
+    local root, baseName = PathUtil.split(filePath)
+    local success = love.filesystem.createDirectory(root)
+    if not success then
+        return false, string.format("Failed to create export directory '%s'", root)
+    end
+    local success, err = love.filesystem.write(filePath, fileString)
+    if not success then
+        return false, err
+    end
+
+    return true
 end
 
 return Map
