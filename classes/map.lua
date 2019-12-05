@@ -32,11 +32,11 @@ local Map = Class{
 -- [[ Util Functions ]] --
 
 function Map:worldToGridPos(x, y, z)
-    return math.floor((x-0.5) / self.tileSize) + 1, math.floor(y / self.tileSize) + 2, math.floor((z-0.5) / self.tileSize) + 1
+    return math.floor(x / self.tileSize) + 1, math.floor(y / self.tileSize) + 2, math.floor(z / self.tileSize) + 1
 end
 
 function Map:gridToWorldPos(x, y, z)
-    return (x-1 + 0.5) * self.tileSize, (y-2) * self.tileSize, (z-1 + 0.5) * self.tileSize
+    return ((x-1)+0.5) * self.tileSize, ((y-1)-1) * self.tileSize, ((z-1) + 0.5) * self.tileSize
 end
 -- \\ End Util Functions // --
 
@@ -79,19 +79,22 @@ end
 
 -- [[ Tile Functions ]] --
 
+function Map:checkIsOutsideMap(x, y, z)
+    return (x < 1 or y < 1 or z < 1) or (x > self.width or y > self.height or z > self.depth)
+end
+
 function Map:getTileAt(x, y, z)
-    if (x < 1 or y < 1 or z < 1) or (x > self.width or y > self.height or z > self.depth) then
+    if self:checkIsOutsideMap(x, y, z) then
         return nil
     end
     return self.grid[x][y][z]
 end
 
-function Map:setTileAt(tileData, x, y, layerId)
-    local layerId = layerId or 1
-    if x < 1 or y < 1 or x > self.width or y > self.height or layerId < 1 or layerId > self.layerCount then
+function Map:setTileAt(tileData, x, y, z)
+    if self:checkIsOutsideMap(x, y, z)  then
         return nil
     end
-    self.grids[layerId][x][y] = tileData
+    self.grid[x][y][z] = tileData
 end
 
 function Map:getTilesInCollider(collider, tagStr)
