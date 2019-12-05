@@ -8,18 +8,22 @@ _local.transparentSpriteBuffer = {}
 
 
 -- Stores the sprite and args in the transparent sprite buffer
-function m.storeTransparentSprite(sprite, x, y, z)
-    table.insert(_local.transparentSpriteBuffer, {sprite=sprite, x=x, y=y, z=z or 0})
+function m.storeTransparentSprite(sprite, x, y, z, color, shader)
+    table.insert(_local.transparentSpriteBuffer, {sprite=sprite, x=x, y=y, z=z or 0, color=color, shader=shader})
 end
 
 -- Sorts then draws transparent sprites
 -- Sprites are sorted by decending 'z'
 function m.drawTransparentSprites()
+    love.graphics.push("all")
     table.sort(_local.transparentSpriteBuffer, function(a, b) return (a.z > b.z) end)
     for _, entry in ipairs(_local.transparentSpriteBuffer) do
+        if entry.color then love.graphics.setColor(entry.color) end
+        love.graphics.setShader(entry.shader)
         m.drawSpriteDirect(entry.sprite, entry.x, entry.y, entry.z)
     end
     _local.transparentSpriteBuffer = {}
+    love.graphics.pop()
 end
 
 -- Draws a sprite in the world ( does not take into account transparency )

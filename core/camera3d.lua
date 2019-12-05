@@ -85,7 +85,7 @@ end
     isAlpha == false then write.
 ]]
 function camera:setIsAlpha(isAlpha)
-    love.graphics.setDepthMode("less", not isAlpha)
+    love.graphics.setDepthMode("lequal", not isAlpha)
 end
 
 local cameraCoordsVector = Matrix:new({0, 0, 0})

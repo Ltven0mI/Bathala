@@ -12,7 +12,9 @@ local Sprite = Class{
 
 function Sprite:draw(x, y, z)
     if self.isTransparent then
-        SpriteRenderer.storeTransparentSprite(self, x, y, z)
+        local color = {love.graphics.getColor()}
+        local shader = love.graphics.getShader()
+        SpriteRenderer.storeTransparentSprite(self, x, y, z, color, shader)
     else
         SpriteRenderer.drawSpriteDirect(self, x, y, z)
     end

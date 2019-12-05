@@ -33,4 +33,18 @@ function m.loadFromOBJ(objPath, path_or_texture, isTransparent)
     return Sprite(mesh, isTransparent)
 end
 
+function m.createSpriteFromVertices(vertices, indices, path_or_texture, isTransparent)
+    local texture = path_or_texture
+    if type(path_or_texture) == "string" then
+        texture = love.graphics.newImage(path_or_texture)
+    end
+
+    local mesh = love.graphics.newMesh(_local.vertexFormat, vertices, "triangles")
+    mesh:setVertexMap(indices)
+    mesh:setTexture(texture)
+
+    if isTransparent == nil then isTransparent = false end
+    return Sprite(mesh, isTransparent)
+end
+
 return m
