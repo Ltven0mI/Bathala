@@ -49,7 +49,7 @@ function MapEditor:loadMap(filePath)
 end
 
 function MapEditor:updateSearchResults(pattern)
-    self.searchResults = Tiles.getTilesMatchingPattern(pattern)
+    self.ui.tileSelectionResultGrid:setEntries(Tiles.getTilesMatchingPattern(pattern))
 end
 -- \\ End Util Functions // --
 
@@ -136,7 +136,6 @@ function MapEditor:draw()
     
     Lewd.core.clearZones()
     self.ui:draw(self.ui:getRealPos())
-    self:drawSearchResults(self.uiCamera:worldCoords(love.graphics.getDimensions()))
     
     -- Lewd.core.drawZoneMap(0, 0)
 
@@ -194,62 +193,5 @@ function MapEditor:updateCameraMovement(dt)
     self.camera:move(cameraMovement:unpack())
 end
 -- \\ End Update Functions // --
-
-
--- [[ Drawing Functions ]] --
-
-function _local.drawBorder(x, y, w, h)
-    love.graphics.rectangle("fill", x, y, w, 1) -- Top
-    love.graphics.rectangle("fill", x, y+h-1, w, 1) -- Bottom
-    love.graphics.rectangle("fill", x, y, 1, h) -- Left
-    love.graphics.rectangle("fill", x+w-1, y, 1, h) -- Right
-end
-
-function MapEditor:drawSearchResults(screenW, screenH)
-    if not self.map then return end
-
-    local paddingLeft = _const.UI_HALFUNIT
-    local paddingRight = _const.UI_HALFUNIT
-    local totalWidth = _const.UI_RESULT_COLUMNS * _const.UI_UNIT * 2 + _const.UI_HALFUNIT * (_const.UI_RESULT_COLUMNS-1) + paddingLeft + paddingRight
-
-    local paddingTop = _const.UI_HALFUNIT
-    local paddingBottom = _const.UI_UNIT
-    local totalHeight = _const.UI_RESULT_ROWS * _const.UI_UNIT * 4 + _const.UI_UNIT * (_const.UI_RESULT_ROWS-1) + paddingTop + paddingBottom
-
-    local layoutX = screenW - totalWidth - 3
-    local layoutY = screenH - totalHeight - 3 - _const.UI_UNIT - 1
-
-    -- [[ Draw Border ]] --
-    love.graphics.setColor(1, 1, 1, 1)
-    _local.drawBorder(layoutX-1, layoutY-1, totalWidth+2, totalHeight+2)
-
-    -- [[ Draw Results ]] --
-    for i, entry in ipairs(self.searchResults) do
-        local row = math.floor((i-1) / _const.UI_RESULT_COLUMNS)
-        local column = (i-1) % _const.UI_RESULT_COLUMNS
-
-        if row >= _const.UI_RESULT_ROWS then
-            break
-        end
-
-        local x = layoutX + paddingLeft + column * (_const.UI_UNIT * 2 + _const.UI_HALFUNIT)
-        local y = layoutY + paddingTop + row * (_const.UI_UNIT * 5)
-
-        if entry.icon then
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.draw(entry.icon, x, y, 0, 2, 2)
-        end
-
-        -- [[ Set color based on whether the tile is selected or not ]] --
-        if entry == self.selectedTile then
-            love.graphics.setColor(1, 1, 1, 1)
-        else
-            love.graphics.setColor(0.5, 0.5, 0.5, 1)
-        end
-        
-        _local.drawBorder(x-1, y-1, _const.UI_UNIT * 2 + 2, _const.UI_UNIT * 4 + 2)
-    end
-end
--- \\ End Drawing Functions // --
 
 return MapEditor
