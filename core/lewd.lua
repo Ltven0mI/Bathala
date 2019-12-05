@@ -17,6 +17,7 @@ lewd.style = {
     bg_color = {30/256, 30/256, 30/256, 1},
     border_color = {52/256, 52/256, 52/256, 1},
     fg_color = {1, 1, 1, 1},
+    text_placeholder_color = {0.5, 0.5, 0.5, 1},
     unit = 18,
     halfunit = 9
 }
@@ -353,6 +354,7 @@ lewd.core.newElementType("element", {
             data.parent:addChild(self)
         end
         self.children = {}
+        self.style = setmetatable((data.style or {}), {__index=lewd.style})
     end,
     draw = function(self, x, y)
         local realW, realH = self:getRealSize()
@@ -730,7 +732,7 @@ lewd.core.newElementType("label", {
             error(string.format("Unknown textAlignment value '%s'"))
         end
 
-        love.graphics.setColor(lewd.style.fg_color)
+        love.graphics.setColor(self.style.fg_color)
         love.graphics.print(self.text, textX, y)
 
         self:updateZoneEntry(textX, y, realW, realH)
