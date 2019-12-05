@@ -8,6 +8,7 @@ local UTF8 = require "utf8"
 
 local MapLoader = require "core.maploader"
 local SpriteRenderer = require "core.spriterenderer"
+local SpriteLoader = require "core.spriteloader"
 
 local Tiles = require "core.tiles"
 local Animations = require "core.animations"
@@ -71,13 +72,33 @@ function MapEditor:enter()
 
     -- [[ UI ]] --
     self.ui = MapEditorUI(self)
+    self.ui.onMousePressed = function(ui, x, y)
+        if self.map then
+            local worldX, worldY, worldZ = self.camera:worldCoords(x, y)
+            local gridX, gridY, gridZ = self.map:worldToGridPos(worldX, worldY, worldZ)
+            gridY = self.selectedGridY
+            local selectedTile = self.ui.tileSelectionResultGrid.selectedEntry
+            if selectedTile then
+                self.map:setTileAt(selectedTile(self.map, gridX, gridY, gridZ), gridX, gridY, gridZ)
+            end
+        end
+    end
     self.ui.tileSelectionSearchBar.onValueChanged = function(searchBar, value)
         self:updateSearchResults(value)
+    end
+    self.ui.tileSelectionResultGrid.onSelectedEntryChanged = function(resultGrid, selectedTile)
+        if selectedTile then
+            self.selectedTileSprite = SpriteLoader.loadFromOBJ(selectedTile.spriteMeshFile, selectedTile.spriteImgFile, true)
+        end
     end
     self.searchResults = {}
     self:updateSearchResults("")
 
     self.selectedTile = nil
+    self.selectedTileSprite = nil
+    self.tileShadowSprite = SpriteLoader.loadFromOBJ("assets/meshes/tile_shadow.obj", nil, true)
+
+    self.selectedGridY = 1
 end
 
 function MapEditor:leave()
@@ -89,6 +110,10 @@ function MapEditor:leave()
     self.ui = nil
     self.searchResults = nil
     self.selectedTile = nil
+    self.selectedTileSprite = nil
+    self.tileShadowSprite = nil
+
+    self.selectedGridY = nil
 end
 
 function MapEditor:update(dt)
@@ -115,6 +140,18 @@ function MapEditor:draw()
 
     if self.map then
         self.map:draw()
+
+        if self.selectedTileSprite then
+            local mx, my = love.mouse.getPosition()
+            local worldX, worldY, worldZ = self.camera:worldCoords(mx, my)
+            local gridX, gridY, gridZ = self.map:worldToGridPos(worldX, worldY, worldZ)
+            worldX, worldY, worldZ = self.map:gridToWorldPos(gridX, self.selectedGridY, gridZ)
+            love.graphics.setColor(1, 1, 1, 0.5)
+            self.selectedTileSprite:draw(worldX, worldY, worldZ)
+            worldX, worldY, worldZ = self.map:gridToWorldPos(gridX, gridY, gridZ)
+            love.graphics.setColor(0, 0, 0, 0.5)
+            self.tileShadowSprite:draw(worldX, worldY, worldZ)
+        end
     end
 
     -- [[ After Drawing Everything ]] --
@@ -161,6 +198,12 @@ end
 
 function MapEditor:keypressed(key, scancode, isRepeat)
     Lewd.keypressed(key, scancode, isRepeat)
+
+    if key == "up" then
+        self.selectedGridY = self.selectedGridY + 1
+    elseif key == "down" then
+        self.selectedGridY = self.selectedGridY - 1
+    end
 
     if key == "space" then
         _debug.draw_depth = not _debug.draw_depth
