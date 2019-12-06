@@ -273,6 +273,44 @@ function Map:expand(left, right, up, down, forward, backward)
     return true
 end
 
+function Map:contract(left, right, up, down, forward, backward)
+if left < 0 or right < 0 or up < 0 or down < 0 or forward < 0 or backward < 0 then
+    return false, "All arguments must be positive!"
+end
+
+local newWidth = self.width - left - right
+local newHeight = self.height - up - down
+local newDepth = self.depth - forward - backward
+
+if newWidth < 1 or newHeight < 1 or newDepth < 1 then
+    return false, "Cannot contract map to be smaller than 1 in any axis"
+end
+
+local newGrid = {}
+for x=1, newWidth do
+    newGrid[x] = {}
+    for y=1, newHeight do
+        newGrid[x][y] = {}
+        for z=1, newDepth do
+            -- If x,y,z is outside of original grid then use nil for the new space.
+            local tileData
+            tileData = self.grid[x+left][y+down][z+backward]
+            if tileData ~= nil then
+                tileData:setGridPos(x, y, z)
+            end
+            newGrid[x][y][z] = tileData
+        end
+    end
+end
+
+self.width = newWidth
+self.height = newHeight
+self.depth = newDepth
+self.grid = newGrid
+
+return true
+end
+
 
 local function _tableToString(t, indentation)
     indentation = indentation or 0

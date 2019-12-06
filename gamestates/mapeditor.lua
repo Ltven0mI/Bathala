@@ -71,8 +71,19 @@ function MapEditor:expandMap(left, right, up, down, forward, backward)
     if not self.map then
         return false, "Failed to expand map : No loaded Map."
     end
-    print(left, right, up, down, forward, backward)
     local success, err = self.map:expand(left, right, up, down, forward, backward)
+    if not success then
+        return false, err
+    end
+    self:setMap(self.map)
+    return true
+end
+
+function MapEditor:contractMap(left, right, up, down, forward, backward)
+    if not self.map then
+        return false, "Failed to contract map : No loaded Map."
+    end
+    local success, err = self.map:contract(left, right, up, down, forward, backward)
     if not success then
         return false, err
     end
@@ -98,6 +109,7 @@ function MapEditor:init()
     Console.expose("editor_newmap", function(...) return _local.console_newmap(self, ...) end)
     Console.expose("editor_exportmap", function(...) return _local.console_exportmap(self, ...) end)
     Console.expose("editor_expandmap", function(...) return _local.console_expandmap(self, ...) end)
+    Console.expose("editor_contractmap", function(...) return _local.console_contractmap(self, ...) end)
 end
 
 function MapEditor:enter()
@@ -324,6 +336,19 @@ function _local.console_expandmap(self, leftStr, rightStr, upStr, downStr, forwa
         table.insert(argNums, num)
     end
     return self:expandMap(unpack(argNums))
+end
+
+function _local.console_contractmap(self, leftStr, rightStr, upStr, downStr, forwardStr, backwardStr)
+    local argStrings = {leftStr, rightStr, upStr, downStr, forwardStr, backwardStr}
+    local argNums = {}
+    for i, str in ipairs(argStrings) do
+        local num = tonumber(str)
+        if not num then
+            return false, string.format("Invalid argument #%d expected number received '%s'", i, str)
+        end
+        table.insert(argNums, num)
+    end
+    return self:contractMap(unpack(argNums))
 end
 -- \\ End Console Functions // --
 
