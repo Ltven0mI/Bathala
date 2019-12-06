@@ -67,6 +67,19 @@ function MapEditor:exportMap(filePath)
     return true
 end
 
+function MapEditor:expandMap(left, right, up, down, forward, backward)
+    if not self.map then
+        return false, "Failed to expand map : No loaded Map."
+    end
+    print(left, right, up, down, forward, backward)
+    local success, err = self.map:expand(left, right, up, down, forward, backward)
+    if not success then
+        return false, err
+    end
+    self:setMap(self.map)
+    return true
+end
+
 function MapEditor:setMap(map)
     self.map = map
     self.mapGrid = Grid(self.map.width, self.map.depth, self.map.tileSize)
@@ -84,6 +97,7 @@ function MapEditor:init()
     Console.expose("editor_loadmap", function(...) return _local.console_loadmap(self, ...) end)
     Console.expose("editor_newmap", function(...) return _local.console_newmap(self, ...) end)
     Console.expose("editor_exportmap", function(...) return _local.console_exportmap(self, ...) end)
+    Console.expose("editor_expandmap", function(...) return _local.console_expandmap(self, ...) end)
 end
 
 function MapEditor:enter()
@@ -297,6 +311,19 @@ end
 
 function _local.console_exportmap(self, filePath)
     return self:exportMap(filePath)
+end
+
+function _local.console_expandmap(self, leftStr, rightStr, upStr, downStr, forwardStr, backwardStr)
+    local argStrings = {leftStr, rightStr, upStr, downStr, forwardStr, backwardStr}
+    local argNums = {}
+    for i, str in ipairs(argStrings) do
+        local num = tonumber(str)
+        if not num then
+            return false, string.format("Invalid argument #%d expected number received '%s'", i, str)
+        end
+        table.insert(argNums, num)
+    end
+    return self:expandMap(unpack(argNums))
 end
 -- \\ End Console Functions // --
 

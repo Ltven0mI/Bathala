@@ -1,3 +1,4 @@
+print(tonumber, tonumber(1))
 love.graphics.setDefaultFilter("nearest", "nearest")
 
 local Gamestate = require "hump.gamestate"

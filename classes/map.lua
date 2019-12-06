@@ -236,6 +236,43 @@ function _local.createAndRegisterEntities(map, mapData)
     end
 end
 
+function Map:expand(left, right, up, down, forward, backward)
+    if left < 0 or right < 0 or up < 0 or down < 0 or forward < 0 or backward < 0 then
+        return false, "All arguments must be positive!"
+    end
+
+    local newWidth = self.width + left + right
+    local newHeight = self.height + up + down
+    local newDepth = self.depth + forward + backward
+    local newGrid = {}
+    for x=1, newWidth do
+        newGrid[x] = {}
+        for y=1, newHeight do
+            newGrid[x][y] = {}
+            for z=1, newDepth do
+                -- If x,y,z is outside of original grid then use nil for the new space.
+                local tileData
+                if (x > left and x <= newWidth - right) and
+                (y > down and y <= newHeight - up) and
+                (z > backward and z <= newDepth - forward) then
+                    tileData = self.grid[x-left][y-down][z-backward]
+                    if tileData ~= nil then
+                        tileData:setGridPos(x, y, z)
+                    end
+                end
+                newGrid[x][y][z] = tileData
+            end
+        end
+    end
+
+    self.width = newWidth
+    self.height = newHeight
+    self.depth = newDepth
+    self.grid = newGrid
+
+    return true
+end
+
 
 local function _tableToString(t, indentation)
     indentation = indentation or 0

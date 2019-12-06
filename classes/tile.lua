@@ -26,6 +26,13 @@ local Tile = Class{
     offsetZ = 0
 }
 
+function Tile:setGridPos(x, y, z)
+    self.gridX = x
+    self.gridY = y
+    self.gridZ = z
+    self.pos = Maf.vector(self.map:gridToWorldPos(x, y, z))
+end
+
 function Tile:start()
 
 end
