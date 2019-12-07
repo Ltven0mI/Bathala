@@ -138,6 +138,21 @@ function MapEditor:enter()
             end
         end
     end
+    self.ui.onMouseMoved = function(ui, x, y, dx, dy)
+        if self.map then
+            local worldX, worldY, worldZ = self.camera:worldCoords(x, y)
+            local gridX, gridY, gridZ = self.map:worldToGridPos(worldX, worldY, worldZ)
+            gridY = self.selectedGridY
+            if love.mouse.isDown(1) then
+                local selectedTile = self.ui.tileSelectionResultGrid.selectedEntry
+                if selectedTile then
+                    self.map:setTileAt(selectedTile(self.map, gridX, gridY, gridZ), gridX, gridY, gridZ)
+                end
+            elseif love.mouse.isDown(2) then
+                self.map:setTileAt(nil, gridX, gridY, gridZ)
+            end
+        end
+    end
     self.ui.tileSelectionSearchBar.onValueChanged = function(searchBar, value)
         self:updateSearchResults(value)
     end

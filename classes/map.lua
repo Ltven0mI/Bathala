@@ -307,6 +307,8 @@ function Map:expand(left, right, up, down, forward, backward)
     self.depth = newDepth
     self.grid = newGrid
 
+    self:updateTileNeighbours()
+
     return true
 end
 
@@ -344,6 +346,8 @@ self.width = newWidth
 self.height = newHeight
 self.depth = newDepth
 self.grid = newGrid
+
+self:updateTileNeighbours()
 
 return true
 end
