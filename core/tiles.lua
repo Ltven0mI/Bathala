@@ -99,6 +99,11 @@ function _local.loadTileFromFile(path, name)
     
     result_or_err.__name = tileName
     _local.loadedTiles[tileName] = result_or_err
+
+    if result_or_err.onLoaded then
+        result_or_err:onLoaded()
+    end
+
     return true, tileName
 end
 

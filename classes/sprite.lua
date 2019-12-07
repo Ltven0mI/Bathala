@@ -20,4 +20,8 @@ function Sprite:draw(x, y, z)
     end
 end
 
+function Sprite:setTexture(texture)
+    self.drawable:setTexture(texture)
+end
+
 return Sprite

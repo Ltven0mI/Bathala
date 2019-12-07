@@ -19,6 +19,7 @@ local Map = Class{
         self.depth = mapData.depth
 
         self.grid = _local.generateGrid(self, mapData)
+        self:updateTileNeighbours()
 
         self.entities = {}
         _local.createAndRegisterEntities(self, mapData)
@@ -39,6 +40,17 @@ end
 
 function Map:gridToWorldPos(x, y, z)
     return ((x-1)+0.5) * self.tileSize, ((y-1)-1) * self.tileSize, ((z-1) + 0.5) * self.tileSize
+end
+
+function Map:getTileNeighboursAt(x, y, z)
+    local neighbourGrid = {}
+    for x2=-1, 1 do
+        neighbourGrid[x2] = {}
+        for z2=-1, 1 do
+            neighbourGrid[x2][z2] = self:getTileAt(x + x2, y, z + z2)
+        end
+    end
+    return neighbourGrid
 end
 -- \\ End Util Functions // --
 
@@ -97,6 +109,7 @@ function Map:setTileAt(tileData, x, y, z)
         return nil
     end
     self.grid[x][y][z] = tileData
+    self:updateTileNeighboursAround(x, y, z)
 end
 
 function Map:getTilesInCollider(collider, tagStr)
@@ -209,6 +222,30 @@ end
 
 
 -- [[ Core Functions ]] --
+function Map:updateTileNeighboursAround(x, y, z)
+    for x2=x-1, x+1 do
+        for z2=z-1, z+1 do
+            self:updateTileNeighboursAt(x2, y, z2)
+        end
+    end
+end
+
+function Map:updateTileNeighboursAt(x, y, z)
+    local tileData = self:getTileAt(x, y, z)
+    if tileData and tileData.onNeighboursChanged then
+        tileData:onNeighboursChanged()
+    end
+end
+
+function Map:updateTileNeighbours()
+    for x=1, self.width do
+        for y=1, self.height do
+            for z=1, self.depth do
+                self:updateTileNeighboursAt(x, y, z)
+            end
+        end
+    end
+end
 
 function _local.generateGrid(map, mapData)
     local grid = {}
