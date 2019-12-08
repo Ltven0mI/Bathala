@@ -98,6 +98,7 @@ end
 
 function MapEditor:updateSearchResults(pattern)
     self.ui.tileSelectionResultGrid:setEntries(Tiles.getTilesMatchingPattern(pattern))
+    self.ui.entitySelectionResultGrid:setEntries(Entities.getEntitiesMatchingPattern(pattern))
 end
 -- \\ End Util Functions // --
 
@@ -129,9 +130,10 @@ function MapEditor:enter()
             local gridX, gridY, gridZ = self.map:worldToGridPos(worldX, worldY, worldZ)
             gridY = self.selectedGridY
             if btn == 1 then
-                local selectedTile = self.ui.tileSelectionResultGrid.selectedEntry
-                if selectedTile then
-                    self.map:setTileAt(selectedTile(self.map, gridX, gridY, gridZ), gridX, gridY, gridZ)
+                if self.selectedTile then
+                    self.map:setTileAt(self.selectedTile(self.map, gridX, gridY, gridZ), gridX, gridY, gridZ)
+                elseif self.selectedEntity then
+                    self.map:registerEntity(self.selectedEntity(worldX, worldY, worldZ))
                 end
             elseif btn == 2 then
                 self.map:setTileAt(nil, gridX, gridY, gridZ)
@@ -153,18 +155,28 @@ function MapEditor:enter()
             end
         end
     end
-    self.ui.tileSelectionSearchBar.onValueChanged = function(searchBar, value)
+    self.ui.selectionSearchBar.onValueChanged = function(searchBar, value)
         self:updateSearchResults(value)
     end
     self.ui.tileSelectionResultGrid.onSelectedEntryChanged = function(resultGrid, selectedTile)
         if selectedTile then
             self.selectedTileSprite = SpriteLoader.loadFromOBJ(selectedTile.spriteMeshFile, selectedTile.spriteImgFile, true)
+            self.ui.entitySelectionResultGrid:setSelectedEntry(nil)
         end
+        self.selectedTile = selectedTile
     end
-    self.searchResults = {}
+    self.ui.entitySelectionResultGrid.onSelectedEntryChanged = function(resultGrid, selectedEntity)
+        if selectedEntity then
+            -- self.selectedTileSprite = SpriteLoader.loadFromOBJ(selectedTile.spriteMeshFile, selectedTile.spriteImgFile, true)
+            self.selectedTileSprite = nil
+            self.ui.tileSelectionResultGrid:setSelectedEntry(nil)
+        end
+        self.selectedEntity = selectedEntity
+    end
     self:updateSearchResults("")
 
     self.selectedTile = nil
+    self.selectedEntity = nil
     self.selectedTileSprite = nil
     self.tileShadowSprite = SpriteLoader.loadFromOBJ("assets/meshes/tile_shadow.obj", nil, true)
 
@@ -179,8 +191,8 @@ function MapEditor:leave()
     self.mapGrid = nil
 
     self.ui = nil
-    self.searchResults = nil
     self.selectedTile = nil
+    self.selectedEntity = nil
     self.selectedTileSprite = nil
     self.tileShadowSprite = nil
 
@@ -193,7 +205,7 @@ function MapEditor:update(dt)
     if self.map then
         self.map:update(dt)
 
-        if not Console.getIsEnabled() and not self.ui.tileSelectionSearchBar.isSelected then
+        if not Console.getIsEnabled() and not self.ui.selectionSearchBar.isSelected then
             self:updateCameraMovement(dt)
         end
     end
@@ -272,7 +284,7 @@ end
 function MapEditor:keypressed(key, scancode, isRepeat)
     Lewd.keypressed(key, scancode, isRepeat)
 
-    if not Console.getIsEnabled() and not self.ui.tileSelectionSearchBar.isSelected then
+    if not Console.getIsEnabled() and not self.ui.selectionSearchBar.isSelected then
         if key == "up" then
             self.selectedGridY = self.selectedGridY + 1
         elseif key == "down" then
