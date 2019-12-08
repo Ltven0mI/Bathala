@@ -94,8 +94,6 @@ function _local.loadTileFromFile(path, name)
     if _local.loadedTiles[tileName] ~= nil then
         return false, string.format("Tile already exists with the name '%s'", tileName)
     end
-
-    result_or_err.icon = result_or_err:renderToImage()
     
     result_or_err.__name = tileName
     _local.loadedTiles[tileName] = result_or_err

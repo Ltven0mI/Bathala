@@ -44,6 +44,22 @@ function m.get(entityName)
     return entity
 end
 
+--[[
+    Returns a table containing all entities thats name matches the pattern.
+]]
+function m.getEntitiesMatchingPattern(pattern)
+    if pattern == nil or pattern:len() == 0 then
+        pattern = ".*"
+    end
+    local matchedEntities = {}
+    for name, entity in pairs(_local.loadedEntities) do
+        if name:match(pattern) then
+            table.insert(matchedEntities, entity)
+        end
+    end
+    return matchedEntities
+end
+
 function m.setDefaultPath(path)
     if type(path) ~= "string" then
         error(string.format("setDefaultPath() accepts type 'string' not '%s'", type(path)), 2)
@@ -81,6 +97,11 @@ function _local.loadEntityFromFile(path, name)
     
     result_or_err.__name = entityName
     _local.loadedEntities[entityName] = result_or_err
+
+    if result_or_err.onLoaded then
+        result_or_err:onLoaded()
+    end
+    
     return true, entityName
 end
 

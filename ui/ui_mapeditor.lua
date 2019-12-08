@@ -5,12 +5,17 @@ local _local = {}
 function _local.new()
     local t = Lewd.element{x=0, y=0, w="100%", h="100%", parent=nil}
     
-    t.tileSelectionLayout = Lewd.layout{w=250, h=187, layoutType="vertical", padding={right=2, bottom=2}, horizontalAlignment="right", verticalAlignment="bottom", parent=t}
-    t.tileSelectionResultGrid = Lewd.gridlayout{w="100%", h=170, entryWidth=32, entryHeight=64, entryPadding={top=8, left=8, bottom=8}, parent=t.tileSelectionLayout}
+    t.selectionLayout = Lewd.layout{w=250, h=214, layoutType="vertical", padding={right=2, bottom=2}, horizontalAlignment="right", verticalAlignment="bottom", parent=t}
+
+    -- [[ Selection Tabs ]] --
+    t.selectionTabs = Lewd.tabgroup{w="100%", h=197, buttonWidth=30, buttonHeight=24, parent=t.selectionLayout}
+
+    -- [[ Tile Selection Grid ]] --
+    t.tileSelectionResultGrid = Lewd.gridlayout{w="100%", h=170, entryWidth=32, entryHeight=64, entryPadding={top=8, left=8, bottom=8}}
     t.tileSelectionResultGrid.draw = function(self, x, y)
         love.graphics.setColor(1, 1, 1, 1)
         local realW, realH = self:getRealSize()
-        _local.drawBorder(x, y, realW, realH)
+        _local.drawBorder(x, y, realW, realH, true)
         return Lewd.gridlayout.draw(self, x, y)
     end
     t.tileSelectionResultGrid.drawEntry = function(self, entry, element, x, y, w, h)
@@ -36,7 +41,47 @@ function _local.new()
             love.graphics.draw(entry.icon, x+1, y+1 + offsetY, 0, 2, 2)
         end
     end
-    t.tileSelectionSearchBar = Lewd.textbox{w="100%", h=17, cursorH=12, value="", placeholder="Search Tiles", parent=t.tileSelectionLayout}
+    t.selectionTabs:newTab(t.tileSelectionResultGrid, love.graphics.newImage("assets/images/ui/mapeditor/tileselection_tab.png"))
+    -- \\ End Tile Selection Grid // --
+
+    -- [[ Entity Selection Grid ]] --
+    t.entitySelectionResultGrid = Lewd.gridlayout{w="100%", h=170, entryWidth=32, entryHeight=64, entryPadding={top=8, left=8, bottom=8}}
+    t.entitySelectionResultGrid.draw = function(self, x, y)
+        love.graphics.setColor(1, 1, 1, 1)
+        local realW, realH = self:getRealSize()
+        _local.drawBorder(x, y, realW, realH, true)
+        return Lewd.gridlayout.draw(self, x, y)
+    end
+    t.entitySelectionResultGrid.drawEntry = function(self, entry, element, x, y, w, h)
+        local offsetY = 0
+
+        -- [[ Set color based on whether the tile is selected or not ]] --
+        if entry == self.selectedEntry then
+            love.graphics.setColor(1, 1, 1, 1)
+        elseif element.isHovered then
+            love.graphics.setColor(0.7, 0.7, 0.7, 1)
+            offsetY = -2
+        else
+            love.graphics.setColor(0.5, 0.5, 0.5, 1)
+        end
+        _local.drawBorder(x, y + offsetY, w+2, h+2)
+        
+        if entry == self.selectedEntry then
+            love.graphics.rectangle("fill", x-1, y+h+4 + offsetY, w+4, 2)
+        end
+
+        if entry.icon then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(entry.icon, x+1, y+1 + offsetY, 0, 2, 2)
+        end
+    end
+    t.selectionTabs:newTab(t.entitySelectionResultGrid, love.graphics.newImage("assets/images/ui/mapeditor/entityselection_tab.png"))
+    -- \\ End Entity Selection Grid // --
+    
+    t.selectionTabs:setSelectedTab(1)
+    -- \\ End Selection Tabs // --
+
+    t.selectionSearchBar = Lewd.textbox{w="100%", h=17, cursorH=12, value="", placeholder="Search Tiles", parent=t.selectionLayout}
 
     return t
 end
@@ -44,11 +89,11 @@ end
 
 -- [[ Drawing Functions ]] --
 
-function _local.drawBorder(x, y, w, h)
-    love.graphics.rectangle("fill", x, y, w, 1) -- Top
-    love.graphics.rectangle("fill", x, y+h-1, w, 1) -- Bottom
-    love.graphics.rectangle("fill", x, y, 1, h) -- Left
-    love.graphics.rectangle("fill", x+w-1, y, 1, h) -- Right
+function _local.drawBorder(x, y, w, h, ignoreTop, ignoreBottom, ignoreLeft, ignoreRight)
+    if not ignoreTop then love.graphics.rectangle("fill", x, y, w, 1) end -- Top
+    if not ignoreBottom then love.graphics.rectangle("fill", x, y+h-1, w, 1) end -- Bottom
+    if not ignoreLeft then love.graphics.rectangle("fill", x, y, 1, h) end -- Left
+    if not ignoreRight then love.graphics.rectangle("fill", x+w-1, y, 1, h) end -- Right
 end
 -- \\ End Drawing Functions // --
 
@@ -227,6 +272,100 @@ Lewd.core.newElementType("gridlayout", {
         self:updateZoneEntry(x, y, realW, realH)
 
         return realW + realPadding.left + realPadding.right, realH + realPadding.top + realPadding.bottom
+    end
+})
+
+Lewd.core.newElementType("tabbutton", {
+    __extends="element",
+    init = function(self, data)
+        data = data or {}
+        Lewd.element.init(self, data)
+
+        self.icon = data.icon
+        self.tabgroup = data.tabgroup
+        self.tabId = data.tabId
+    end,
+    draw = function(self, x, y)
+        local offsetY = (self.isHovered and self.tabId ~= self.tabgroup.selectedTabId) and -2 or 0
+        local realW, realH = self:getRealSize()
+        love.graphics.setColor(1, 1, 1, 1)
+        if self.icon then
+            love.graphics.draw(self.icon, x+1, y+1 + offsetY)
+        end
+        if self.tabId == self.tabgroup.selectedTabId then
+            local parentW, parentH = self.parent:getRealSize()
+            _local.drawBorder(x, y + offsetY, realW, parentH+3, false, true, false, false)
+        else
+            _local.drawBorder(x, y + offsetY, realW, realH)
+        end
+        return Lewd.element.draw(self, x, y)
+    end
+})
+
+Lewd.core.newElementType("tabgroup", {
+    __extends="layout",
+    init = function(self, data)
+        data = data or {}
+        Lewd.layout.init(self, data)
+
+        self.layoutType = "vertical"
+
+        self.selectedTabId = 0
+        self.selectedTabElement = nil
+
+        self.buttonWidth = data.buttonWidth or self.style.unit * 2
+        self.buttonHeight = data.buttonHeight or self.style.unit * 2
+
+        self.tabButtonLayout = Lewd.layout{w="100%", h=self.buttonHeight, padding={bottom=3}, layoutType="horizontal", parent=self}
+
+        self.tabElements = {}
+    end,
+    draw = function(self, x, y)
+        local drawResultW, drawResultH = Lewd.layout.draw(self, x, y)
+
+        local realW, realH = self:getRealSize()
+        local selectedButton = self.tabButtonLayout.children[self.selectedTabId]
+        if selectedButton then
+            local tabZone = selectedButton:getZone()
+            if tabZone then
+                local realTabLayoutW, realTabLayoutH = self.tabButtonLayout:getRealSize()
+                love.graphics.rectangle("fill", x, y+realTabLayoutH+3-1, tabZone.x - x, 1)
+                love.graphics.rectangle("fill", tabZone.x+tabZone.w, y+realTabLayoutH+3-1, realW - ((tabZone.x + tabZone.w)-x), 1)
+            end
+        else
+            _local.drawBorder(x, y, realW, realH, true, false, true, true)
+        end
+        return drawResultW, drawResultH
+    end,
+    setSelectedTab = function(self, tabId, ignoreCallback)
+        local lastTabElement = self.tabElements[self.selectedTabId]
+        local tabElement = self.tabElements[tabId]
+
+        if lastTabElement ~= tabElement then
+            if lastTabElement then
+                lastTabElement:setIsVisible(false)
+            end
+            if tabElement then
+                tabElement:setIsVisible(true)
+            end
+        end
+        self.selectedTabId = tabId
+        self.selectedTabElement = tabElement
+        if not ignoreCallback and self.onSelectedTabChanged then
+            self:onSelectedTabChanged(self.selectedTabElement)
+        end
+    end,
+    newTab = function(self, element, icon)
+        local tabId = #self.tabElements+1
+        local tabButton = Lewd.tabbutton{w=self.buttonWidth, h=self.buttonHeight, tabgroup=self, tabId=tabId, padding={right=4}, icon=icon, parent=self.tabButtonLayout}
+        tabButton.onClick = function(tabbutton)
+            self:setSelectedTab(tabbutton.tabId)
+        end
+
+        self:addChild(element)
+        table.insert(self.tabElements, element)
+
+        element:setIsVisible(false)
     end
 })
 

@@ -21,9 +21,6 @@ local Tile = Class{
 
     isSolid = false,
     layerHeight = 1,
-    offsetX = 0,
-    offsetY = 0,
-    offsetZ = 0
 }
 
 function Tile:setGridPos(x, y, z)
@@ -43,7 +40,11 @@ end
 
 function Tile:draw()
     love.graphics.setColor(1, 1, 1, 1)
-    self.sprite:draw(self.pos.x + self.offsetX, self.pos.y + self.offsetY, self.pos.z + self.offsetZ)
+    self.sprite:draw(self.pos.x, self.pos.y, self.pos.z)
+end
+
+function Tile:onLoaded()
+    self.icon = self:renderToImage()
 end
 
 function Tile:renderToImage()

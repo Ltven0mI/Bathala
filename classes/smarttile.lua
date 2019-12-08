@@ -20,6 +20,7 @@ local SmartTile = Class{
 }
 
 function SmartTile:onLoaded()
+    Tile.onLoaded(self)
     local imageParts = {}
     for _, item in ipairs(love.filesystem.getDirectoryItems(self.imagePath)) do
         local fullPath = PathUtil.join(self.imagePath, item)
