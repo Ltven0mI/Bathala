@@ -7,22 +7,13 @@ local Gamestate = require "hump.gamestate"
 
 local SpriteRenderer = require "core.spriterenderer"
 
-local AssetBundle = require "AssetBundle"
-local Player = require "classes.player"
-local Map = require "classes.map"
-
+local MapLoader = require "core.maploader"
 local Animations = require "core.animations"
 local Entities = require "core.entities"
 
 local Console = require "core.console"
 
 local game = {}
-
-game.camera = nil
-game.uiCamera = nil
-game.player = nil
-game.map = nil
-game.currentWave = nil
 
 local _local = {}
 _local.timeBetweenEnemySpawns = 0.75
@@ -37,36 +28,26 @@ local _debug = {}
 _debug.draw_wireframe = false
 _debug.draw_depth = false
 
-local assets = AssetBundle("assets", {
-    maps={
-        level1="level1.lua",
-        debug="debug_level.lua"
-    },
-})
-
 
 -- [[ Callbacks ]] --
 
 function game:init()
-    AssetBundle.load(assets)
+
 end
 
 function game:enter()
-    -- AssetBundle.load(assets)
-
     self.camera = Camera3D(0, 0, 0, nil, nil, _const.Z_NEAR, _const.Z_FAR, 4)
 
     local screenW, screenH = love.graphics.getDimensions()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
     self.uiCamera = Camera(halfW / 4, halfH / 4, 4)
 
-    self.map = Map(assets.maps.level1)
-    -- self.map:exportMap("testExport.lua")
+    self.map = MapLoader.loadFromFile("assets/maps/level1.lua")
     
-    self.player = Player(0, 0, 0)
-    self.player:setMap(self.map)
+    self.player = Entities.new("player", 0, 0, 0)
+    self.map:registerEntity(self.player)
 
-    local playerSpawn = self.map:findEntityOfType("player_spawn")
+    local playerSpawn = self.map:findEntityWithTag("player_spawn")
     if playerSpawn then
         self.player:setPos(playerSpawn.pos:unpack())
     end
@@ -78,7 +59,6 @@ function game:enter()
         spawnedEnemyCount = 0,
         totalEnemies = 0
     }
-    -- self.enemyCount = 0
 
     self.luckydrops = {
         Entities.get("curse_powerup"),
@@ -91,8 +71,6 @@ function game:enter()
 end
 
 function game:leave()
-    -- AssetBundle.unload(assets)
-
     self.camera = nil
     self.uiCamera = nil
 
@@ -111,7 +89,6 @@ function game:update(dt)
     Timer.update(dt)
 
     self.map:update(dt)
-    self.player:update(dt)
 
     self:lockCameraToPlayer()
 
@@ -126,9 +103,7 @@ function game:draw()
         love.graphics.setWireframe(true)
     end
 
-
     self.map:draw()
-    self.player:draw()
 
     -- [[ After Drawing Everything ]] --
     self.camera:setIsAlpha(true)
@@ -165,7 +140,7 @@ end
 function game:mousepressed(x, y, btn)
     local worldX, worldY = self.camera:worldCoords(x, y)
     local dir = (Vector(worldX, worldY) - self.player.pos):normalized()
-    self.player:mousepressed(btn, dir)
+self.player:mousepressed(btn, dir)
 end
 
 function game:keypressed(key, isRepeat)
@@ -195,7 +170,7 @@ function game:lockCameraToPlayer()
 
     local halfViewW, halfViewH = math.floor(viewPortW / 2), math.floor(viewPortH / 2)
     local mapW, mapD = self.map.width * self.map.tileSize, self.map.depth * self.map.tileSize
-    local halfPlayerW, halfPlayerH = math.floor(self.player.w / 2), math.floor(self.player.h / 2)
+    local halfPlayerW, halfPlayerH = math.floor(self.player.width / 2), math.floor(self.player.height / 2)
 
     local playerX, playerY, playerZ = self.player.pos:unpack()
 

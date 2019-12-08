@@ -2,22 +2,20 @@ local Class = require "hump.class"
 local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
-local DepthManager = require "core.depthmanager"
 local SpriteLoader = require "core.spriteloader"
 
 local Peachy = require "peachy"
 
-local ColliderBox = require "classes.collider_box"
-
 local Projectile = require "assets.entities.curse_projectile"
 
-local player = Class{
-    init = function(self, x, y, z)
-        self.pos = Maf.vector(x, y, z)
-        self.w = 10
-        self.h = 16
+local Entity = require "classes.entity"
 
-        self.collider = ColliderBox(self, -5, -4, 10, 4)
+local Player = Class{
+    __includes={Entity},
+    init = function(self, x, y, z)
+        Entity.init(self, x, y, z, 16, 16, 16)
+
+        -- self.collider = ColliderBox(self, -5, -4, 10, 4)
 
         self.health = 10
 
@@ -28,7 +26,6 @@ local player = Class{
 
         self.lookDirection = "down"
 
-        self.map = nil
         -- ? vvv Probably worth centralizing this variable... vvv
         self.isGameOver = false
         self.heldItem = nil
@@ -37,7 +34,11 @@ local player = Class{
         Signal.register("gameover", function(...) self:onGameOver(...) end)
 
         self.animation = Peachy.new("assets/images/player/player.json", love.graphics.newImage("assets/images/player/player.png"), "walk_down")
-        self.animation:onLoop(function() self:animation_loop() end )
+        self.animation:onLoop(function()
+            if self.animation.tagName == "death" then
+                self.animation:stop(true)
+            end
+        end)
         self.animation:stop()
 
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
@@ -54,34 +55,23 @@ local player = Class{
 
     speed = 64,
     maxHealth = 10,
-    tag = "player",
-    type="player",
+    tags = {"player"},
 }
 
 -- [[ Util Functions ]] --
 
-function player:setPos(x, y, z)
-    self.pos.x = x
-    self.pos.y = y
-    self.pos.z = z
-end
-
-function player:setMap(map)
-    self.map = map
-end
-
-function player:takeDamage(damage)
+function Player:takeDamage(damage)
     self.health = math.max(0, self.health - damage)
     if self.health <= 0 then
         Signal.emit("player-died")
     end
 end
 
-function player:pickUpItem(item)
+function Player:pickUpItem(item)
     item:pickup(self)
 end
 
-function player:putDownHeldItem()
+function Player:putDownHeldItem()
     self.heldItem:putDown(self.pos, self.map)
 end
 -- \\ End Util Functions // --
@@ -89,7 +79,7 @@ end
 
 -- [[ Callback Functions ]] --
 
-function player:update(dt)
+function Player:update(dt)
     self.animation:update(dt)
 
     if self.isGameOver then
@@ -150,7 +140,7 @@ function player:update(dt)
     -- end
 end
 
-function player:redrawSpriteCanvas()
+function Player:redrawSpriteCanvas()
     love.graphics.push("all")
     love.graphics.reset()
 
@@ -163,7 +153,7 @@ function player:redrawSpriteCanvas()
     love.graphics.pop()
 end
 
-function player:draw()
+function Player:draw()
     local imgW = self.animation:getWidth()
     local halfImgW = math.floor(imgW / 2)
 
@@ -200,7 +190,7 @@ function player:draw()
     end
 end
 
-function player:drawUI(screenW, screenH)
+function Player:drawUI(screenW, screenH)
     love.graphics.setColor(1, 1, 1, 1)
 
     local halfScreenW = math.floor(screenW / 2)
@@ -245,7 +235,7 @@ function player:drawUI(screenW, screenH)
 
 end
 
-function player:mousepressed(btn, dir)
+function Player:mousepressed(btn, dir)
     if btn == 3 then
         self.pos.y = self.pos.y - 0.1
     end
@@ -283,21 +273,15 @@ function player:mousepressed(btn, dir)
     end
 end
 
-function player:onGameOver()
+function Player:onGameOver()
     self.isGameOver = true
     self.animation:setTag("death")
     self.animation:play()
 end
-
-function player:animation_loop()
-    if self.animation.tagName == "death" then
-        self.animation:stop(true)
-    end
-end
 -- \\ End Callback Functions // --
 
 
-function player:doCollisionCheck()
+function Player:doCollisionCheck()
     -- TODO: Need to reimplement this
     -- local posX, posY = self.collider:getWorldCoords()
     -- local minX = math.floor(posX)
@@ -321,4 +305,4 @@ function player:doCollisionCheck()
     -- end
 end
 
-return player
+return Player

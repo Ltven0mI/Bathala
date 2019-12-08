@@ -144,6 +144,14 @@ end
 
 -- [[ Entity Functions ]] --
 
+function Map:findEntityWithTag(tag)
+    for _, entity in ipairs(self.entities) do
+        if entity:hasTag(tag) then
+            return entity
+        end
+    end
+end
+
 function Map:registerEntity(entity)
     table.insert(self.entities, entity)
     entity:onRegistered(self)

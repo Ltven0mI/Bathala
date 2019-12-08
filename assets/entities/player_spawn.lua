@@ -1,18 +1,18 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
+local SpriteLoader = require "core.spriteloader"
+
 local Entity = require "classes.entity"
 
 local PlayerSpawn = Class{
+    __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 16, 16)
+        Entity.init(self, x, y, z, 16, 16, 16)
     end,
-    __includes = {
-        Entity
-    },
 
-    img = love.graphics.newImage("assets/images/tiles/player_spawn.png"),
-    type = "player_spawn",
+    sprite = SpriteLoader.loadFromOBJ("assets/meshes/billboard16x16.obj", "assets/images/player/player_spawn.png", true),
+    tags = {"player_spawn"},
 }
 
 function PlayerSpawn:update(dt)
@@ -20,8 +20,8 @@ function PlayerSpawn:update(dt)
 end
 
 function PlayerSpawn:draw()
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- love.graphics.draw(self.img, self.pos.x, self.pos.y)
+    love.graphics.setColor(1, 1, 1, 1)
+    self.sprite:draw(self.pos:unpack())
 end
 
 return PlayerSpawn

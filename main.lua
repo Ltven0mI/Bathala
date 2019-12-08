@@ -1,4 +1,3 @@
-print(tonumber, tonumber(1))
 love.graphics.setDefaultFilter("nearest", "nearest")
 
 local Gamestate = require "hump.gamestate"
@@ -24,7 +23,7 @@ function love.load()
     Entities.loadEntities()
     Tiles.loadTiles()
 
-    Gamestate.switch(Gamestates.mapeditor)
+    Gamestate.switch(Gamestates.menu)
 
     Console.expose("set_gamestate", function(gamestateName)
         local gamestate = Gamestates[gamestateName]
