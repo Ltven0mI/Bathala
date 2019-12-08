@@ -42,10 +42,13 @@ local Player = Class{
         self.animation:stop()
 
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
-        self.sprite = SpriteLoader.loadFromOBJ("assets/meshes/billboard16x16.obj", self.spriteCanvas, true)
+        self.sprite:setTexture(self.spriteCanvas)
 
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile="assets/images/player/player_icon.png",
+    spriteIsTransparent=false,
 
     healthBarImg = love.graphics.newImage("assets/images/ui/health_bar.png"),
     healthBarFillImg = love.graphics.newImage("assets/images/ui/health_bar_fill.png"),
@@ -162,15 +165,9 @@ function Player:draw()
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(self.pos:unpack())
 
-    -- [[ Debug ]] --
-
-    -- self.collider:drawWireframe()
-    -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
-
-    -- [[ End Debug ]] --
-
     if self.heldItem then
-        self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h, depth - self.h)
+        -- ? This may be incorrect
+        self.heldItem:drawHeld(self.pos.x, self.pos.y + self.height, self.pos.z)
     end
 
     local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
@@ -227,7 +224,7 @@ function Player:drawUI(screenW, screenH)
     local drawX, drawY = drawX + barW + 1, screenH - useItemH - 2
     love.graphics.draw(self.useItemBgImg, drawX, drawY)
     if self.currentUseItem then
-        love.graphics.draw(self.currentUseItem.icon, drawX, drawY)
+        love.graphics.draw(self.currentUseItem.hudIcon, drawX, drawY)
         if not self.heldItem then
             love.graphics.draw(self.useItemTextImg, drawX, drawY)
         end
@@ -236,39 +233,36 @@ function Player:drawUI(screenW, screenH)
 end
 
 function Player:mousepressed(btn, dir)
-    if btn == 3 then
-        self.pos.y = self.pos.y - 0.1
-    end
-
     if self.isGameOver then
         return
     end
 
     if self.heldItem then
         if btn == 1 then
-            self.heldItem:use(self.map, self.pos.x, self.pos.y, dir)
+            self.heldItem:use(self.map, self.pos.x, self.pos.y, self.pos.z, dir)
         elseif btn == 2 then
             self:putDownHeldItem()
         end
     else
         if btn == 1 then
-            local halfPlayerW = math.floor(self.w / 2)
-            local halfPlayerH = math.floor(self.h / 2)
-            local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
-            local pickupable = nil
-            if pickupables then
-                for _, v in ipairs(pickupables) do
-                    if v.canPickUp and v:canPickUp() then
-                        pickupable = v
-                        break
-                    end
-                end
-            end
-            if pickupable then
-                self:pickUpItem(pickupable)
-            elseif self.currentUseItem then
-                self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
-            end
+            -- TODO: Rewrite this
+            -- local halfPlayerW = math.floor(self.w / 2)
+            -- local halfPlayerH = math.floor(self.h / 2)
+            -- local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
+            -- local pickupable = nil
+            -- if pickupables then
+            --     for _, v in ipairs(pickupables) do
+            --         if v.canPickUp and v:canPickUp() then
+            --             pickupable = v
+            --             break
+            --         end
+            --     end
+            -- end
+            -- if pickupable then
+            --     self:pickUpItem(pickupable)
+            -- elseif self.currentUseItem then
+            --     self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
+            -- end
         end
     end
 end

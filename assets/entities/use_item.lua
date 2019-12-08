@@ -1,18 +1,17 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
 
 local Pickupable = require "classes.pickupable"
 
 local UseItem = Class{
-    init = function(self, x, y, z, w, h)
-        Pickupable.init(self, x, y, z, w, h)
+    __includes = {Pickupable},
+    init = function(self, x, y, z, width, height, depth)
+        Pickupable.init(self, x, y, z, width, height, depth)
         self.player = nil
     end,
-    __includes = {
-        Pickupable
-    },
-    icon=nil,
-    tag = "pickupable",
+
+    hudIcon=nil,
+
+    tags = {"useitem", "pickupable"},
 }
 
 function UseItem:pickup(player)
@@ -21,9 +20,10 @@ function UseItem:pickup(player)
     self.player.currentUseItem = self
 end
 
-function UseItem:putDown(x, y, map)
+function UseItem:putDown(x, y, z, map)
     self.pos.x = x
     self.pos.y = y
+    self.pos.z = z
     map:registerEntity(self)
     self.player.currentUseItem = nil
     self.player = nil

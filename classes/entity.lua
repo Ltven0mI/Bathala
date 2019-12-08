@@ -1,9 +1,12 @@
 local Class = require "hump.class"
 local Maf = require "core.maf"
+local SpriteLoader = require "core.spriteloader"
+local SpriteRenderer = require "core.spriterenderer"
 
 local ColliderBox = require "classes.collider_box"
 
 local Entity = Class{
+    __includes={},
     init = function(self, x, y, z, width, height, depth)
         self.collider = ColliderBox(self, 0, 0, width, height)
         self.pos = Maf.vector(x, y, z)
@@ -11,9 +14,13 @@ local Entity = Class{
         self.height = height
         self.depth = depth
         self.map = nil
+        self.sprite = SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
-    __includes = {
-    },
+
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile="assets/images/missing_texture.png",
+    spriteIsTransparent=false,
+
     tags={}
 }
 
@@ -48,7 +55,8 @@ end
 
 -- Called every frame after update is called
 function Entity:draw()
-
+    love.graphics.setColor(1, 1, 1, 1)
+    self.sprite:draw(self.pos:unpack())
 end
 
 -- Called when an entity is registered to a map
@@ -59,6 +67,15 @@ end
 -- Called when an entity is unregistered from a map
 function Entity:onUnregistered()
     self.map = nil
+end
+
+function Entity:onLoaded()
+    self.icon = self:renderToImage()
+end
+
+function Entity:renderToImage()
+    local sprite = self.sprite or SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
+    return SpriteRenderer.renderSpriteToImage(sprite)
 end
 
 return Entity

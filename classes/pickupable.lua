@@ -6,35 +6,24 @@ local DepthManager = require "core.depthmanager"
 local Entity = require "classes.entity"
 
 local Pickupable = Class{
-    init = function(self, x, y, w, h)
-        Entity.init(self, x, y, w, h)
+    __includes = {Entity},
+    init = function(self, x, y, z, width, height, depth)
+        Entity.init(self, x, y, z, width, height, depth)
         self.player = nil
     end,
-    __includes = {
-        Entity
-    },
-    type = "pickupable",
+    tags = {"pickupable"},
 }
 
-function Pickupable:draw()
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, self.pos.x, self.pos.y, 0, 1, 1, math.floor(self.w / 2), self.h)
-    self.collider:drawWireframe()
-end
-
 function Pickupable:drawHeld(x, y, z)
-    local xPos = x - math.floor(self.w / 2)
-    local yPos = y - self.h
-
     love.graphics.setColor(1, 1, 1, 1)
-    self.img:draw(DepthManager.getTranslationTransform(xPos, yPos, z))
+    self.sprite:draw(x, y, z)
 end
 
 function Pickupable:canPickUp()
     return true
 end
 
-function Pickupable:use(map, x, y, dir)
+function Pickupable:use(map, x, y, z, dir)
 
 end
 
@@ -44,10 +33,10 @@ function Pickupable:pickup(player)
     self.player.heldItem = self
 end
 
-function Pickupable:putDown(pos, map)
-    self.pos.x = pos.x
-    self.pos.y = pos.y
-    self.pos.z = pos.z
+function Pickupable:putDown(x, y, z, map)
+    self.pos.x = x
+    self.pos.y = y
+    self.pos.z = z
     
     map:registerEntity(self)
     self.player.heldItem = nil
