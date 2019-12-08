@@ -39,7 +39,7 @@ end
 function m.get(entityName)
     local entity = _local.loadedEntities[entityName]
     if entity == nil then
-        error(string.format("Failed to get entity: No entity with name '%s'", entityName), 2)
+        return nil, string.format("Failed to get entity: No entity with name '%s'", entityName)
     end
     return entity
 end
