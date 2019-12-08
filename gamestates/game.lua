@@ -32,7 +32,7 @@ _debug.draw_depth = false
 -- [[ Callbacks ]] --
 
 function game:init()
-
+    Console.expose("spawn", function(...) return _local.console_spawn(self, ...) end)
 end
 
 function game:enter()
@@ -296,6 +296,29 @@ end
 function game:statue_died(statue)
     self:gameover()
 end
+
+
+-- [[ Console Functions ]] --
+
+function _local.console_spawn(self, entityName, xStr, yStr, zStr)
+    local entity, err = Entities.get(entityName)
+    if not entity then
+        return false, string.format("Failed to spawn entity '%s' : %s", entityName, err)
+    end
+    local argStrings = {xStr, yStr, zStr}
+    local argNums = {}
+    for i, str in ipairs(argStrings) do
+        local num = tonumber(str)
+        if not num then
+            return false, string.format("Invalid argument #%d expected number received '%s'", i, str)
+        end
+        table.insert(argNums, num)
+    end
+    print(argNums[1], argNums[2], argNums[3])
+    self.map:registerEntity(entity(argNums[1], argNums[2], argNums[3]))
+    return true
+end
+-- \\ End Console Functions // --
 
 
 return game
