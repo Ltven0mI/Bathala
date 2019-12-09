@@ -2,11 +2,9 @@ local Class = require "hump.class"
 local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
+local Animations = require "core.animations"
+
 local SpriteLoader = require "core.spriteloader"
-
-local Peachy = require "peachy"
-
-local Projectile = require "assets.entities.curse_projectile"
 
 local Entity = require "classes.entity"
 
@@ -33,7 +31,7 @@ local Player = Class{
 
         Signal.register("gameover", function(...) self:onGameOver(...) end)
 
-        self.animation = Peachy.new("assets/images/player/player.json", love.graphics.newImage("assets/images/player/player.png"), "walk_down")
+        self.animation = Animations.new("player", "walk_down")
         self.animation:onLoop(function()
             if self.animation.tagName == "death" then
                 self.animation:stop(true)
@@ -46,8 +44,9 @@ local Player = Class{
 
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
+    
     spriteMeshFile="assets/meshes/billboard16x16.obj",
-    spriteImgFile="assets/images/player/player_icon.png",
+    spriteImgFile="assets/images/entities/player_icon.png",
     spriteIsTransparent=false,
 
     healthBarImg = love.graphics.newImage("assets/images/ui/health_bar.png"),

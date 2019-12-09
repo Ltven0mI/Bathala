@@ -1,37 +1,40 @@
 local Class = require "hump.class"
 local Vector = require "hump.vector"
 
-local Peachy = require "peachy"
-local Sprites = require "core.sprites"
-local DepthManager = require "core.depthmanager"
-
 local Tiles = require "core.tiles"
+local Animations = require "core.animations"
+
 local ColliderBox = require "classes.collider_box"
+
 local Pickupable = require "classes.pickupable"
 
 local BarricadeItem = Class{
+    __includes = {Pickupable},
     init = function(self, x, y, z)
-        Pickupable.init(self, x, y, z, 16, 16)
+        Pickupable.init(self, x, y, z, 16, 16, 16)
         self.collider = ColliderBox(self, -8, -8, 16, 16)
-        self.animation = Peachy.new("assets/images/powerups/barricade_item.json", love.graphics.newImage("assets/images/powerups/barricade_item.png"), "idle")
 
+        self.animation = Animations.new("barricade_item", "idle")
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
-        self.sprite = Sprites.new(self.spriteCanvas)
+        self.sprite:setTexture(self.spriteCanvas)
     end,
-    __includes = {
-        Pickupable
-    },
 
-    img = Sprites.new("assets/images/powerups/barricade_item_held.png"),
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile=nil,
+    spriteIsTransparent=true,
 
-    tag = "pickupable",
+    heldSpriteMeshFile="assets/meshes/billboard16x16.obj",
+    heldSpriteImgFile="assets/images/powerups/barricade_item_held.png",
+    heldSpriteIsTransparent=false,
+
+    tags = {"item-barricade", "pickupable"}
 }
 
 function BarricadeItem:update(dt)
     self.animation:update(dt)
 end
 
-function BarricadeItem:updateSpriteCanvas()
+function BarricadeItem:redrawSpriteCanvas()
     love.graphics.push("all")
     love.graphics.reset()
 
@@ -45,21 +48,13 @@ function BarricadeItem:updateSpriteCanvas()
 end
 
 function BarricadeItem:draw()
-    local imgW = self.animation:getWidth()
-    local halfImgW = math.floor(imgW / 2)
-
-    self:updateSpriteCanvas()
-
-    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
-    local xPos = self.pos.x - halfImgW
-    local yPos = self.pos.y - self.h
-
+    self:redrawSpriteCanvas()
     love.graphics.setColor(1, 1, 1, 1)
-    self.sprite:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+    self.sprite:draw(self.pos:unpack())
 end
 
 function BarricadeItem:use(map, x, y, dir)
-    -- TODO: Need to reimplement this
+    -- TODO: Reimplement Barricade placing
     -- local gridX, gridY = map:worldToGridPos(x, y)
     -- local tileInPlace = map:getTileAt(gridX, gridY, 2)
     -- if tileInPlace then return end

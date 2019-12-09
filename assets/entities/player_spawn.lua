@@ -1,5 +1,4 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
 
 local Entity = require "classes.entity"
 
@@ -10,14 +9,10 @@ local PlayerSpawn = Class{
     end,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
-    spriteImgFile="assets/images/player/player_spawn.png",
+    spriteImgFile="assets/images/entities/player_spawn.png",
     spriteIsTransparent=false,
 
     tags = {"player_spawn"},
 }
-
-function PlayerSpawn:update(dt)
-
-end
 
 return PlayerSpawn

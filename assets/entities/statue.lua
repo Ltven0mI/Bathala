@@ -1,39 +1,52 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Signal = require "hump.signal"
+local SpriteLoader = require "core.spriteloader"
+local Util3D = require "core.util3d"
 
 local ColliderBox = require "classes.collider_box"
-local Sprites = require "core.sprites"
-local DepthManager = require "core.depthmanager"
 
 local Entity = require "classes.entity"
 
 local Statue = Class{
+    __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 32, 48)
+        Entity.init(self, x, y, z, 24, 37, 24)
         self.collider = ColliderBox(self, -12, -9, 24, 19)
         self.health = 60
 
-        self.healthbarW = self.w + 2
+        self.healthbarW = self.width + 2
         self.healthbarH = 4
 
         self.healthbarCanvas = love.graphics.newCanvas(self.healthbarW, self.healthbarH)
-        self.healthbarSprite = Sprites.new(self.healthbarCanvas)
-    end,
-    __includes = {
-        Entity
-    },
-    maxHealth = 60,
-    aliveImg = Sprites.new("assets/images/tiles/bathala_statue.png"),
-    rubbleImg = Sprites.new("assets/images/tiles/bathala_statue_rubble.png"),
+        local healthBarMesh = Util3D.generateMesh(self.healthbarW, self.healthbarH, 0)
+        self.healthbarSprite = SpriteLoader.createSprite(healthBarMesh, self.healthbarCanvas, false)
 
-    type = "statue",
-    tag = "statue",
+        self.figureSprite = SpriteLoader.createSprite(self.figureSpriteMeshFile,
+        self.figureSpriteImgFile, self.figureSpriteIsTransparent)
+    end,
+
+    spriteMeshFile="assets/meshes/statue_base.obj",
+    spriteImgFile="assets/images/entities/statue_base.png",
+    spriteIsTransparent=false,
+
+    figureSpriteMeshFile="assets/meshes/statue_figure.obj",
+    figureSpriteImgFile="assets/images/entities/statue_bathala.png",
+    figureSpriteIsTransparent=false,
+
+    rubbleImage=love.graphics.newImage("assets/images/entities/statue_bathala_rubble.png"),
+
+    maxHealth = 60,
+    -- aliveImg = Sprites.new("assets/images/tiles/bathala_statue.png"),
+    -- rubbleImg = Sprites.new("assets/images/tiles/bathala_statue_rubble.png"),
+
+    tags = {"statue"},
 }
 
 function Statue:takeDamage(damage)
     self.health = math.max(0, self.health - damage)
     if self.health == 0 then
+        self:onDeath()
         Signal.emit("statue-died", self)
     end
 end
@@ -68,24 +81,24 @@ end
 
 -- TODO: Need to reimplement this
 function Statue:draw()
-    -- love.graphics.setColor(1, 1, 1, 1)
+    local img = self.aliveImg
+    if self.health == 0 then
+        img = self.rubbleImg
+    end
+
+    self:redrawHealthbarCanvas()
     
-    -- local img = self.aliveImg
-    -- if self.health == 0 then
-    --     img = self.rubbleImg
-    -- end
+    local barX = self.pos.x
+    local barY = self.pos.y + self.height + math.floor(self.healthbarH / 2) + 1
+    local barZ = self.pos.z
+    self.healthbarSprite:draw(barX, barY, barZ)
 
-    -- local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
-    -- local xPos = self.pos.x - math.floor(self.w / 2)
-    -- local yPos = self.pos.y - math.floor(self.h / 3) * 2
+    self.sprite:draw(self.pos:unpack())
+    self.figureSprite:draw(self.pos.x, self.pos.y + 5, self.pos.z)
+end
 
-    -- img:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
-    -- -- self.collider:drawWireframe()
-
-    -- self:redrawHealthbarCanvas()
-    -- local barX = self.pos.x - math.floor(self.healthbarW / 2)
-    -- local barY = self.pos.y - math.floor(self.h / 3) * 2 - self.healthbarH
-    -- self.healthbarSprite:draw(DepthManager.getTranslationTransform(barX, barY, depth))
+function Statue:onDeath()
+    self.figureSprite:setTexture(self.rubbleImage)
 end
 
 return Statue

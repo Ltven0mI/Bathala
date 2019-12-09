@@ -4,10 +4,7 @@ local Signal = require "hump.signal"
 local SpriteLoader = require "core.spriteloader"
 
 local ColliderBox = require "classes.collider_box"
-
 local Sfx = require "classes.sfx"
-local Sprites = require "core.sprites"
-local DepthManager = require "core.depthmanager"
 
 local Pickupable = require "classes.pickupable"
 
@@ -15,7 +12,7 @@ local Throwable = Class{
     __includes = {Pickupable},
     init = function(self, x, y, z, width, height, depth)
         Pickupable.init(self, x, y, z, width, height, depth)
-        self.collider = ColliderBox(self, -math.floor(width/2), -height, width, height)
+        self.collider = ColliderBox(self, -math.floor(self.width/2), -self.height, self.width, self.height)
         self.isThrown = false
         self.isSmashed = false
         self.velocity = Maf.vector(0, 0, 0)
@@ -54,7 +51,7 @@ function Throwable:update(dt)
             self:smash()
         end
 
-        -- TODO: Reimplement this
+        -- TODO: Reimplement Collisions on Throwable
         if not self.isSmashed and self.map then
             -- local hitEntities = self.map:getEntitiesInCollider(self.collider, "enemy")
             -- if hitEntities then

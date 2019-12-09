@@ -10,11 +10,11 @@ local Entity = Class{
     init = function(self, x, y, z, width, height, depth)
         self.collider = ColliderBox(self, 0, 0, width, height)
         self.pos = Maf.vector(x, y, z)
-        self.width = width
-        self.height = height
-        self.depth = depth
+        self.width = width or 0
+        self.height = height or 0
+        self.depth = depth or 0
         self.map = nil
-        self.sprite = SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
+        self.sprite = SpriteLoader.createSprite(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
@@ -74,7 +74,7 @@ function Entity:onLoaded()
 end
 
 function Entity:renderToImage()
-    local sprite = self.sprite or SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
+    local sprite = self.sprite or SpriteLoader.createSprite(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     return SpriteRenderer.renderSpriteToImage(sprite)
 end
 

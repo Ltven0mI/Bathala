@@ -2,11 +2,10 @@ local Class = require "hump.class"
 local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
-local Peachy = require "peachy"
+local Animations = require "core.animations"
+local Entities = require "core.entities"
 
 local ColliderBox = require "classes.collider_box"
-
-local CurseProjectile = require "assets.entities.curse_projectile"
 
 local UseItem = require "assets.entities.use_item"
 
@@ -16,7 +15,7 @@ local CursePowerup = Class{
         UseItem.init(self, x, y, z, 16, 16, 16)
         self.collider = ColliderBox(self, -8, -16, 16, 16)
 
-        self.animation = Peachy.new("assets/images/powerups/curse_powerup.json", love.graphics.newImage("assets/images/powerups/curse_powerup.png"), "idle")
+        self.animation = Animations.new("curse_powerup", "idle")
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
         self.sprite:setTexture(self.spriteCanvas)
     end,
@@ -57,7 +56,7 @@ function CursePowerup:draw()
 end
 
 function CursePowerup:use(map, x, y, z, dir)
-    local instance = CurseProjectile(x, y, z, dir)
+    local instance = Entities.new("curse_projectile", x, y, z, dir)
     self.player.map:registerEntity(instance)
 end
 
