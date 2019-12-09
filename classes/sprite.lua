@@ -2,12 +2,12 @@ local Class = require "hump.class"
 local SpriteRenderer = require "core.spriterenderer"
 
 local Sprite = Class{
-    init = function(self, drawable, isTransparent)
-        self.drawable = drawable
+    __includes = {},
+    init = function(self, mesh, texture, isTransparent)
+        self.mesh = mesh
+        self.texture = texture
         self.isTransparent = isTransparent
     end,
-    __includes = {
-    }
 }
 
 function Sprite:draw(x, y, z)
@@ -21,7 +21,7 @@ function Sprite:draw(x, y, z)
 end
 
 function Sprite:setTexture(texture)
-    self.drawable:setTexture(texture)
+    self.texture = texture
 end
 
 return Sprite
