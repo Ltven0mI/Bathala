@@ -153,11 +153,17 @@ function Map:findEntityWithTag(tag)
 end
 
 function Map:registerEntity(entity)
+    if entity == nil then
+        error("Attempted to register a nil entity to map!", 2)
+    end
     table.insert(self.entities, entity)
     entity:onRegistered(self)
 end
 
 function Map:unregisterEntity(entity)
+    if entity == nil then
+        error("Attempted to unregister a nil entity!", 2)
+    end
     for k, e in ipairs(self.entities) do
         if e == entity then
             table.remove(self.entities, k)
