@@ -28,9 +28,11 @@ end
 
 -- Draws a sprite in the world ( does not take into account transparency )
 function m.drawSpriteDirect(sprite, x, y, z)
-    love.graphics.draw(sprite.drawable, Util3D.getTranslationTransform(x, y, z))
+    sprite.mesh:setTexture(sprite.texture)
+    love.graphics.draw(sprite.mesh, Util3D.getTranslationTransform(x, y, z))
 end
 
+-- TODO: Move the camera to a upvalue so it isn't created every time.
 function m.renderSpriteToImage(sprite)
     local camera = Camera(0, 0, 0, 16, 32, -128, 128, 1)
     local canvas = love.graphics.newCanvas(16, 32)

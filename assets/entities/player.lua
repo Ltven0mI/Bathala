@@ -2,22 +2,18 @@ local Class = require "hump.class"
 local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
-local DepthManager = require "core.depthmanager"
+local Animations = require "core.animations"
+
 local SpriteLoader = require "core.spriteloader"
 
-local Peachy = require "peachy"
+local Entity = require "classes.entity"
 
-local ColliderBox = require "classes.collider_box"
-
-local Projectile = require "assets.entities.curse_projectile"
-
-local player = Class{
+local Player = Class{
+    __includes={Entity},
     init = function(self, x, y, z)
-        self.pos = Maf.vector(x, y, z)
-        self.w = 10
-        self.h = 16
+        Entity.init(self, x, y, z, 16, 16, 16)
 
-        self.collider = ColliderBox(self, -5, -4, 10, 4)
+        -- self.collider = ColliderBox(self, -5, -4, 10, 4)
 
         self.health = 10
 
@@ -28,7 +24,6 @@ local player = Class{
 
         self.lookDirection = "down"
 
-        self.map = nil
         -- ? vvv Probably worth centralizing this variable... vvv
         self.isGameOver = false
         self.heldItem = nil
@@ -36,15 +31,23 @@ local player = Class{
 
         Signal.register("gameover", function(...) self:onGameOver(...) end)
 
-        self.animation = Peachy.new("assets/images/player/player.json", love.graphics.newImage("assets/images/player/player.png"), "walk_down")
-        self.animation:onLoop(function() self:animation_loop() end )
+        self.animation = Animations.new("player", "walk_down")
+        self.animation:onLoop(function()
+            if self.animation.tagName == "death" then
+                self.animation:stop(true)
+            end
+        end)
         self.animation:stop()
 
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
-        self.sprite = SpriteLoader.loadFromOBJ("assets/meshes/billboard16x16.obj", self.spriteCanvas, true)
+        self.sprite:setTexture(self.spriteCanvas)
 
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
+    
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile="assets/images/entities/player_icon.png",
+    spriteIsTransparent=false,
 
     healthBarImg = love.graphics.newImage("assets/images/ui/health_bar.png"),
     healthBarFillImg = love.graphics.newImage("assets/images/ui/health_bar_fill.png"),
@@ -54,34 +57,23 @@ local player = Class{
 
     speed = 64,
     maxHealth = 10,
-    tag = "player",
-    type="player",
+    tags = {"player"},
 }
 
 -- [[ Util Functions ]] --
 
-function player:setPos(x, y, z)
-    self.pos.x = x
-    self.pos.y = y
-    self.pos.z = z
-end
-
-function player:setMap(map)
-    self.map = map
-end
-
-function player:takeDamage(damage)
+function Player:takeDamage(damage)
     self.health = math.max(0, self.health - damage)
     if self.health <= 0 then
         Signal.emit("player-died")
     end
 end
 
-function player:pickUpItem(item)
+function Player:pickUpItem(item)
     item:pickup(self)
 end
 
-function player:putDownHeldItem()
+function Player:putDownHeldItem()
     self.heldItem:putDown(self.pos, self.map)
 end
 -- \\ End Util Functions // --
@@ -89,7 +81,7 @@ end
 
 -- [[ Callback Functions ]] --
 
-function player:update(dt)
+function Player:update(dt)
     self.animation:update(dt)
 
     if self.isGameOver then
@@ -150,7 +142,7 @@ function player:update(dt)
     -- end
 end
 
-function player:redrawSpriteCanvas()
+function Player:redrawSpriteCanvas()
     love.graphics.push("all")
     love.graphics.reset()
 
@@ -163,7 +155,7 @@ function player:redrawSpriteCanvas()
     love.graphics.pop()
 end
 
-function player:draw()
+function Player:draw()
     local imgW = self.animation:getWidth()
     local halfImgW = math.floor(imgW / 2)
 
@@ -172,15 +164,9 @@ function player:draw()
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(self.pos:unpack())
 
-    -- [[ Debug ]] --
-
-    -- self.collider:drawWireframe()
-    -- love.graphics.circle("fill", self.pos.x, self.pos.y, 1)
-
-    -- [[ End Debug ]] --
-
     if self.heldItem then
-        self.heldItem:drawHeld(self.pos.x, self.pos.y - self.h, depth - self.h)
+        -- ? This may be incorrect
+        self.heldItem:drawHeld(self.pos.x, self.pos.y + self.height, self.pos.z)
     end
 
     local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
@@ -200,7 +186,7 @@ function player:draw()
     end
 end
 
-function player:drawUI(screenW, screenH)
+function Player:drawUI(screenW, screenH)
     love.graphics.setColor(1, 1, 1, 1)
 
     local halfScreenW = math.floor(screenW / 2)
@@ -237,7 +223,7 @@ function player:drawUI(screenW, screenH)
     local drawX, drawY = drawX + barW + 1, screenH - useItemH - 2
     love.graphics.draw(self.useItemBgImg, drawX, drawY)
     if self.currentUseItem then
-        love.graphics.draw(self.currentUseItem.icon, drawX, drawY)
+        love.graphics.draw(self.currentUseItem.hudIcon, drawX, drawY)
         if not self.heldItem then
             love.graphics.draw(self.useItemTextImg, drawX, drawY)
         end
@@ -245,59 +231,50 @@ function player:drawUI(screenW, screenH)
 
 end
 
-function player:mousepressed(btn, dir)
-    if btn == 3 then
-        self.pos.y = self.pos.y - 0.1
-    end
-
+function Player:mousepressed(btn, dir)
     if self.isGameOver then
         return
     end
 
     if self.heldItem then
         if btn == 1 then
-            self.heldItem:use(self.map, self.pos.x, self.pos.y, dir)
+            self.heldItem:use(self.map, self.pos.x, self.pos.y, self.pos.z, dir)
         elseif btn == 2 then
             self:putDownHeldItem()
         end
     else
         if btn == 1 then
-            local halfPlayerW = math.floor(self.w / 2)
-            local halfPlayerH = math.floor(self.h / 2)
-            local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
-            local pickupable = nil
-            if pickupables then
-                for _, v in ipairs(pickupables) do
-                    if v.canPickUp and v:canPickUp() then
-                        pickupable = v
-                        break
-                    end
-                end
-            end
-            if pickupable then
-                self:pickUpItem(pickupable)
-            elseif self.currentUseItem then
-                self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
-            end
+            -- TODO: Rewrite this
+            -- local halfPlayerW = math.floor(self.w / 2)
+            -- local halfPlayerH = math.floor(self.h / 2)
+            -- local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
+            -- local pickupable = nil
+            -- if pickupables then
+            --     for _, v in ipairs(pickupables) do
+            --         if v.canPickUp and v:canPickUp() then
+            --             pickupable = v
+            --             break
+            --         end
+            --     end
+            -- end
+            -- if pickupable then
+            --     self:pickUpItem(pickupable)
+            -- elseif self.currentUseItem then
+            --     self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
+            -- end
         end
     end
 end
 
-function player:onGameOver()
+function Player:onGameOver()
     self.isGameOver = true
     self.animation:setTag("death")
     self.animation:play()
 end
-
-function player:animation_loop()
-    if self.animation.tagName == "death" then
-        self.animation:stop(true)
-    end
-end
 -- \\ End Callback Functions // --
 
 
-function player:doCollisionCheck()
+function Player:doCollisionCheck()
     -- TODO: Need to reimplement this
     -- local posX, posY = self.collider:getWorldCoords()
     -- local minX = math.floor(posX)
@@ -321,4 +298,4 @@ function player:doCollisionCheck()
     -- end
 end
 
-return player
+return Player

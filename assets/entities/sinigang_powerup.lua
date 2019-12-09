@@ -1,38 +1,43 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
-local Peachy = require "peachy"
-local Sprites = require "core.sprites"
-local DepthManager = require "core.depthmanager"
+local Animations = require "core.animations"
+local Entities = require "core.entities"
 
 local ColliderBox = require "classes.collider_box"
 
-local Pickupable = require "classes.pickupable"
+local Pickupable = require "assets.entities.pickupable"
 
 local SinigangPowerup = Class{
+    __includes = {Pickupable},
     init = function(self, x, y, z)
-        Pickupable.init(self, x, y, z, 16, 16)
+        Pickupable.init(self, x, y, z, 16, 16, 16)
         self.collider = ColliderBox(self, -8, -16, 16, 16)
-        self.animation = Peachy.new("assets/images/powerups/sinigang_powerup.json", love.graphics.newImage("assets/images/powerups/sinigang_powerup.png"), "idle")
 
+        self.animation = Animations.new("sinigang_powerup", "idle")
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
-        self.sprite = Sprites.new(self.spriteCanvas)
+        self.sprite:setTexture(self.spriteCanvas)
     end,
-    __includes = {
-        Pickupable
-    },
-    healAmount = 20,
-    img = Sprites.new("assets/images/powerups/sinigang_powerup_held.png"),
 
-    tag = "pickupable",
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile=nil,
+    spriteIsTransparent=true,
+
+    heldSpriteMeshFile="assets/meshes/billboard16x16.obj",
+    heldSpriteImgFile="assets/images/powerups/sinigang_powerup_held.png",
+    heldSpriteIsTransparent=false,
+
+    healAmount = 20,
+
+    tags = {"powerup-sinigang", "pickupable"}
 }
 
 function SinigangPowerup:update(dt)
     self.animation:update(dt)
 end
 
-function SinigangPowerup:updateSpriteCanvas()
+function SinigangPowerup:redrawSpriteCanvas()
     love.graphics.push("all")
     love.graphics.reset()
 
@@ -46,20 +51,13 @@ function SinigangPowerup:updateSpriteCanvas()
 end
 
 function SinigangPowerup:draw()
-    local imgW = self.animation:getWidth()
-    local halfImgW = math.floor(imgW / 2)
-
-    self:updateSpriteCanvas()
-
-    local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
-    local xPos = self.pos.x - halfImgW
-    local yPos = self.pos.y - self.h
+    self:redrawSpriteCanvas()
 
     love.graphics.setColor(1, 1, 1, 1)
-    self.sprite:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+    self.sprite:draw(self.pos:unpack())
 end
 
-function SinigangPowerup:use(map, x, y, dir)
+function SinigangPowerup:use(map, x, y, z, dir)
     Signal.emit("statue-heal", self.healAmount)
     self.player.heldItem = nil
     self.player = nil

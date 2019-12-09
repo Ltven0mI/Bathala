@@ -1,21 +1,21 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
-local Sprites = require "core.sprites"
-local DepthManager = require "core.depthmanager"
+local Animations = require "core.animations"
 
-local Peachy = require "peachy"
-
-local Entity = require "classes.entity"
 local ColliderBox = require "classes.collider_box"
 
 local DesecratorProjectile = require "assets.entities.desecrator_projectile"
 
+local Entity = require "classes.entity"
+
 local Enemy = Class{
+    __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 16, 24)
+        Entity.init(self, x, y, z, 16, 24, 16)
         self.collider = ColliderBox(self, -8, -24, 16, 24)
+
         self.target = nil
         self.targetStatue = nil
         self.path = nil
@@ -23,43 +23,45 @@ local Enemy = Class{
         self.health = 2
         self.attackTimer = 0
 
-        self.velocity = Vector(0, 0)
-        self.lastVelocity = Vector(0, 0)
+        self.velocity = Maf.vector(0, 0, 0)
+        self.lastVelocity = Maf.vector(0, 0, 0)
 
-        self.targetDir = Vector(0, 0)
+        self.targetDir = Maf.vector(0, 0, 0)
 
-        self.lookDir = Vector(0, 0)
+        self.lookDir = Maf.vector(0, 0, 0)
 
-        self.animation = Peachy.new("assets/images/desecrator/desecrator.json",
-            love.graphics.newImage("assets/images/desecrator/desecrator.png"), "walk_up")
+        self.animation = Animations.new("desecrator", "walk_down")
 
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
-        self.spriteMesh = Sprites.new(self.spriteCanvas)
+        self.sprite:setTexture(self.spriteCanvas)
     end,
-    __includes = {
-        Entity
-    },
+
+    spriteMeshFile="assets/meshes/desecrator.obj",
+    spriteImgFile="assets/images/entities/desecrator_icon.png",
+    spriteIsTransparent=false,
+
     speed = 32,
     stoppingDistance = 16,
     timeBetweenAttacks = 3,
-    tag = "enemy"
+
+    tags = {"enemy"}
 }
 
-local function _newPriorityQueue()
-    return {
-        queue = {},
-        put = function(self, pos, priority)
-            table.insert(self.queue, {pos=pos, priority=priority})
-            table.sort(self.queue, function(a, b) return a.priority < b.priority end)
-        end,
-        get = function(self)
-            return table.remove(self.queue, 1)
-        end,
-        isEmpty = function(self)
-            return (#self.queue == 0)
-        end,
-    }
-end
+-- local function _newPriorityQueue()
+--     return {
+--         queue = {},
+--         put = function(self, pos, priority)
+--             table.insert(self.queue, {pos=pos, priority=priority})
+--             table.sort(self.queue, function(a, b) return a.priority < b.priority end)
+--         end,
+--         get = function(self)
+--             return table.remove(self.queue, 1)
+--         end,
+--         isEmpty = function(self)
+--             return (#self.queue == 0)
+--         end,
+--     }
+-- end
 
 function Enemy:takeDamage(damage)
     self.health = math.max(0, self.health - damage)
@@ -111,106 +113,107 @@ function Enemy:getNeighboursAt(x, y)
     -- return neighbours
 end
 
-function Enemy:updatePath()
-    local nodeGrid = {}
-    for x=1, self.map.width do
-        nodeGrid[x] = {}
-        for y=1, self.map.height do
-            nodeGrid[x][y] = nil
-        end
-    end
+-- function Enemy:updatePath()
+--     local nodeGrid = {}
+--     for x=1, self.map.width do
+--         nodeGrid[x] = {}
+--         for y=1, self.map.height do
+--             nodeGrid[x][y] = nil
+--         end
+--     end
 
-    local startX, startY = self.map:worldToGridPos(self.pos:unpack())
-    local goalX, goalY = self.map:worldToGridPos(self.target:unpack())
+--     local startX, startY = self.map:worldToGridPos(self.pos:unpack())
+--     local goalX, goalY = self.map:worldToGridPos(self.target:unpack())
 
-    local frontier = _newPriorityQueue()
-    frontier:put({x=startX, y=startY}, 0)
+--     local frontier = _newPriorityQueue()
+--     frontier:put({x=startX, y=startY}, 0)
 
-    nodeGrid[startX][startY] = {
-        x=startX,
-        y=startY,
-        came_from = nil,
-        cost_so_far = 0,
-    }
+--     nodeGrid[startX][startY] = {
+--         x=startX,
+--         y=startY,
+--         came_from = nil,
+--         cost_so_far = 0,
+--     }
 
-    local shortestDist = math.huge
-    local closestNode = nil
+--     local shortestDist = math.huge
+--     local closestNode = nil
 
-    while not frontier:isEmpty() do
-        local current = frontier:get()
-        local currentNode = nodeGrid[current.pos.x][current.pos.y]
+--     while not frontier:isEmpty() do
+--         local current = frontier:get()
+--         local currentNode = nodeGrid[current.pos.x][current.pos.y]
 
-        local distToGoal = Vector(goalX - currentNode.x, goalY - currentNode.y):len()
-        if distToGoal < shortestDist then
-            shortestDist = distToGoal
-            closestNode = currentNode
-        end
+--         local distToGoal = Vector(goalX - currentNode.x, goalY - currentNode.y):len()
+--         if distToGoal < shortestDist then
+--             shortestDist = distToGoal
+--             closestNode = currentNode
+--         end
         
-        if current.pos.x == goalX and current.pos.y == goalY then
-            break
-        end
+--         if current.pos.x == goalX and current.pos.y == goalY then
+--             break
+--         end
 
-        local neighbors = self:getNeighboursAt(current.pos.x, current.pos.y)
+--         local neighbors = self:getNeighboursAt(current.pos.x, current.pos.y)
 
-        for _, next in ipairs(neighbors) do
-            local nextNode = nodeGrid[next.x][next.y]
-            if nextNode == nil then
-                nodeGrid[next.x][next.y] = {
-                    x=next.x,
-                    y=next.y,
-                    came_from = nil,
-                    cost_so_far = math.huge,
-                }
-                nextNode = nodeGrid[next.x][next.y]
-            end
-            local new_cost = currentNode.cost_so_far + self:calculateCost({x=current.pos.x, y=current.pos.y}, next)
-            if nextNode.cost_so_far == nil or new_cost < nextNode.cost_so_far then
-                nextNode.cost_so_far = new_cost
-                local priority = new_cost + 0 --[[ heuristic(goal, next) ]]
-                frontier:put({x=next.x, y=next.y}, priority)
-                nextNode.came_from = currentNode
-            end
-        end
-    end
+--         for _, next in ipairs(neighbors) do
+--             local nextNode = nodeGrid[next.x][next.y]
+--             if nextNode == nil then
+--                 nodeGrid[next.x][next.y] = {
+--                     x=next.x,
+--                     y=next.y,
+--                     came_from = nil,
+--                     cost_so_far = math.huge,
+--                 }
+--                 nextNode = nodeGrid[next.x][next.y]
+--             end
+--             local new_cost = currentNode.cost_so_far + self:calculateCost({x=current.pos.x, y=current.pos.y}, next)
+--             if nextNode.cost_so_far == nil or new_cost < nextNode.cost_so_far then
+--                 nextNode.cost_so_far = new_cost
+--                 local priority = new_cost + 0 --[[ heuristic(goal, next) ]]
+--                 frontier:put({x=next.x, y=next.y}, priority)
+--                 nextNode.came_from = currentNode
+--             end
+--         end
+--     end
 
-    -- * Debug value
-    self.nodeGrid = nodeGrid
+--     -- * Debug value
+--     self.nodeGrid = nodeGrid
 
-    -- local goalNode = nodeGrid[goalX][goalY]
-    -- if goalNode == nil then
-    --     if 
-    --     -- Handle it not reaching the goal
-    --     error("Failed to reach goal: "..tostring(goalX)..", "..tostring(goalY))
-    -- end
+--     -- local goalNode = nodeGrid[goalX][goalY]
+--     -- if goalNode == nil then
+--     --     if 
+--     --     -- Handle it not reaching the goal
+--     --     error("Failed to reach goal: "..tostring(goalX)..", "..tostring(goalY))
+--     -- end
 
-    goalNode = closestNode
+--     goalNode = closestNode
 
-    self.path = {}
-    local currentNode = goalNode
-    while currentNode.came_from do
-        table.insert(self.path, 1, currentNode)
-        currentNode = currentNode.came_from
-    end
+--     self.path = {}
+--     local currentNode = goalNode
+--     while currentNode.came_from do
+--         table.insert(self.path, 1, currentNode)
+--         currentNode = currentNode.came_from
+--     end
 
-    -- for k, v in ipairs(self.path) do
-    --     print(k, v.x, v.y)
-    -- end
-end
+--     -- for k, v in ipairs(self.path) do
+--     --     print(k, v.x, v.y)
+--     -- end
+-- end
 
-function Enemy:setTarget(x, y)
-    self.target = Vector(x, y)
-    self:updatePath()
-    self:nextNode()
-end
+-- function Enemy:setTarget(x, y)
+--     self.target = Vector(x, y)
+--     self:updatePath()
+--     self:nextNode()
+-- end
 
-function Enemy:nextNode()
-    self.currentNode = table.remove(self.path, 1)
-end
+-- function Enemy:nextNode()
+--     self.currentNode = table.remove(self.path, 1)
+-- end
 
 -- TODO: Need to reimplement this
 function Enemy:update(dt)
-    --[[
     self.animation:update(dt)
+end
+    --[[
 
     self.lastVelocity = self.velocity
 
@@ -276,9 +279,9 @@ function Enemy:update(dt)
         end
     end
     ]]
-end
+-- end
 
-function Enemy:updateSpriteCanvas()
+function Enemy:redrawSpriteCanvas()
     love.graphics.push("all")
     love.graphics.reset()
 
@@ -294,17 +297,10 @@ end
 
 -- TODO: Need to reimplement this
 function Enemy:draw()
-    -- local imgW = self.animation:getWidth()
-    -- local halfImgW = math.floor(imgW / 2)
-
-    -- self:updateSpriteCanvas()
-
-    -- local depth = self.map:getDepthAtWorldPos(self.pos.x, self.pos.y, 2)
-    -- local xPos = self.pos.x - halfImgW
-    -- local yPos = self.pos.y - self.h
-
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- self.spriteMesh:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+    self:redrawSpriteCanvas()
+    love.graphics.setColor(1, 1, 1, 1)
+    self.sprite:draw(self.pos:unpack())
+end
 
 
 
@@ -348,7 +344,7 @@ function Enemy:draw()
     --         end
     --     end
     -- end
-end
+-- end
 
 -- function Enemy:intersectPoint(x, y)
 --     local halfEnemyW, halfEnemyH = math.floor(self.w / 2), math.floor(self.h / 2)
@@ -358,11 +354,11 @@ end
 --     )
 -- end
 
-function Enemy:attack(dir)
-    local halfW = math.floor(self.w / 2)
-    local halfH = math.floor(self.h / 2)
-    local projectileInstance = DesecratorProjectile(self.pos.x, self.pos.y - halfH, dir)
-    self.map:registerEntity(projectileInstance)
-end
+-- function Enemy:attack(dir)
+--     local halfW = math.floor(self.w / 2)
+--     local halfH = math.floor(self.h / 2)
+--     local projectileInstance = DesecratorProjectile(self.pos.x, self.pos.y - halfH, dir)
+--     self.map:registerEntity(projectileInstance)
+-- end
 
 return Enemy

@@ -1,89 +1,90 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Signal = require "hump.signal"
+local SpriteLoader = require "core.spriteloader"
 
 local ColliderBox = require "classes.collider_box"
-
-local Entity = require "classes.entity"
-local Pickupable = require "classes.pickupable"
 local Sfx = require "classes.sfx"
-local Sprites = require "core.sprites"
-local DepthManager = require "core.depthmanager"
+
+local Pickupable = require "assets.entities.pickupable"
 
 local Throwable = Class{
-    init = function(self, x, y, z, w, h)
-        Pickupable.init(self, x, y, z, w, h)
-        self.collider = ColliderBox(self, -math.floor(w/2), -h, w, h)
+    __includes = {Pickupable},
+    init = function(self, x, y, z, width, height, depth)
+        Pickupable.init(self, x, y, z, width, height, depth)
+        self.collider = ColliderBox(self, -math.floor(self.width/2), -self.height, self.width, self.height)
         self.isThrown = false
         self.isSmashed = false
-        self.velocity = Vector(0, 0)
+        self.velocity = Maf.vector(0, 0, 0)
+
+        self.brokenSprite = SpriteLoader.loadFromOBJ(self.brokenSpriteMeshFile, self.brokenSpriteImgFile, self.brokenSpriteIsTransparent)
     end,
-    __includes = {
-        Pickupable
-    },
+
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile="assets/images/missing_texture.png",
+    spriteIsTransparent=false,
+
+    brokenSpriteMeshFile="assets/meshes/billboard16x16_flat.obj",
+    brokenSpriteImgFile="assets/images/missing_texture.png",
+    brokenSpriteIsTransparent=false,
+
     damage=3,
     drag=4,
     velocityCutoff = 48,
     throwSpeed = 256,
-    img = Sprites.new("assets/images/tiles/boulder.png"),
-    imgBroken = Sprites.new("assets/images/tiles/boulder_broken.png"),
     smashSfx = nil,
 
-    type = "pickupable",
+    tags = {"throwable", "pickupable"},
 }
 
 function Throwable:update(dt)
     if self.isThrown then
+        -- Apply velocity
         self.pos = self.pos + self.velocity * dt
+        
+        -- Double the drag if it is smashed
         local drag = (not self.isSmashed and self.drag or self.drag * 2)
         self.velocity = self.velocity - (self.velocity * drag * dt)
+
+        -- Hulk Smash!
         if not self.isSmashed and self.velocity:len() < self.velocityCutoff then
             self:smash()
         end
 
+        -- TODO: Reimplement Collisions on Throwable
         if not self.isSmashed and self.map then
-            local hitEntities = self.map:getEntitiesInCollider(self.collider, "enemy")
-            if hitEntities then
-                hitEntities[1]:takeDamage(self.damage)
-                self:smash()
-            else
-                local hitTiles = self.map:getTilesInCollider(self.collider)
-                if hitTiles then
-                    self:smash()
-                end
-            end
+            -- local hitEntities = self.map:getEntitiesInCollider(self.collider, "enemy")
+            -- if hitEntities then
+            --     hitEntities[1]:takeDamage(self.damage)
+            --     self:smash()
+            -- else
+            --     local hitTiles = self.map:getTilesInCollider(self.collider)
+            --     if hitTiles then
+            --         self:smash()
+            --     end
+            -- end
         end
     end
 end
 
--- TODO: Need to reimplement this
 function Throwable:draw()
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- local img = self.img
-    -- if self.isSmashed then
-    --     img = self.imgBroken
-    -- end
-
-    -- local depth = self:getDepth()
-    -- local xPos = self.pos.x - math.floor(self.w / 2)
-    -- local yPos = self.pos.y - self.h
-
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- img:draw(DepthManager.getTranslationTransform(xPos, yPos, depth))
+    local currentSprite = self.isSmashed and self.brokenSprite or self.sprite
+    love.graphics.setColor(1, 1, 1, 1)
+    currentSprite:draw(self.pos:unpack())
 end
 
 function Throwable:canPickUp()
     return not self.isThrown
 end
 
-function Throwable:use(map, x, y, dir)
-    self:putDown(x, y, map)
+function Throwable:use(map, x, y, z, dir)
+    self:putDown(x, y, z, map)
     self.isThrown = true
     self.velocity = dir * self.throwSpeed
 end
 
 function Throwable:smash()
-    self.type = ""
+    self.tags = {"throwable-broken"}
     self.isSmashed = true
     if self.smashSfx then
         self.smashSfx:play()

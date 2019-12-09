@@ -1,35 +1,35 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
 local ColliderBox = require "classes.collider_box"
-local Sprites = require "core.sprites"
-
-local Throwable = require "assets.entities.throwable"
 local Sfx = require "classes.sfx"
 
+local Throwable = require "assets.entities.throwable"
+
 local Vase = Class{
+    __includes = {Throwable},
     init = function(self, x, y, z)
-        Throwable.init(self, x, y, z, 16, 16)
+        Throwable.init(self, x, y, z, 16, 16, 16)
         self.collider = ColliderBox(self, -7, -12, 14, 12)
     end,
-    __includes = {
-        Throwable
-    },
-    damage=3,
-    drag=4,
-    velocityCutoff = 48,
-    throwSpeed = 256,
-    img = Sprites.new("assets/images/tiles/vase.png"),
-    imgBroken = Sprites.new("assets/images/tiles/vase_broken.png", {isGround=true}),
+
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile="assets/images/tiles/vase.png",
+    spriteIsTransparent=false,
+
+    brokenSpriteMeshFile="assets/meshes/billboard16x16_flat.obj",
+    brokenSpriteImgFile="assets/images/tiles/vase_broken.png",
+    brokenSpriteIsTransparent=false,
+
     smashSfx = Sfx("assets/sound/vase_smash.mp3"),
 
-    tag = "pickupable",
+    tags = {"vase", "throwable", "pickupable"}
 }
 
 function Vase:smash()
     Throwable.smash(self)
-    Signal.emit("vase-smashed", self.pos.x, self.pos.y)
+    Signal.emit("vase-smashed", self.pos.x, self.pos.y, self.pos.z)
 end
 
 return Vase

@@ -27,10 +27,9 @@ function m.loadFromOBJ(objPath, path_or_texture, isTransparent)
     if meshData == nil then error(err) end
     local mesh = love.graphics.newMesh(_local.vertexFormat, meshData.vertices, "triangles")
     mesh:setVertexMap(meshData.indices)
-    mesh:setTexture(texture)
 
     if isTransparent == nil then isTransparent = false end
-    return Sprite(mesh, isTransparent)
+    return Sprite(mesh, texture, isTransparent)
 end
 
 function m.createSpriteFromVertices(vertices, indices, path_or_texture, isTransparent)
@@ -41,10 +40,27 @@ function m.createSpriteFromVertices(vertices, indices, path_or_texture, isTransp
 
     local mesh = love.graphics.newMesh(_local.vertexFormat, vertices, "triangles")
     mesh:setVertexMap(indices)
-    mesh:setTexture(texture)
 
     if isTransparent == nil then isTransparent = false end
-    return Sprite(mesh, isTransparent)
+    return Sprite(mesh, texture, isTransparent)
+end
+
+function m.createSprite(path_or_mesh, path_or_texture, isTransparent)
+    local texture = path_or_texture
+    if type(path_or_texture) == "string" then
+        texture = love.graphics.newImage(path_or_texture)
+    end
+
+    local mesh = path_or_mesh
+    if type(path_or_mesh) == "string" then
+        local meshData, err = OBJParser.unitTest(path_or_mesh)
+        if meshData == nil then error(err) end
+        mesh = love.graphics.newMesh(_local.vertexFormat, meshData.vertices, "triangles")
+        mesh:setVertexMap(meshData.indices)
+    end
+
+    if isTransparent == nil then isTransparent = false end
+    return Sprite(mesh, texture, isTransparent)
 end
 
 return m

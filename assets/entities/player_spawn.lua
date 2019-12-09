@@ -1,27 +1,18 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
 
 local Entity = require "classes.entity"
 
 local PlayerSpawn = Class{
+    __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 16, 16)
+        Entity.init(self, x, y, z, 16, 16, 16)
     end,
-    __includes = {
-        Entity
-    },
 
-    img = love.graphics.newImage("assets/images/tiles/player_spawn.png"),
-    type = "player_spawn",
+    spriteMeshFile="assets/meshes/billboard16x16.obj",
+    spriteImgFile="assets/images/entities/player_spawn.png",
+    spriteIsTransparent=false,
+
+    tags = {"player_spawn"},
 }
-
-function PlayerSpawn:update(dt)
-
-end
-
-function PlayerSpawn:draw()
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- love.graphics.draw(self.img, self.pos.x, self.pos.y)
-end
 
 return PlayerSpawn

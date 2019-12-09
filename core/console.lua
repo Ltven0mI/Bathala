@@ -61,7 +61,9 @@ function m.keypressed(key, isRepeat)
     
     if not _local.enabled then return end
 
-    if key == "backspace" then
+    if key == "up" then
+        _local.text = _local.lastCommand or _local.text
+    elseif key == "backspace" then
         -- get the byte offset to the last UTF-8 character in the string.
         local byteoffset = UTF8.offset(_local.text, -1)
  
@@ -98,6 +100,8 @@ local function split(inputstr, sep)
 end
 
 function m.processCommandLine(text)
+    _local.lastCommand = text
+
     local args = split(text, "%s")
     if args[1] == nil then
         return true

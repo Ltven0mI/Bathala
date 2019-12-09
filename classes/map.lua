@@ -144,12 +144,26 @@ end
 
 -- [[ Entity Functions ]] --
 
+function Map:findEntityWithTag(tag)
+    for _, entity in ipairs(self.entities) do
+        if entity:hasTag(tag) then
+            return entity
+        end
+    end
+end
+
 function Map:registerEntity(entity)
+    if entity == nil then
+        error("Attempted to register a nil entity to map!", 2)
+    end
     table.insert(self.entities, entity)
     entity:onRegistered(self)
 end
 
 function Map:unregisterEntity(entity)
+    if entity == nil then
+        error("Attempted to unregister a nil entity!", 2)
+    end
     for k, e in ipairs(self.entities) do
         if e == entity then
             table.remove(self.entities, k)
@@ -401,7 +415,6 @@ m.depth = %d]]
                 local tileData = self.grid[x][y][z]
                 if tileData ~= nil then
                     if tilesUsed[tileData.__name] == nil then
-                        print(tileData.__name)
                         tilesUsed[tileData.__name] = tileData
                     end
                 end
@@ -436,21 +449,6 @@ m.depth = %d]]
             end
         end
     end
-
-    -- for layerId=1, map.layerCount do
-    --     decimalLayouts[layerId] = {}
-    --     for x=1, map.width do
-    --         decimalLayouts[layerId][x] = {}
-    --         for y=1, map.height do
-    --             local tileData = map.grids[layerId][x][y]
-    --             if tileData == nil then
-    --                 decimalLayouts[layerId][x][y] = 0
-    --             else
-    --                 decimalLayouts[layerId][x][y] = reverseTileIndex[tileData.name]
-    --             end
-    --         end
-    --     end
-    -- end
 
     local gridPattern = "m.tileIndexGrid = %s"
     local gridString = string.format(gridPattern, _tableToString(tileIndexGrid))
