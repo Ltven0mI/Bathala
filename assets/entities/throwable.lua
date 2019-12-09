@@ -6,7 +6,7 @@ local SpriteLoader = require "core.spriteloader"
 local ColliderBox = require "classes.collider_box"
 local Sfx = require "classes.sfx"
 
-local Pickupable = require "classes.pickupable"
+local Pickupable = require "assets.entities.pickupable"
 
 local Throwable = Class{
     __includes = {Pickupable},

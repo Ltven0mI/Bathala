@@ -7,7 +7,7 @@ local Entities = require "core.entities"
 
 local ColliderBox = require "classes.collider_box"
 
-local Pickupable = require "classes.pickupable"
+local Pickupable = require "assets.entities.pickupable"
 
 local SinigangPowerup = Class{
     __includes = {Pickupable},

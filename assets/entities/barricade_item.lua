@@ -6,7 +6,7 @@ local Animations = require "core.animations"
 
 local ColliderBox = require "classes.collider_box"
 
-local Pickupable = require "classes.pickupable"
+local Pickupable = require "assets.entities.pickupable"
 
 local BarricadeItem = Class{
     __includes = {Pickupable},

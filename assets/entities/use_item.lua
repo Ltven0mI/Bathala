@@ -1,6 +1,6 @@
 local Class = require "hump.class"
 
-local Pickupable = require "classes.pickupable"
+local Pickupable = require "assets.entities.pickupable"
 
 local UseItem = Class{
     __includes = {Pickupable},
