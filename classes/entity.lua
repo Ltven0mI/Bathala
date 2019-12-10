@@ -5,15 +5,12 @@ local SpriteRenderer = require "core.spriterenderer"
 
 local ColliderBox = require "classes.collider_box"
 
+local Collider = require "classes.collider"
+
 local Entity = Class{
-    __includes={},
+    __includes={Collider},
     init = function(self, x, y, z, width, height, depth)
-        self.collider = ColliderBox(self, 0, 0, width, height)
-        self.pos = Maf.vector(x, y, z)
-        self.width = width or 0
-        self.height = height or 0
-        self.depth = depth or 0
-        self.map = nil
+        Collider.init(self, x, y, z, width, height, depth)
         self.sprite = SpriteLoader.createSprite(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
 
@@ -25,12 +22,6 @@ local Entity = Class{
 }
 
 -- [[ Util Functions ]] --
-
-function Entity:setPos(x, y, z)
-    self.pos.x = x
-    self.pos.y = y
-    self.pos.z = z
-end
 
 -- Returns true if self has the specified tag and false if not
 function Entity:hasTag(tag)
@@ -57,16 +48,6 @@ end
 function Entity:draw()
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(self.pos:unpack())
-end
-
--- Called when an entity is registered to a map
-function Entity:onRegistered(map)
-    self.map = map
-end
-
--- Called when an entity is unregistered from a map
-function Entity:onUnregistered()
-    self.map = nil
 end
 
 function Entity:onLoaded()

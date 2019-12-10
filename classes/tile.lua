@@ -4,14 +4,17 @@ local SpriteLoader = require "core.spriteloader"
 local SpriteRenderer = require "core.spriterenderer"
 
 local ColliderBox = require "classes.collider_box"
+local Collider = require "classes.collider"
 
 local Tile = Class{
+    __includes={Collider},
     init = function(self, map, gridX, gridY, gridZ)
+        local worldX, worldY, worldZ = map:gridToWorldPos(gridX, gridY, gridZ)
+        Collider.init(self, worldX, worldY, worldZ, map.tileSize, map.tileSize, map.tileSize)
+        
         self.gridX = gridX
         self.gridY = gridY
         self.gridZ = gridZ
-        self.pos = Maf.vector(map:gridToWorldPos(gridX, gridY, gridZ))
-        self.collider = ColliderBox(self, 0, 0, map.tileSize, map.tileSize)
         self.map = map
         self.sprite = SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
@@ -21,13 +24,16 @@ local Tile = Class{
 
     isSolid = false,
     layerHeight = 1,
+
+    colliderOffsetY = 8,
+    isColliderSolid = true
 }
 
 function Tile:setGridPos(x, y, z)
     self.gridX = x
     self.gridY = y
     self.gridZ = z
-    self.pos = Maf.vector(self.map:gridToWorldPos(x, y, z))
+    self:setPos(self.map:gridToWorldPos(x, y, z))
 end
 
 function Tile:start()

@@ -1,7 +1,7 @@
 local Camera = require "hump.camera"
 local Camera3D = require "core.camera3d"
 local Signal = require "hump.signal"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Timer = require "hump.timer"
 local Gamestate = require "hump.gamestate"
 
@@ -138,9 +138,9 @@ function game:draw()
 end
 
 function game:mousepressed(x, y, btn)
-    local worldX, worldY = self.camera:worldCoords(x, y)
-    local dir = (Vector(worldX, worldY) - self.player.pos):normalized()
-self.player:mousepressed(btn, dir)
+    local worldX, worldY, worldZ = self.camera:worldCoords(x, y)
+    local dir = (Maf.vector(worldX, worldY, worldZ) - self.player.pos):normalize()
+    self.player:mousepressed(btn, dir)
 end
 
 function game:keypressed(key, isRepeat)

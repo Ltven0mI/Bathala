@@ -4,11 +4,10 @@ local Vector = require "hump.vector"
 
 local Entities = require "core.entities"
 local Tiles = require "core.tiles"
-local DepthManager = require "core.depthmanager"
 
 local PathUtil = require "AssetBundle.PathUtil"
 
-local ColliderBox = require "classes.collider_box"
+local Bump = require "libs.bump-3dpd"
 
 local _local = {}
 
@@ -17,6 +16,8 @@ local Map = Class{
         self.width = mapData.width
         self.height = mapData.height
         self.depth = mapData.depth
+
+        self.bumpWorld = Bump.newWorld(self.tileSize)
 
         self.grid = _local.generateGrid(self, mapData)
         self:updateTileNeighbours()
@@ -68,6 +69,8 @@ function Map:update(dt)
     for _, entity in ipairs(self.entities) do
         entity:update(dt)
     end
+
+    -- self:doCollisionPass(dt)
 end
 
 function Map:draw()
@@ -108,7 +111,14 @@ function Map:setTileAt(tileData, x, y, z)
     if self:checkIsOutsideMap(x, y, z)  then
         return nil
     end
+    local lastTile = self.grid[x][y][z]
+    if lastTile then
+        _local.unregisterCollider(self, lastTile)
+    end
     self.grid[x][y][z] = tileData
+    if tileData then
+        _local.registerCollider(self, tileData)
+    end
     self:updateTileNeighboursAround(x, y, z)
 end
 
@@ -157,7 +167,7 @@ function Map:registerEntity(entity)
         error("Attempted to register a nil entity to map!", 2)
     end
     table.insert(self.entities, entity)
-    entity:onRegistered(self)
+    _local.registerCollider(self, entity)
 end
 
 function Map:unregisterEntity(entity)
@@ -170,7 +180,7 @@ function Map:unregisterEntity(entity)
             break
         end
     end
-    entity:onUnregistered()
+    _local.unregisterCollider(self, entity)
 end
 
 
@@ -235,6 +245,30 @@ end
 -- \\ End Entity Functions // --
 
 
+-- [[ Collision Layer functions ]] --
+
+function _local.registerCollider(self, collider)
+    local realX, realY, realZ = collider:getWorldCoords()
+    self.bumpWorld:add(collider, realX, realY, realZ, collider.width, collider.height, collider.depth)
+    if collider.onRegistered then
+        collider:onRegistered(self)
+    end
+end
+
+function _local.unregisterCollider(self, collider)
+    self.bumpWorld:remove(collider)
+    if collider.onUnregistered then
+        collider:onUnregistered()
+    end
+end
+
+function Map:moveCollider(collider, x, y, z)
+    local actualX, actualY, actualZ, cols, len = self.bumpWorld:move(collider, x, y, z)
+    return actualX, actualY, actualZ
+end
+-- \\ End Collision Layer functions // --
+
+
 -- [[ Core Functions ]] --
 function Map:updateTileNeighboursAround(x, y, z)
     for x2=x-1, x+1 do
@@ -272,7 +306,9 @@ function _local.generateGrid(map, mapData)
                 local tileIndex = mapData.tileIndexGrid[x][y][z]
                 local tileName = mapData.tileIndex[tileIndex]
                 if tileName then
-                    grid[x][y][z] = Tiles.new(tileName, map, x, y, z)
+                    local tileData = Tiles.new(tileName, map, x, y, z)
+                    grid[x][y][z] = tileData
+                    _local.registerCollider(map, tileData)
                 end
             end
         end
@@ -339,6 +375,18 @@ if newWidth < 1 or newHeight < 1 or newDepth < 1 then
     return false, "Cannot contract map to be smaller than 1 in any axis"
 end
 
+-- Unregister tile colliders
+for x=1, self.width do
+    for y=1, self.height do
+        for z=1, self.depth do
+            local tileData = self.grid[x][y][z]
+            if tileData then
+                _local.unregisterCollider(self, tileData)
+            end
+        end
+    end
+end
+
 local newGrid = {}
 for x=1, newWidth do
     newGrid[x] = {}
@@ -350,6 +398,7 @@ for x=1, newWidth do
             tileData = self.grid[x+left][y+down][z+backward]
             if tileData ~= nil then
                 tileData:setGridPos(x, y, z)
+                _local.registerCollider(self, tileData)
             end
             newGrid[x][y][z] = tileData
         end

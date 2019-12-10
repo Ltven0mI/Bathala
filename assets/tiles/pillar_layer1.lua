@@ -3,8 +3,8 @@ local Tile = require "classes.tile"
 local SpriteLoader = require "core.spriteloader"
 
 local PillarLayer1 = Class{
-    init = function(self, map, x, y, layerId)
-        Tile.init(self, map, x, y, layerId)
+    init = function(self, map, x, y, z)
+        Tile.init(self, map, x, y, z)
     end,
     __includes={ Tile },
     isSolid = true,

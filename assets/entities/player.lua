@@ -3,7 +3,6 @@ local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
 local Animations = require "core.animations"
-
 local SpriteLoader = require "core.spriteloader"
 
 local Entity = require "classes.entity"
@@ -11,9 +10,7 @@ local Entity = require "classes.entity"
 local Player = Class{
     __includes={Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 16, 16, 16)
-
-        -- self.collider = ColliderBox(self, -5, -4, 10, 4)
+        Entity.init(self, x, y, z, 10, 16, 4)
 
         self.health = 10
 
@@ -57,6 +54,11 @@ local Player = Class{
 
     speed = 64,
     maxHealth = 10,
+
+    colliderOffsetY = 8,
+    colliderOffsetZ = 2,
+    isColliderSolid = true,
+
     tags = {"player"},
 }
 
@@ -96,17 +98,17 @@ function Player:update(dt)
     local s = love.keyboard.isDown("s")
     local d = love.keyboard.isDown("d")
 
+    local q = love.keyboard.isDown("q")
+    local e = love.keyboard.isDown("e")
+
     local deltaX = (a and -1 or 0) + (d and 1 or 0)
+    local deltaY = (q and -1 or 0) + (e and 1 or 0)
     local deltaZ = (w and 1 or 0) + (s and -1 or 0)
-    local inputDelta = Maf.vector(deltaX, 0, deltaZ):normalize()
+    local inputDelta = Maf.vector(deltaX, deltaY, deltaZ):normalize()
 
-    self.moveProgress = self.moveProgress + #inputDelta * self.speed * dt
-    local flooredProgress = self.moveProgress --math.floor(self.moveProgress)
-    self.moveProgress = self.moveProgress - flooredProgress
+    self.velocity = inputDelta * self.speed
+    self:move((self.velocity * dt):unpack())
 
-    self.velocity = inputDelta * flooredProgress
-
-    self.pos = self.pos + self.velocity
 
     if deltaZ > 0 then
         self.animation:setTag("walk_up")
@@ -131,8 +133,6 @@ function Player:update(dt)
     elseif wasMovingBefore and not isMovingNow then
         self.animation:stop()
     end
-
-    self:doCollisionCheck()
 
     -- Kill player if outside of map bounds
     -- if self.pos.x < 0 or self.pos.x > self.map.width * self.map.tileSize or
@@ -272,30 +272,5 @@ function Player:onGameOver()
     self.animation:play()
 end
 -- \\ End Callback Functions // --
-
-
-function Player:doCollisionCheck()
-    -- TODO: Need to reimplement this
-    -- local posX, posY = self.collider:getWorldCoords()
-    -- local minX = math.floor(posX)
-    -- local maxX = math.floor(posX + self.w)
-    -- local minY = math.floor(posY)
-    -- local maxY = math.floor(posY + self.h)
-
-    -- local gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
-    -- local gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
-
-    -- for x=gridMinX, gridMaxX do
-    --     for y=gridMinY, gridMaxY do
-    --         local tileData = self.map:getTileAt(x, y, 2)
-    --         if tileData and tileData.isSolid then
-    --             local worldX, worldY = self.map:gridToWorldPos(x, y)
-    --             -- TODO: Need to add colliders to tiles.
-    --             local collider = ColliderBox({pos=Maf.vector(worldX, worldY)}, tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)
-    --             self.collider:checkAndDispatchCollision(collider, self.velocity.x, self.velocity.y)
-    --         end
-    --     end
-    -- end
-end
 
 return Player

@@ -1,10 +1,7 @@
 local Class = require "hump.class"
-local Vector = require "hump.vector"
 
 local Tiles = require "core.tiles"
 local Animations = require "core.animations"
-
-local ColliderBox = require "classes.collider_box"
 
 local Pickupable = require "assets.entities.pickupable"
 
@@ -12,7 +9,6 @@ local BarricadeItem = Class{
     __includes = {Pickupable},
     init = function(self, x, y, z)
         Pickupable.init(self, x, y, z, 16, 16, 16)
-        self.collider = ColliderBox(self, -8, -8, 16, 16)
 
         self.animation = Animations.new("barricade_item", "idle")
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
@@ -26,6 +22,8 @@ local BarricadeItem = Class{
     heldSpriteMeshFile="assets/meshes/billboard16x16.obj",
     heldSpriteImgFile="assets/images/powerups/barricade_item_held.png",
     heldSpriteIsTransparent=false,
+
+    isColliderSolid = false,
 
     tags = {"item-barricade", "pickupable"}
 }
