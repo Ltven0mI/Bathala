@@ -10,7 +10,7 @@ local Tile = Class{
     __includes={Collider},
     init = function(self, map, gridX, gridY, gridZ)
         local worldX, worldY, worldZ = map:gridToWorldPos(gridX, gridY, gridZ)
-        Collider.init(self, worldX, worldY, worldZ, map.tileSize, map.tileSize, map.tileSize)
+        Collider.init(self, worldX, worldY, worldZ, self.width, self.height, self.depth)
         
         self.gridX = gridX
         self.gridY = gridY
@@ -18,15 +18,22 @@ local Tile = Class{
         self.map = map
         self.sprite = SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
+
+    width = 16,
+    height = 16,
+    depth = 16,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = true,
+
     spriteMeshFile="assets/meshes/tile_ground.obj",
     spriteImgFile="assets/images/missing_texture.png",
     spriteIsTransparent=false,
 
-    isSolid = false,
     layerHeight = 1,
-
-    colliderOffsetY = 8,
-    isColliderSolid = true
 }
 
 function Tile:setGridPos(x, y, z)

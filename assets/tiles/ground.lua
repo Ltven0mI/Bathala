@@ -1,12 +1,11 @@
 local Class = require "hump.class"
 local SmartTile = require "classes.smarttile"
-local SpriteLoader = require "core.spriteloader"
 
 local Ground = Class{
-    init = function(self, map, x, y, layerId)
-        SmartTile.init(self, map, x, y, layerId)
-    end,
     __includes={ SmartTile },
+    init = function(self, map, x, y, z)
+        SmartTile.init(self, map, x, y, z)
+    end,
 
     spriteMeshFile="assets/meshes/tile_ground.obj",
     spriteImgFile="assets/images/tiles/ground/smooth.png",

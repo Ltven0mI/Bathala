@@ -1,15 +1,13 @@
 local Class = require "hump.class"
 local SmartTile = require "classes.smarttile"
-local SpriteLoader = require "core.spriteloader"
-local PathUtil = require "AssetBundle.PathUtil"
 
 local _local = {}
 
 local Carpet = Class{
-    init = function(self, map, x, y, layerId)
-        SmartTile.init(self, map, x, y, layerId)
+    __includes={SmartTile},
+    init = function(self, map, x, y, z)
+        SmartTile.init(self, map, x, y, z)
     end,
-    __includes={ SmartTile },
 
     spriteMeshFile="assets/meshes/tile_ground.obj",
     spriteImgFile="assets/images/tiles/carpet/base.png",
