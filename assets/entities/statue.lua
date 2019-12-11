@@ -4,15 +4,12 @@ local Signal = require "hump.signal"
 local SpriteLoader = require "core.spriteloader"
 local Util3D = require "core.util3d"
 
-local ColliderBox = require "classes.collider_box"
-
 local Entity = require "classes.entity"
 
 local Statue = Class{
     __includes = {Entity},
     init = function(self, x, y, z)
         Entity.init(self, x, y, z, 24, 37, 24)
-        self.collider = ColliderBox(self, -12, -9, 24, 19)
         self.health = 60
 
         self.healthbarW = self.width + 2
@@ -25,6 +22,16 @@ local Statue = Class{
         self.figureSprite = SpriteLoader.createSprite(self.figureSpriteMeshFile,
         self.figureSpriteImgFile, self.figureSpriteIsTransparent)
     end,
+
+    width = 24,
+    height = 37,
+    depth = 24,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 18.5,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = true,
 
     spriteMeshFile="assets/meshes/statue_base.obj",
     spriteImgFile="assets/images/entities/statue_base.png",

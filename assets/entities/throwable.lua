@@ -3,16 +3,14 @@ local Maf = require "core.maf"
 local Signal = require "hump.signal"
 local SpriteLoader = require "core.spriteloader"
 
-local ColliderBox = require "classes.collider_box"
 local Sfx = require "classes.sfx"
 
 local Pickupable = require "assets.entities.pickupable"
 
 local Throwable = Class{
     __includes = {Pickupable},
-    init = function(self, x, y, z, width, height, depth)
-        Pickupable.init(self, x, y, z, width, height, depth)
-        self.collider = ColliderBox(self, -math.floor(self.width/2), -self.height, self.width, self.height)
+    init = function(self, x, y, z)
+        Pickupable.init(self, x, y, z)
         self.isThrown = false
         self.isSmashed = false
         self.velocity = Maf.vector(0, 0, 0)
@@ -86,6 +84,7 @@ end
 function Throwable:smash()
     self.tags = {"throwable-broken"}
     self.isSmashed = true
+    self.isColliderSolid = false
     if self.smashSfx then
         self.smashSfx:play()
     end

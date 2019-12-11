@@ -14,7 +14,6 @@ local Collider = Class{
     colliderOffsetZ = 0,
 
     colliderIsSolid = false,
-    collisionLayers = nil,
 }
 
 function Collider:setPos(x, y, z)

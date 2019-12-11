@@ -4,8 +4,6 @@ local Signal = require "hump.signal"
 
 local Animations = require "core.animations"
 
-local ColliderBox = require "classes.collider_box"
-
 local DesecratorProjectile = require "assets.entities.desecrator_projectile"
 
 local Entity = require "classes.entity"
@@ -13,8 +11,7 @@ local Entity = require "classes.entity"
 local Enemy = Class{
     __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 16, 24, 16)
-        self.collider = ColliderBox(self, -8, -24, 16, 24)
+        Entity.init(self, x, y, z)
 
         self.target = nil
         self.targetStatue = nil
@@ -35,6 +32,16 @@ local Enemy = Class{
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
         self.sprite:setTexture(self.spriteCanvas)
     end,
+
+    width = 16,
+    height = 24,
+    depth = 4,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 12,
+    colliderOffsetZ = 2,
+    
+    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/desecrator.obj",
     spriteImgFile="assets/images/entities/desecrator_icon.png",

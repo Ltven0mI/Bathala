@@ -10,7 +10,7 @@ local Entity = require "classes.entity"
 local Player = Class{
     __includes={Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 10, 16, 4)
+        Entity.init(self, x, y, z)
 
         self.health = 10
 
@@ -41,6 +41,16 @@ local Player = Class{
 
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
+
+    width = 10,
+    height = 16,
+    depth = 4,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 2,
+    
+    isColliderSolid = true,
     
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/entities/player_icon.png",
@@ -54,10 +64,6 @@ local Player = Class{
 
     speed = 64,
     maxHealth = 10,
-
-    colliderOffsetY = 8,
-    colliderOffsetZ = 2,
-    isColliderSolid = true,
 
     tags = {"player"},
 }

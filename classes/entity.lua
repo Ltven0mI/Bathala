@@ -9,10 +9,20 @@ local Collider = require "classes.collider"
 
 local Entity = Class{
     __includes={Collider},
-    init = function(self, x, y, z, width, height, depth)
-        Collider.init(self, x, y, z, width, height, depth)
+    init = function(self, x, y, z)
+        Collider.init(self, x, y, z, self.width, self.height, self.depth)
         self.sprite = SpriteLoader.createSprite(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
+
+    width = 16,
+    height = 16,
+    depth = 16,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 0,
+    colliderOffsetZ = 0,
+
+    colliderIsSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/missing_texture.png",

@@ -9,7 +9,7 @@ local Entity = require "classes.entity"
 local Projectile = Class{
     __includes = {Entity},
     init = function(self, x, y, z, dir)
-        Entity.init(self, x, y, z, 16, 16, 16)
+        Entity.init(self, x, y, z)
         self.dir = dir or Maf.vector(0, 0, 0)
         self.timer = 0
     end,
@@ -34,7 +34,7 @@ function Projectile:update(dt)
         self:destroy()
     end
 
-    self.pos = self.pos + self.dir * self.speed * dt
+    self:move(self.dir * self.speed * dt)
     -- TODO: Reimplement projectile collisions
     -- if self.map then
     --     local hitEntities = self.map:getEntitiesInCollider(self.collider, self.tagMask)

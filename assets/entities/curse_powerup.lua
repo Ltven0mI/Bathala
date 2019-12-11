@@ -5,20 +5,27 @@ local Signal = require "hump.signal"
 local Animations = require "core.animations"
 local Entities = require "core.entities"
 
-local ColliderBox = require "classes.collider_box"
-
 local UseItem = require "assets.entities.use_item"
 
 local CursePowerup = Class{
     __includes = {UseItem},
     init = function(self, x, y, z)
-        UseItem.init(self, x, y, z, 16, 16, 16)
-        self.collider = ColliderBox(self, -8, -16, 16, 16)
+        UseItem.init(self, x, y, z)
 
         self.animation = Animations.new("curse_powerup", "idle")
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
         self.sprite:setTexture(self.spriteCanvas)
     end,
+
+    width = 16,
+    height = 16,
+    depth = 16,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile=nil,

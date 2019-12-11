@@ -10,9 +10,18 @@ local Throwable = require "assets.entities.throwable"
 local Vase = Class{
     __includes = {Throwable},
     init = function(self, x, y, z)
-        Throwable.init(self, x, y, z, 16, 16, 16)
-        self.collider = ColliderBox(self, -7, -12, 14, 12)
+        Throwable.init(self, x, y, z)
     end,
+
+    width = 14,
+    height = 12,
+    depth = 14,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 6,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = true,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/tiles/vase.png",

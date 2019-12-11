@@ -8,12 +8,22 @@ local Pickupable = require "assets.entities.pickupable"
 local BarricadeItem = Class{
     __includes = {Pickupable},
     init = function(self, x, y, z)
-        Pickupable.init(self, x, y, z, 16, 16, 16)
+        Pickupable.init(self, x, y, z)
 
         self.animation = Animations.new("barricade_item", "idle")
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
         self.sprite:setTexture(self.spriteCanvas)
     end,
+
+    width = 16,
+    height = 16,
+    depth = 16,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile=nil,
@@ -22,8 +32,6 @@ local BarricadeItem = Class{
     heldSpriteMeshFile="assets/meshes/billboard16x16.obj",
     heldSpriteImgFile="assets/images/powerups/barricade_item_held.png",
     heldSpriteIsTransparent=false,
-
-    isColliderSolid = false,
 
     tags = {"item-barricade", "pickupable"}
 }

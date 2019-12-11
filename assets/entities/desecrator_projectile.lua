@@ -2,16 +2,23 @@ local Class = require "hump.class"
 
 local Util3D = require "core.util3d"
 
-local ColliderBox = require "classes.collider_box"
-
 local Projectile = require "assets.entities.projectile"
 
 local DesecratorProjectile = Class{
     __includes = {Projectile},
     init = function(self, x, y, z, dir)
         Projectile.init(self, x, y, z, dir)
-        self.collider = ColliderBox(self, -5, -5, 10, 10)
     end,
+
+    width = 10,
+    height = 0,
+    depth = 6,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 0,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = false,
 
     spriteMeshFile=Util3D.generateMesh(10, 0, 6),
     spriteImgFile="assets/images/projectiles/desecrator_projectile.png",
