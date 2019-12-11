@@ -121,46 +121,10 @@ function Map:setTileAt(tileData, x, y, z)
     end
     self:updateTileNeighboursAround(x, y, z)
 end
-
-function Map:getTilesInCollider(collider, tagStr)
-    -- TODO: Reimplement this
-    return nil
-    -- if tagStr and type(tagStr) ~= "table" then
-    --     tagStr = {tagStr}
-    -- end
-
-    -- local results = {}
-    -- local worldX, worldY = collider:getWorldCoords()
-    -- local minGridX, minGridY = self:worldToGridPos(worldX, worldY)
-    -- local maxGridX, maxGridY = self:worldToGridPos(worldX + collider.w, worldY + collider.h)
-
-    -- -- print(minGridX, minGridY, maxGridX, maxGridY)
-
-    -- for x=minGridX, maxGridX do
-    --     for y=minGridY, maxGridY do
-    --         local tileData = self:getTileAt(x, y, self.collisionLayer)
-    --         if tileData and tileData.isSolid and tileData.collider and (tileData.tag == nil or tagStr == nil or _hasEntityGotTag(tileData, tagStr)) and
-    --             collider:intersect(ColliderBox({pos=Vector(self:gridToWorldPos(x, y))},
-    --                 tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)) then
-    --                 table.insert(results, tileData)
-    --         end
-    --     end
-    -- end
-
-    -- return #results > 0 and results or nil
-end
 -- \\ End Tile Functions // --
 
 
 -- [[ Entity Functions ]] --
-
-function Map:findEntityWithTag(tag)
-    for _, entity in ipairs(self.entities) do
-        if entity:hasTag(tag) then
-            return entity
-        end
-    end
-end
 
 function Map:registerEntity(entity)
     if entity == nil then
@@ -183,69 +147,98 @@ function Map:unregisterEntity(entity)
     _local.unregisterCollider(self, entity)
 end
 
-
--- TODO: Combine Entity.type and Entity.tag
-local function _hasEntityGotTag(entity, tagStr)
-    for _, tag in ipairs(tagStr) do
-        if entity.tag == tag then
+function _local.doesEntityMatchTags(entity, tags, requirement)
+    for _, tag in ipairs(tags) do
+        local doesHaveTag = entity:hasTag(tag)
+        if requirement == "none" and doesHaveTag then
+            return false
+        elseif requirement == "any" and doesHaveTag then
             return true
+        elseif requirement == "all" and not doesHaveTag then
+            return false
         end
+    end
+
+    if requirement == "none" then
+        return true
+    elseif requirement == "any" then
+        return false
+    elseif requirement == "all" then
+        return true
     end
 end
 
-function Map:findEntityOfType(typeStr)
+--- Finds the first entity matching a single or multiple tags.
+-- @param tag The tag to search for. Can be a single tag or a table of tags.
+-- @param requirement How strict are the tags. Can be "none" so entity must have none of the specified tags, "any" so entity can have any of the specified tags or "all" so entity must have all of the specified tags. Defaults to "all".
+-- @return entity, or nil if no entity was found.
+function Map:findEntityWithTag(tag, requirement)
+    local tags = tag
+    if type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
+
     for _, entity in ipairs(self.entities) do
-        if entity.type == typeStr then
+        if _local.doesEntityMatchTags(entity, tags, requirement) then
             return entity
         end
     end
+
     return nil
 end
 
-function Map:getEntityAt(x, y, typeStr)
-    for _, entity in ipairs(self.entities) do
-        if typeStr == nil or entity.type == typeStr then
-            if entity.collider:intersectPoint(x, y) then
-                return entity
-            end
-        end
-    end
-    return nil
-end
-
-function Map:getAllEntitiesWithTag(tagStr)
-    if tagStr and type(tagStr) ~= "table" then
-        tagStr = {tagStr}
-    end
+--- Finds all entities matching a single or multiple tags.
+-- @param tag The tag to search for. Can be a single tag or a table of tags.
+-- @param[opt] requirement How strict are the tags. Can be "none" so entity must have none of the specified tags, "any" so entity can have any of the specified tags or "all" so entity must have all of the specified tags. Defaults to "all".
+-- @return table containing found entities, or nil if no entities were found.
+function Map:findEntitiesWithTag(tag, requirement)
+    local tags = tag
+    if type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
 
     local results = {}
     for _, entity in ipairs(self.entities) do
-        if tagStr == nil or _hasEntityGotTag(entity, tagStr) then
+        if _local.doesEntityMatchTags(tags, requirement) then
             table.insert(results, entity)
         end
     end
 
     return (#results > 0) and results or nil
 end
-
-function Map:getEntitiesInCollider(collider, tagStr)
-    if tagStr and type(tagStr) ~= "table" then
-        tagStr = {tagStr}
-    end
-    local results = {}
-    for _, entity in ipairs(self.entities) do
-        if entity.collider and tagStr == nil or _hasEntityGotTag(entity, tagStr) then
-            if collider:intersect(entity.collider) then
-                table.insert(results, entity)
-            end
-        end
-    end
-    return #results > 0 and results or nil
-end
 -- \\ End Entity Functions // --
 
 
--- [[ Collision Layer functions ]] --
+-- [[ Collider Functions ]] --
+
+--- Checks for any collisions with the specified collider.
+-- @param collider The collider to check collisions for
+-- @param[opt] tag An optional tag to check for
+-- @param[optchain] requirement requirement How strict are the tags. Can be "none" so colliders must have none of the specified tags, "any" so colliders can have any of the specified tags or "all" so colliders must have all of the specified tags. Defaults to "all".
+-- @treturn[1] bool collided will be true if the collider collided with anything
+-- @treturn[1] {collision, ...} a table containing all collisions
+-- @treturn[2] bool collided will be false if the collider didn't collide with anything
+-- @treturn[2] nil
+function Map:checkCollider(collider, tag, requirement)
+    local x, y, z = collider:getWorldCoords()
+    local w, h, d = collider.width, collider.height, collider.depth
+
+    local tags = tag
+    if tag and type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
+
+    local filter = function(item)
+        if item == collider then
+            return false
+        end
+        if tags == nil then
+            return true
+        end
+        return _local.doesEntityMatchTags(item, tags, requirement)
+    end
+    
+    local cols, len = self.bumpWorld:queryCube(x, y, z, w, h, d, filter)
+    
+    if not cols or #cols == 0 then return false else return true, cols end
+end
 
 function _local.registerCollider(self, collider)
     local realX, realY, realZ = collider:getWorldCoords()
@@ -266,7 +259,7 @@ function Map:moveCollider(collider, x, y, z)
     local actualX, actualY, actualZ, cols, len = self.bumpWorld:move(collider, x, y, z)
     return actualX, actualY, actualZ
 end
--- \\ End Collision Layer functions // --
+-- \\ End Collider Functions // --
 
 
 -- [[ Core Functions ]] --

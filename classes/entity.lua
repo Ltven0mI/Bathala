@@ -35,6 +35,9 @@ local Entity = Class{
 
 -- Returns true if self has the specified tag and false if not
 function Entity:hasTag(tag)
+    if self.tags == nil then
+        return false
+    end
     for _, otherTag in ipairs(self.tags) do
         if tag == otherTag then
             return true

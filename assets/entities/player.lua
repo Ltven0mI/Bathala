@@ -4,6 +4,7 @@ local Signal = require "hump.signal"
 
 local Animations = require "core.animations"
 local SpriteLoader = require "core.spriteloader"
+local Util3D = require "core.util3d"
 
 local Entity = require "classes.entity"
 
@@ -60,7 +61,7 @@ local Player = Class{
     healthBarFillImg = love.graphics.newImage("assets/images/ui/health_bar_fill.png"),
     useItemBgImg = love.graphics.newImage("assets/images/ui/useitem_bg.png"),
     useItemTextImg = love.graphics.newImage("assets/images/ui/useitem_text.png"),
-    pickupText = love.graphics.newImage("assets/images/ui/pickup_text.png"),
+    pickupTextSprite = SpriteLoader.createSprite(Util3D.generateMesh(28, 7, 0), "assets/images/ui/pickup_text.png", true),
 
     speed = 64,
     maxHealth = 10,
@@ -175,20 +176,21 @@ function Player:draw()
         self.heldItem:drawHeld(self.pos.x, self.pos.y + self.height, self.pos.z)
     end
 
-    local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
-    local pickupable = nil
-    if pickupables then
-        for _, v in ipairs(pickupables) do
-            if v.canPickUp and v:canPickUp() then
-                pickupable = v
-                break
-            end
-        end
-    end
-    if pickupable and self.heldItem == nil then
-        local textW, textH = self.pickupText:getDimensions()
-        local halfTextW, halfTextH = math.floor(textW / 2), math.floor(textH / 2)
-        love.graphics.draw(self.pickupText, self.pos.x - halfTextW, self.pos.y - self.h - textH - 1)
+    -- TODO: Check if the pickupable is actually pickupable
+    local collided, collisions = self.map:checkCollider(self, "pickupable")
+
+    -- local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
+    -- local pickupable = nil
+    -- if pickupables then
+    --     for _, v in ipairs(pickupables) do
+    --         if v.canPickUp and v:canPickUp() then
+    --             pickupable = v
+    --             break
+    --         end
+    --     end
+    -- end
+    if collided then --pickupable and self.heldItem == nil then
+        self.pickupTextSprite:draw(self.pos.x, self.pos.y + self.height + 4.5, self.pos.z)
     end
 end
 

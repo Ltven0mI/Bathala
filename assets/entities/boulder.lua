@@ -14,13 +14,13 @@ local Boulder = Class{
 
     width = 16,
     height = 14,
-    depth = 16,
+    depth = 12,
 
     colliderOffsetX = 0,
     colliderOffsetY = 7,
-    colliderOffsetZ = 0,
+    colliderOffsetZ = 6,
     
-    isColliderSolid = true,
+    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/tiles/boulder.png",

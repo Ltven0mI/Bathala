@@ -15,13 +15,13 @@ local Vase = Class{
 
     width = 14,
     height = 12,
-    depth = 14,
+    depth = 10,
 
     colliderOffsetX = 0,
     colliderOffsetY = 6,
-    colliderOffsetZ = 0,
+    colliderOffsetZ = 5,
     
-    isColliderSolid = true,
+    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/tiles/vase.png",

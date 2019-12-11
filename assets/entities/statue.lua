@@ -86,7 +86,6 @@ function Statue:redrawHealthbarCanvas()
     love.graphics.pop()
 end
 
--- TODO: Need to reimplement this
 function Statue:draw()
     local img = self.aliveImg
     if self.health == 0 then

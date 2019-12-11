@@ -36,6 +36,22 @@ local Tile = Class{
     layerHeight = 1,
 }
 
+-- [[ Util Functions ]] --
+
+-- Returns true if self has the specified tag and false if not
+function Tile:hasTag(tag)
+    if self.tags == nil then
+        return false
+    end
+    for _, otherTag in ipairs(self.tags) do
+        if tag == otherTag then
+            return true
+        end
+    end
+    return false
+end
+-- \\ End Util Functions // --
+
 function Tile:setGridPos(x, y, z)
     self.gridX = x
     self.gridY = y
