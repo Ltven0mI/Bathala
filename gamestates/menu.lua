@@ -6,6 +6,7 @@ local Sfx = require "classes.sfx"
 local Console = require "core.console"
 
 local game_gamestate = require "gamestates.game"
+local mapeditor_gamestate = require "gamestates.mapeditor"
 
 local menu = {}
 
@@ -14,6 +15,7 @@ menu.selectSfx = nil
 menu.titleScreenBg = nil
 menu.startButton = nil
 menu.quitButton = nil
+menu.editorButton = nil
 
 
 function menu:enter()
@@ -40,6 +42,14 @@ function menu:enter()
         isHovered=false,
         img = love.graphics.newImage("assets/images/ui/titlescreen/quit_button.png")
     }
+    self.editorButton = {
+        x=2,
+        y=2,
+        w=37,
+        h=13,
+        isHovered=false,
+        img = love.graphics.newImage("assets/images/ui/titlescreen/editor_button.png")
+    }
 end
 
 function menu:leave()
@@ -48,6 +58,7 @@ function menu:leave()
     self.titleScreenBg = nil
     self.startButton = nil
     self.quitButton = nil
+    self.editorButton = nil
 end
 
 function menu:update(dt)
@@ -62,6 +73,7 @@ function menu:draw()
 
     self:drawButton(self.startButton)
     self:drawButton(self.quitButton)
+    self:drawButton(self.editorButton)
 
     self.uiCamera:detach()
 
@@ -73,6 +85,8 @@ function menu:mousepressed(x, y, btn)
         Gamestate.switch(game_gamestate)
     elseif self.quitButton.isHovered then
         love.event.quit()
+    elseif self.editorButton.isHovered then
+        Gamestate.switch(mapeditor_gamestate)
     end
 end
 
@@ -80,6 +94,7 @@ function menu:mousemoved(x, y)
     local worldX, worldY = self.uiCamera:worldCoords(x, y)
     self:buttonMouseMoved(self.startButton, worldX, worldY)
     self:buttonMouseMoved(self.quitButton, worldX, worldY)
+    self:buttonMouseMoved(self.editorButton, worldX, worldY)
 end
 
 function menu:buttonMouseMoved(button, mx, my)

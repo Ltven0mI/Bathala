@@ -37,9 +37,9 @@ local Grid = Class{
             {
                 vec4 texcolor = Texel(tex, texture_coords);
                 //frac(input.worldPos.x/_GridSpacing) < _GridThickness || frac(input.worldPos.y/_GridSpacing) < _GridThickness
-                float xAlpha = 1-ceil(mod(vertexPos.x / 16 + 0.5f, 1)-(1f / 32f));
-                float zAlpha = 1-ceil(mod(vertexPos.z / 16 + 0.5f, 1)-(1f / 32f));
-                return texcolor * color * vec4(1f, 1f, 1f, xAlpha + zAlpha);
+                float xAlpha = 1-ceil(mod(vertexPos.x / 16 + 0.5f, 1)-(1.0f / 32));
+                float zAlpha = 1-ceil(mod(vertexPos.z / 16 + 0.5f, 1)-(1.0f / 32));
+                return texcolor * color * vec4(1, 1, 1, xAlpha + zAlpha);
             }
             
             #endif
