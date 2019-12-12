@@ -43,12 +43,12 @@ function menu:enter()
         img = love.graphics.newImage("assets/images/ui/titlescreen/quit_button.png")
     }
     self.editorButton = {
-        x=91,
-        y=111,
+        x=2,
+        y=2,
         w=37,
         h=13,
         isHovered=false,
-        img = love.graphics.newImage("assets/images/ui/titlescreen/start_button.png")
+        img = love.graphics.newImage("assets/images/ui/titlescreen/editor_button.png")
     }
 end
 
