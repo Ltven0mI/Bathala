@@ -53,7 +53,7 @@ function SmartTile:getMatchingConditionalKeys(neighbours, noise)
     local conditionalKeys = {}
     for k, condition in ipairs(self.imageConditions) do
         local noiseRange = condition.noiseRange
-        if noiseRange == nil or noiseRange.min <= noise and noise <= noiseRange.max then
+        if noiseRange == nil or (noiseRange.min < noise and noise <= noiseRange.max) then
             if self:checkNeighboursMatchCondition(neighbours, condition) then
                 table.insert(conditionalKeys, k)
             end
@@ -93,7 +93,7 @@ function SmartTile:createCompositeImage(conditionalKeys)
 end
 
 function SmartTile:getImageMatchingNeighbours(neighbours)
-    local noise = love.math.noise(self.gridX*self.noiseFrequency+0.5, self.gridY*self.noiseFrequency+0.5, self.gridZ*self.noiseFrequency+0.5)
+    local noise = love.math.noise(self.gridX*self.noiseFrequency+0.12345, self.gridZ*self.noiseFrequency+0.12345)
     local matchingConditionalKeys = self:getMatchingConditionalKeys(neighbours, noise)
     local compositeImageKey = self:getCompositeImageKey(matchingConditionalKeys)
     local compositeImage = self.compositeImages[compositeImageKey]
