@@ -120,7 +120,7 @@ function MapEditor:enter()
     local halfW, halfH = math.floor(screenW / 2), math.floor(screenH / 2)
     self.uiCamera = Camera(halfW, halfH, 1)
 
-    self:loadMap("assets/maps/debug_level.lua")
+    self:newMap(3, 3, 3)
 
     -- [[ UI ]] --
     self.ui = MapEditorUI(self)

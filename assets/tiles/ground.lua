@@ -31,7 +31,16 @@ local Ground = Class{
                 0, 1, 0,
                 0, 0, 0
             },
-            noiseRange={min=0.6, max=1}
+            noiseRange={min=0.6, max=0.8}
+        },
+        {
+            imageName="cobble",
+            neighbours={
+                0, 0, 0,
+                0, 1, 0,
+                0, 0, 0
+            },
+            noiseRange={min=0.8, max=1}
         }
     }
 }
