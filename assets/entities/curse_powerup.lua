@@ -63,8 +63,8 @@ function CursePowerup:draw()
 end
 
 function CursePowerup:use(map, x, y, z, dir)
-    local instance = Entities.new("curse_projectile", x, y, z, dir)
-    self.player.map:registerEntity(instance)
+    local instance = Entities.new("curse_projectile", x, y+self.player.height / 2, z, dir)
+    map:registerEntity(instance)
 end
 
 return CursePowerup

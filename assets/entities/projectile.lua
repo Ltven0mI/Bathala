@@ -34,21 +34,17 @@ function Projectile:update(dt)
         self:destroy()
     end
 
-    self:move(self.dir * self.speed * dt)
-    -- TODO: Reimplement projectile collisions
-    -- if self.map then
-    --     local hitEntities = self.map:getEntitiesInCollider(self.collider, self.tagMask)
-    --     if hitEntities then
-    --         if hitEntities[1].takeDamage then hitEntities[1]:takeDamage(self.damage) end
-    --         self:destroy()
-    --     else
-    --         local hitTiles = self.map:getTilesInCollider(self.collider, self.tagMask)
-    --         if hitTiles then
-    --             if hitTiles[1].takeDamage then hitTiles[1]:takeDamage(self.damage) end
-    --             self:destroy()
-    --         end
-    --     end
-    -- end
+    local collisions = self:move((self.dir * self.speed * dt):unpack())
+    if collisions and #collisions > 0 then
+        for _, collision in ipairs(collisions) do
+            local entity = collision.other
+            if entity.hasTag and entity:hasTag("enemy") then
+                if entity.takeDamage then entity:takeDamage(self.damage) end
+            end
+            self:destroy()
+            break
+        end
+    end
 end
 
 function Projectile:draw()

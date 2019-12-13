@@ -23,6 +23,7 @@ local Map = Class{
         self:updateTileNeighbours()
 
         self.entities = {}
+        self.entitiesToRemove = {}
         _local.createAndRegisterEntities(self, mapData)
 
         self.hasStarted = false
@@ -69,6 +70,8 @@ function Map:update(dt)
     for _, entity in ipairs(self.entities) do
         entity:update(dt)
     end
+
+    _local.removePendingEntities(self)
 
     -- self:doCollisionPass(dt)
 end
@@ -141,11 +144,23 @@ function Map:unregisterEntity(entity)
     end
     for k, e in ipairs(self.entities) do
         if e == entity then
-            table.remove(self.entities, k)
+            table.insert(self.entitiesToRemove, e)
             break
         end
     end
-    self:unregisterCollider(entity)
+end
+
+function _local.removePendingEntities(self)
+    for _, entityToRemove in ipairs(self.entitiesToRemove) do
+        for k, other in ipairs(self.entities) do
+            if entityToRemove == other then
+                table.remove(self.entities, k)
+                self:unregisterCollider(entityToRemove)
+                break
+            end
+        end
+    end
+    self.entitiesToRemove = {}
 end
 
 function _local.doesEntityMatchTags(entity, tags, requirement)

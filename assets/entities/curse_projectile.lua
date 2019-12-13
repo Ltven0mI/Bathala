@@ -11,11 +11,11 @@ local CurseProjectile = Class{
     end,
 
     width = 5,
-    height = 0,
+    height = 2,
     depth = 5,
 
     colliderOffsetX = 0,
-    colliderOffsetY = 0,
+    colliderOffsetY = 1,
     colliderOffsetZ = 0,
     
     isColliderSolid = false,
