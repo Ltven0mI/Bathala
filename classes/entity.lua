@@ -72,4 +72,8 @@ function Entity:renderToImage()
     return SpriteRenderer.renderSpriteToImage(sprite)
 end
 
+function Entity:destroy()
+    self.map:unregisterEntity(self)
+end
+
 return Entity

@@ -2,11 +2,10 @@ local Class = require "hump.class"
 local Peachy = require "peachy"
 
 local Animation = Class{
+    __includes = {},
     init = function(self, initialTag)
         self.peach = Peachy.new(self.jsonData, self.spriteSheet, initialTag)
     end,
-    __includes = {
-    },
 }
 
 local proxies = {

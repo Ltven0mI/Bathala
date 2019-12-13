@@ -20,25 +20,23 @@ local Vase = Class{
     colliderOffsetX = 0,
     colliderOffsetY = 6,
     colliderOffsetZ = 5,
-    
-    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/tiles/vase.png",
     spriteIsTransparent=false,
 
-    brokenSpriteMeshFile="assets/meshes/billboard16x16_flat.obj",
+    brokenSpriteMeshFile=nil,
     brokenSpriteImgFile="assets/images/tiles/vase_broken.png",
     brokenSpriteIsTransparent=false,
 
-    smashSfx = Sfx("assets/sound/vase_smash.mp3"),
+    smashSFXName = "assets/sound/vase_smash.mp3",
 
     tags = {"vase", "throwable", "pickupable"}
 }
 
 function Vase:smash()
     Throwable.smash(self)
-    Signal.emit("vase-smashed", self.pos.x, self.pos.y, self.pos.z)
+    Signal.emit("vase-smashed", self.pos.x, 0, self.pos.z)
 end
 
 return Vase

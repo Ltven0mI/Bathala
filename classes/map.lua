@@ -209,12 +209,12 @@ end
 
 -- [[ Collider Functions ]] --
 
---- Checks for any collisions with the specified collider.
+--- Checks for any colliders that intersect the passed collider
 -- @param collider The collider to check collisions for
 -- @param[opt] tag An optional tag to check for
 -- @param[optchain] requirement requirement How strict are the tags. Can be "none" so colliders must have none of the specified tags, "any" so colliders can have any of the specified tags or "all" so colliders must have all of the specified tags. Defaults to "all".
 -- @treturn[1] bool collided will be true if the collider collided with anything
--- @treturn[1] {collision, ...} a table containing all collisions
+-- @treturn[1] {collider, ...} a table containing all colliders
 -- @treturn[2] bool collided will be false if the collider didn't collide with anything
 -- @treturn[2] nil
 function Map:checkCollider(collider, tag, requirement)
@@ -235,9 +235,39 @@ function Map:checkCollider(collider, tag, requirement)
         return _local.doesEntityMatchTags(item, tags, requirement)
     end
     
-    local cols, len = self.bumpWorld:queryCube(x, y, z, w, h, d, filter)
+    local items, len = self.bumpWorld:queryCube(x, y, z, w, h, d, filter)
     
-    if not cols or #cols == 0 then return false else return true, cols end
+    if not items or #items == 0 then return false else return true, items end
+end
+
+--- Checks for any colliders that intersect a cube formed by the passed arguments
+-- @param x Position in the world
+-- @param y Position in the world
+-- @param z Position in the world
+-- @param w The cubes width
+-- @param h The cubes height
+-- @param d The cubes depth
+-- @param[opt] tag An optional tag to check for
+-- @param[optchain] requirement requirement How strict are the tags. Can be "none" so colliders must have none of the specified tags, "any" so colliders can have any of the specified tags or "all" so colliders must have all of the specified tags. Defaults to "all".
+-- @treturn[1] bool collided will be true if the cube intersected anything
+-- @treturn[1] {collider, ...} a table containing all colliders
+-- @treturn[2] bool collided will be false if the cube didn't intersect anything
+-- @treturn[2] nil
+function Map:checkCube(x, y, z, w, h, d, tags, requirement)
+    local tags = tag
+    if tag and type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
+
+    local filter = function(item)
+        if tags == nil then
+            return true
+        end
+        return _local.doesEntityMatchTags(item, tags, requirement)
+    end
+    
+    local items, len = self.bumpWorld:queryCube(x, y, z, w, h, d, filter)
+    
+    if not items or #items == 0 then return false else return true, items end
 end
 
 function _local.registerCollider(self, collider)

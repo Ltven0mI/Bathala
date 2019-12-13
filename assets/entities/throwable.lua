@@ -13,54 +13,74 @@ local Throwable = Class{
         Pickupable.init(self, x, y, z)
         self.isThrown = false
         self.isSmashed = false
+        self.direction = Maf.vector(0, 0, 0)
         self.velocity = Maf.vector(0, 0, 0)
 
+        self.throwProgress = 0
+
         self.brokenSprite = SpriteLoader.loadFromOBJ(self.brokenSpriteMeshFile, self.brokenSpriteImgFile, self.brokenSpriteIsTransparent)
+
+        if self.smashSFXName then
+            self.smashSFX = Sfx(self.smashSFXName)
+        end
     end,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/missing_texture.png",
     spriteIsTransparent=false,
 
-    brokenSpriteMeshFile="assets/meshes/billboard16x16_flat.obj",
+    brokenSpriteMeshFile="assets/meshes/billboard16x16_flat_float.obj",
     brokenSpriteImgFile="assets/images/missing_texture.png",
     brokenSpriteIsTransparent=false,
 
     damage=3,
-    drag=4,
-    velocityCutoff = 48,
-    throwSpeed = 256,
-    smashSfx = nil,
+
+    minProgressAfterSmash = 0.6, -- throwProgress will be set to max(throwProgress, minProgressAfterSmash) when smash() is called
+    throwProgressMultiplier = 2, -- how quickly throwProgress increases
+    throwSpeed = 200, -- the initial speed when thrown
+    gravity = 148, -- the gravity at the end of the throw
+
+    timeToLiveAfterSmash = 10, -- number of seconds after smash() before being destroyed
+    
+    throwCurve = love.math.newBezierCurve(
+        0.0, 1,
+        0.25, 0.9,
+        0.5, 0.8,
+        0.75, 0.25,
+        1.0, 0
+    ),
+    smashSFXName = nil,
+
+    isColliderSolid = false,
 
     tags = {"throwable", "pickupable"},
 }
 
 function Throwable:update(dt)
     if self.isThrown then
-        -- Apply velocity
-        self.pos = self.pos + self.velocity * dt
-        
-        -- Double the drag if it is smashed
-        local drag = (not self.isSmashed and self.drag or self.drag * 2)
-        self.velocity = self.velocity - (self.velocity * drag * dt)
-
-        -- Hulk Smash!
-        if not self.isSmashed and self.velocity:len() < self.velocityCutoff then
-            self:smash()
+        self.throwProgress = self.throwProgress + dt * self.throwProgressMultiplier
+        if self.throwProgress > 1 then
+            self.throwProgress = 1
         end
 
-        -- TODO: Reimplement Collisions on Throwable
-        if not self.isSmashed and self.map then
-            -- local hitEntities = self.map:getEntitiesInCollider(self.collider, "enemy")
-            -- if hitEntities then
-            --     hitEntities[1]:takeDamage(self.damage)
-            --     self:smash()
-            -- else
-            --     local hitTiles = self.map:getTilesInCollider(self.collider)
-            --     if hitTiles then
-            --         self:smash()
-            --     end
-            -- end
+        local _, curveValue = self.throwCurve:evaluate(self.throwProgress)
+        self.velocity = (self.direction * self.throwSpeed * curveValue + Maf.vector(0, -1, 0) * self.gravity * (1-curveValue))
+
+        local collisions = self:move((self.velocity * dt):unpack())
+        if not self.isSmashed and collisions and #collisions > 0 then
+            for _, collision in ipairs(collisions) do
+                if collision.other.hasTag and collision.other:hasTag("enemy") and collision.other.takeDamage then
+                    collision.other:takeDamage(self.damage)
+                end
+            end
+            self:smash()
+        end
+    end
+
+    if self.isSmashed then
+        self.timeToLiveAfterSmash = self.timeToLiveAfterSmash - dt
+        if self.timeToLiveAfterSmash <= 0 then
+            self:destroy()
         end
     end
 end
@@ -76,17 +96,20 @@ function Throwable:canPickUp()
 end
 
 function Throwable:use(map, x, y, z, dir)
-    self:putDown(x, y, z, map)
+    self:putDown(x, y+self.player.height, z, map)
     self.isThrown = true
-    self.velocity = dir * self.throwSpeed
+    self.throwProgress = 0
+    self.direction = dir
 end
 
 function Throwable:smash()
     self.tags = {"throwable-broken"}
     self.isSmashed = true
-    self.isColliderSolid = false
-    if self.smashSfx then
-        self.smashSfx:play()
+    if self.throwProgress < self.minProgressAfterSmash then
+        self.throwProgress = self.minProgressAfterSmash
+    end
+    if self.smashSFX then
+        self.smashSFX:play()
     end
 end
 

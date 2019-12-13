@@ -12,25 +12,23 @@ local Boulder = Class{
         Throwable.init(self, x, y, z)
     end,
 
-    width = 16,
+    width = 14,
     height = 14,
     depth = 12,
 
     colliderOffsetX = 0,
     colliderOffsetY = 7,
     colliderOffsetZ = 6,
-    
-    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/tiles/boulder.png",
     spriteIsTransparent=false,
 
-    brokenSpriteMeshFile="assets/meshes/billboard16x16_flat.obj",
+    brokenSpriteMeshFile=nil,
     brokenSpriteImgFile="assets/images/tiles/boulder_broken.png",
     brokenSpriteIsTransparent=false,
 
-    smashSfx = Sfx("assets/sound/vase_smash.mp3"),
+    smashSFXName = "assets/sound/vase_smash.mp3",
 
     tags = {"boulder", "throwable", "pickupable"}
 }

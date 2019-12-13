@@ -53,8 +53,4 @@ function VFX:draw()
     self.sprite:draw(self.pos:unpack())
 end
 
-function VFX:destroy()
-    self.map:unregisterEntity(self)
-end
-
 return VFX

@@ -27,6 +27,7 @@ function Collider:move(dx, dy, dz)
     local currentX, currentY, currentZ = self:getWorldCoords()
     local actualX, actualY, actualZ, cols, len = self.map.bumpWorld:move(self, currentX+dx, currentY+dy, currentZ+dz, self.filter)
     self.pos.x, self.pos.y, self.pos.z = self:getRealCoords(actualX, actualY, actualZ)
+    return cols
 end
 
 function Collider:onRegistered(map)
@@ -38,7 +39,7 @@ function Collider:onUnregistered()
 end
 
 function Collider:filter(other)
-    if not self.isColliderSolid or not other.isColliderSolid then
+    if not other.isColliderSolid then
         return nil
     end
     return "slide"

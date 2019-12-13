@@ -31,7 +31,7 @@ local Player = Class{
 
         self.animation = Animations.new("player", "walk_down")
         self.animation:onLoop(function()
-            if self.animation.tagName == "death" then
+            if self.animation.peach.tagName == "death" then
                 self.animation:stop(true)
             end
         end)
@@ -51,7 +51,7 @@ local Player = Class{
     colliderOffsetY = 8,
     colliderOffsetZ = 2,
     
-    isColliderSolid = true,
+    isColliderSolid = false,
     
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/entities/player_icon.png",
@@ -65,6 +65,8 @@ local Player = Class{
 
     speed = 64,
     maxHealth = 10,
+
+    pickupExpansion = 4,
 
     tags = {"player"},
 }
@@ -83,7 +85,7 @@ function Player:pickUpItem(item)
 end
 
 function Player:putDownHeldItem()
-    self.heldItem:putDown(self.pos, self.map)
+    self.heldItem:putDown(self.pos.x, self.pos.y, self.pos.z, self.map)
 end
 -- \\ End Util Functions // --
 
@@ -174,24 +176,27 @@ function Player:draw()
     if self.heldItem then
         -- ? This may be incorrect
         self.heldItem:drawHeld(self.pos.x, self.pos.y + self.height, self.pos.z)
+    else
+        local x, y, z = self:getWorldCoords()
+        x = x - self.pickupExpansion / 2
+        y = y - self.pickupExpansion / 2
+        z = z - self.pickupExpansion / 2
+        local w, h, d = self.width + self.pickupExpansion, self.height + self.pickupExpansion, self.depth + self.pickupExpansion
+        local collided, colliders = self.map:checkCube(x, y, z, w, h, d, "pickupable")
+        if collided then
+            local canPickUp = false
+            for _, other in ipairs(colliders) do
+                if other.canPickUp and other:canPickUp() then
+                    canPickUp = true
+                    break
+                end
+            end
+            if canPickUp then
+                self.pickupTextSprite:draw(self.pos.x, self.pos.y + self.height + 4.5, self.pos.z)
+            end
+        end
     end
 
-    -- TODO: Check if the pickupable is actually pickupable
-    local collided, collisions = self.map:checkCollider(self, "pickupable")
-
-    -- local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
-    -- local pickupable = nil
-    -- if pickupables then
-    --     for _, v in ipairs(pickupables) do
-    --         if v.canPickUp and v:canPickUp() then
-    --             pickupable = v
-    --             break
-    --         end
-    --     end
-    -- end
-    if collided then --pickupable and self.heldItem == nil then
-        self.pickupTextSprite:draw(self.pos.x, self.pos.y + self.height + 4.5, self.pos.z)
-    end
 end
 
 function Player:drawUI(screenW, screenH)
@@ -252,24 +257,31 @@ function Player:mousepressed(btn, dir)
         end
     else
         if btn == 1 then
-            -- TODO: Rewrite this
-            -- local halfPlayerW = math.floor(self.w / 2)
-            -- local halfPlayerH = math.floor(self.h / 2)
-            -- local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
-            -- local pickupable = nil
-            -- if pickupables then
-            --     for _, v in ipairs(pickupables) do
-            --         if v.canPickUp and v:canPickUp() then
-            --             pickupable = v
-            --             break
-            --         end
-            --     end
-            -- end
-            -- if pickupable then
-            --     self:pickUpItem(pickupable)
-            -- elseif self.currentUseItem then
-            --     self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
-            -- end
+            local x, y, z = self:getWorldCoords()
+            x = x - self.pickupExpansion / 2
+            y = y - self.pickupExpansion / 2
+            z = z - self.pickupExpansion / 2
+            local w, h, d = self.width + self.pickupExpansion, self.height + self.pickupExpansion, self.depth + self.pickupExpansion
+            local collided, colliders = self.map:checkCube(x, y, z, w, h, d, "pickupable")
+            if collided then
+                local closestPickupable = nil
+                local closestDistance = math.huge
+                
+                for _, other in ipairs(colliders) do
+                    if other.canPickUp and other:canPickUp() then
+                        local distance = self.pos:distance(other.pos)
+                        if distance < closestDistance then
+                            closestPickupable = other
+                            closestDistance = distance
+                        end
+                    end
+                end
+                if closestPickupable then
+                    self:pickUpItem(closestPickupable)
+                elseif self.currentUseItem then
+                    self.currentUseItem:use(self.map, self.pos.x, self.pos.y, self.pos.z, dir)
+                end
+            end
         end
     end
 end

@@ -266,11 +266,11 @@ function game:clearSignalCallbacks()
     Signal.clear("gameover")
 end
 
-function game:vase_smashed(x, y)
+function game:vase_smashed(x, y, z)
     local rand = 1 --love.math.random(1, 2)
     if rand == 1 then
         local drop = self.luckydrops[love.math.random(1, #self.luckydrops)]
-        local dropInstance = drop(x, y)
+        local dropInstance = drop(x, y, z)
         self.map:registerEntity(dropInstance)
     end
 end

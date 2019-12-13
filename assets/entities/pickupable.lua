@@ -34,7 +34,6 @@ function Pickupable:canPickUp()
 end
 
 function Pickupable:use(map, x, y, z, dir)
-
 end
 
 function Pickupable:pickup(player)
