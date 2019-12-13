@@ -17,6 +17,19 @@ local Tile = Class{
         self.gridZ = gridZ
         self.map = map
         self.sprite = SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
+
+        if self.extraColliders then
+            self.extraColliderInstances = {}
+            for _, colliderData in ipairs(self.extraColliders) do
+                local x, y, z, w, h, d = unpack(colliderData)
+                local newCollider = Collider(self.pos.x, self.pos.y, self.pos.z, w, h, d)
+                newCollider.colliderOffsetX = x
+                newCollider.colliderOffsetY = y
+                newCollider.colliderOffsetZ = z
+                newCollider.isColliderSolid = true
+                table.insert(self.extraColliderInstances, newCollider)
+            end
+        end
     end,
 
     width = 16,
@@ -29,11 +42,11 @@ local Tile = Class{
     
     isColliderSolid = true,
 
+    extraColliders = nil,
+
     spriteMeshFile="assets/meshes/tile_ground.obj",
     spriteImgFile="assets/images/missing_texture.png",
     spriteIsTransparent=false,
-
-    layerHeight = 1,
 }
 
 -- [[ Util Functions ]] --
@@ -51,6 +64,16 @@ function Tile:hasTag(tag)
     return false
 end
 -- \\ End Util Functions // --
+
+function Tile:setPos(x, y, z)
+    Collider:setPos(x, y, z)
+    if self.extraColliderInstances then
+        for i, childCollider in ipairs(self.extraColliderInstances) do
+            local colliderData = self.extraColliders[i]
+            childCollider:setPos(x, y, z)
+        end
+    end
+end
 
 function Tile:setGridPos(x, y, z)
     self.gridX = x
@@ -79,6 +102,24 @@ end
 function Tile:renderToImage()
     local sprite = self.sprite or SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     return SpriteRenderer.renderSpriteToImage(sprite)
+end
+
+function Tile:onRegistered(map)
+    Collider.onRegistered(self, map)
+    if self.extraColliderInstances then
+        for _, childCollider in ipairs(self.extraColliderInstances) do
+            map:registerCollider(childCollider)
+        end
+    end
+end
+
+function Tile:onUnregistered()
+    Collider.onUnregistered(self)
+    if self.extraColliderInstances then
+        for _, childCollider in ipairs(self.extraColliderInstances) do
+            map:unregisterCollider(childCollider)
+        end
+    end
 end
 
 return Tile

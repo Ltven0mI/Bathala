@@ -9,7 +9,15 @@ local PillarLayer3 = Class{
 
     spriteMeshFile="assets/meshes/pillar_column.obj",
     spriteImgFile="assets/images/tiles/pillar_layer3.png",
-    spriteIsTransparent=false
+    spriteIsTransparent=false,
+
+    width = 10,
+    height = 16,
+    depth = 10,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 0,
 }
 
 return PillarLayer3

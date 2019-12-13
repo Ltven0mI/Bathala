@@ -113,11 +113,11 @@ function Map:setTileAt(tileData, x, y, z)
     end
     local lastTile = self.grid[x][y][z]
     if lastTile then
-        _local.unregisterCollider(self, lastTile)
+        self:unregisterCollider(lastTile)
     end
     self.grid[x][y][z] = tileData
     if tileData then
-        _local.registerCollider(self, tileData)
+        self:registerCollider(tileData)
     end
     self:updateTileNeighboursAround(x, y, z)
 end
@@ -131,8 +131,9 @@ function Map:registerEntity(entity)
         error("Attempted to register a nil entity to map!", 2)
     end
     table.insert(self.entities, entity)
-    _local.registerCollider(self, entity)
+    self:registerCollider(entity)
 end
+
 
 function Map:unregisterEntity(entity)
     if entity == nil then
@@ -144,7 +145,7 @@ function Map:unregisterEntity(entity)
             break
         end
     end
-    _local.unregisterCollider(self, entity)
+    self:unregisterCollider(entity)
 end
 
 function _local.doesEntityMatchTags(entity, tags, requirement)
@@ -270,7 +271,7 @@ function Map:checkCube(x, y, z, w, h, d, tags, requirement)
     if not items or #items == 0 then return false else return true, items end
 end
 
-function _local.registerCollider(self, collider)
+function Map:registerCollider(collider)
     local realX, realY, realZ = collider:getWorldCoords()
     self.bumpWorld:add(collider, realX, realY, realZ, collider.width, collider.height, collider.depth)
     if collider.onRegistered then
@@ -278,7 +279,7 @@ function _local.registerCollider(self, collider)
     end
 end
 
-function _local.unregisterCollider(self, collider)
+function Map:unregisterCollider(collider)
     self.bumpWorld:remove(collider)
     if collider.onUnregistered then
         collider:onUnregistered()
@@ -318,20 +319,20 @@ function Map:updateTileNeighbours()
     end
 end
 
-function _local.generateGrid(map, mapData)
+function _local.generateGrid(self, mapData)
     local grid = {}
 
-    for x=1, map.width do
+    for x=1, self.width do
         grid[x] = {}
-        for y=1, map.height do
+        for y=1, self.height do
             grid[x][y] = {}
-            for z=1, map.depth do
+            for z=1, self.depth do
                 local tileIndex = mapData.tileIndexGrid[x][y][z]
                 local tileName = mapData.tileIndex[tileIndex]
                 if tileName then
-                    local tileData = Tiles.new(tileName, map, x, y, z)
+                    local tileData = Tiles.new(tileName, self, x, y, z)
                     grid[x][y][z] = tileData
-                    _local.registerCollider(map, tileData)
+                    self:registerCollider(tileData)
                 end
             end
         end
@@ -404,7 +405,7 @@ for x=1, self.width do
         for z=1, self.depth do
             local tileData = self.grid[x][y][z]
             if tileData then
-                _local.unregisterCollider(self, tileData)
+                self:unregisterCollider(tileData)
             end
         end
     end
@@ -421,7 +422,7 @@ for x=1, newWidth do
             tileData = self.grid[x+left][y+down][z+backward]
             if tileData ~= nil then
                 tileData:setGridPos(x, y, z)
-                _local.registerCollider(self, tileData)
+                self:registerCollider(tileData)
             end
             newGrid[x][y][z] = tileData
         end

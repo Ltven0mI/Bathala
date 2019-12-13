@@ -66,14 +66,20 @@ function Throwable:update(dt)
         local _, curveValue = self.throwCurve:evaluate(self.throwProgress)
         self.velocity = (self.direction * self.throwSpeed * curveValue + Maf.vector(0, -1, 0) * self.gravity * (1-curveValue))
 
-        local collisions = self:move((self.velocity * dt):unpack())
-        if not self.isSmashed and collisions and #collisions > 0 then
-            for _, collision in ipairs(collisions) do
-                if collision.other.hasTag and collision.other:hasTag("enemy") and collision.other.takeDamage then
-                    collision.other:takeDamage(self.damage)
+        if (self.velocity:clone():normalize()):dot(Maf.vector(0, -1, 0)) > 0.99 then
+            local x, y, z = (self.pos + self.velocity * dt):unpack()
+            y = math.max(0, y)
+            self:setPos(x, y, z)
+        else
+            local collisions = self:move((self.velocity * dt):unpack())
+            if not self.isSmashed and collisions and #collisions > 0 then
+                for _, collision in ipairs(collisions) do
+                    if collision.other.hasTag and collision.other:hasTag("enemy") and collision.other.takeDamage then
+                        collision.other:takeDamage(self.damage)
+                    end
                 end
+                self:smash()
             end
-            self:smash()
         end
     end
 
