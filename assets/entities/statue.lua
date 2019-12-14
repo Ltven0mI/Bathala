@@ -9,11 +9,12 @@ local Entity = require "classes.entity"
 local Statue = Class{
     __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 24, 37, 24)
+        Entity.init(self, x, y, z)
         self.health = 60
 
         self.healthbarW = self.width + 2
         self.healthbarH = 4
+        self.healthBarOffsetY = 37
 
         self.healthbarCanvas = love.graphics.newCanvas(self.healthbarW, self.healthbarH)
         local healthBarMesh = Util3D.generateMesh(self.healthbarW, self.healthbarH, 0)
@@ -24,14 +25,18 @@ local Statue = Class{
     end,
 
     width = 24,
-    height = 37,
+    height = 5,
     depth = 24,
 
     colliderOffsetX = 0,
-    colliderOffsetY = 18.5,
+    colliderOffsetY = 2.5,
     colliderOffsetZ = 0,
     
     isColliderSolid = true,
+
+    extraColliders = {
+        {0, 21, 0, 24, 32, 2}
+    },
 
     spriteMeshFile="assets/meshes/statue_base.obj",
     spriteImgFile="assets/images/entities/statue_base.png",
@@ -95,7 +100,7 @@ function Statue:draw()
     self:redrawHealthbarCanvas()
     
     local barX = self.pos.x
-    local barY = self.pos.y + self.height + math.floor(self.healthbarH / 2) + 1
+    local barY = self.pos.y + self.healthBarOffsetY + math.floor(self.healthbarH / 2) + 1
     local barZ = self.pos.z
     self.healthbarSprite:draw(barX, barY, barZ)
 

@@ -7,6 +7,10 @@ local Collider = Class{
         self.width = width
         self.height = height
         self.depth = depth
+
+        if self.extraColliders then
+            self:createExtraColliderInstances()
+        end
     end,
 
     colliderOffsetX = 0,
@@ -14,28 +18,68 @@ local Collider = Class{
     colliderOffsetZ = 0,
 
     colliderIsSolid = false,
+
+    extraColliders = nil,
 }
+
+function Collider:createExtraColliderInstances()
+    self.extraColliderInstances = {}
+    for _, colliderData in ipairs(self.extraColliders) do
+        local x, y, z, w, h, d = unpack(colliderData)
+        local newCollider = Collider(self.pos.x, self.pos.y, self.pos.z, w, h, d)
+        newCollider.colliderOffsetX = x
+        newCollider.colliderOffsetY = y
+        newCollider.colliderOffsetZ = z
+        newCollider.isColliderSolid = true
+        table.insert(self.extraColliderInstances, newCollider)
+    end
+end
 
 function Collider:setPos(x, y, z)
     self.pos.x = x
     self.pos.y = y
     self.pos.z = z
     self.map.bumpWorld:update(self, self:getWorldCoords())
+
+    if self.extraColliderInstances then
+        for i, childCollider in ipairs(self.extraColliderInstances) do
+            local colliderData = self.extraColliders[i]
+            childCollider:setPos(x, y, z)
+        end
+    end
 end
 
 function Collider:move(dx, dy, dz)
     local currentX, currentY, currentZ = self:getWorldCoords()
     local actualX, actualY, actualZ, cols, len = self.map.bumpWorld:move(self, currentX+dx, currentY+dy, currentZ+dz, self.filter)
     self.pos.x, self.pos.y, self.pos.z = self:getRealCoords(actualX, actualY, actualZ)
+    
+    if self.extraColliderInstances then
+        for i, childCollider in ipairs(self.extraColliderInstances) do
+            local colliderData = self.extraColliders[i]
+            childCollider:setPos(self.pos:unpack())
+        end
+    end
+
     return cols
 end
 
 function Collider:onRegistered(map)
     self.map = map
+    if self.extraColliderInstances then
+        for _, childCollider in ipairs(self.extraColliderInstances) do
+            map:registerCollider(childCollider)
+        end
+    end
 end
 
 function Collider:onUnregistered()
     self.map = nil
+    if self.extraColliderInstances then
+        for _, childCollider in ipairs(self.extraColliderInstances) do
+            map:unregisterCollider(childCollider)
+        end
+    end
 end
 
 function Collider:filter(other)
