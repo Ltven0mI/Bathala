@@ -6,8 +6,8 @@ local Entity = require "classes.entity"
 
 local Pickupable = Class{
     __includes = {Entity},
-    init = function(self, x, y, z, width, height, depth)
-        Entity.init(self, x, y, z, width, height, depth)
+    init = function(self, x, y, z)
+        Entity.init(self, x, y, z)
         self.player = nil
         if self.heldSpriteMeshFile ~= nil then
             self.heldSprite = SpriteLoader.createSprite(self.heldSpriteMeshFile,
@@ -34,7 +34,6 @@ function Pickupable:canPickUp()
 end
 
 function Pickupable:use(map, x, y, z, dir)
-
 end
 
 function Pickupable:pickup(player)

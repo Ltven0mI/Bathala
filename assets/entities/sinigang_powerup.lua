@@ -12,13 +12,22 @@ local Pickupable = require "assets.entities.pickupable"
 local SinigangPowerup = Class{
     __includes = {Pickupable},
     init = function(self, x, y, z)
-        Pickupable.init(self, x, y, z, 16, 16, 16)
-        self.collider = ColliderBox(self, -8, -16, 16, 16)
+        Pickupable.init(self, x, y, z)
 
         self.animation = Animations.new("sinigang_powerup", "idle")
         self.spriteCanvas = love.graphics.newCanvas(self.animation:getWidth(), self.animation:getHeight())
         self.sprite:setTexture(self.spriteCanvas)
     end,
+
+    width = 16,
+    height = 16,
+    depth = 16,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile=nil,
@@ -58,9 +67,14 @@ function SinigangPowerup:draw()
 end
 
 function SinigangPowerup:use(map, x, y, z, dir)
-    Signal.emit("statue-heal", self.healAmount)
-    self.player.heldItem = nil
-    self.player = nil
+    local statue = map:findEntityWithTag("statue")
+    if statue then
+        if statue.health < statue.maxHealth then
+            statue:heal(self.healAmount)
+            self.player.heldItem = nil
+            self.player = nil
+        end
+    end
 end
 
 return SinigangPowerup

@@ -1,17 +1,23 @@
 local Class = require "hump.class"
 local Tile = require "classes.tile"
-local SpriteLoader = require "core.spriteloader"
 
 local PillarLayer2 = Class{
-    init = function(self, map, x, y, layerId)
-        Tile.init(self, map, x, y, layerId)
+    __includes={Tile},
+    init = function(self, map, x, y, z)
+        Tile.init(self, map, x, y, z)
     end,
-    __includes={ Tile },
-    isSolid = true,
 
     spriteMeshFile="assets/meshes/pillar_column.obj",
     spriteImgFile="assets/images/tiles/pillar_layer2.png",
     spriteIsTransparent=false,
+
+    width = 10,
+    height = 16,
+    depth = 10,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 0
 }
 
 return PillarLayer2

@@ -4,30 +4,57 @@ local SpriteLoader = require "core.spriteloader"
 local SpriteRenderer = require "core.spriterenderer"
 
 local ColliderBox = require "classes.collider_box"
+local Collider = require "classes.collider"
 
 local Tile = Class{
+    __includes={Collider},
     init = function(self, map, gridX, gridY, gridZ)
+        local worldX, worldY, worldZ = map:gridToWorldPos(gridX, gridY, gridZ)
+        Collider.init(self, worldX, worldY, worldZ, self.width, self.height, self.depth)
+        
         self.gridX = gridX
         self.gridY = gridY
         self.gridZ = gridZ
-        self.pos = Maf.vector(map:gridToWorldPos(gridX, gridY, gridZ))
-        self.collider = ColliderBox(self, 0, 0, map.tileSize, map.tileSize)
         self.map = map
         self.sprite = SpriteLoader.loadFromOBJ(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
+
+    width = 16,
+    height = 16,
+    depth = 16,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = true,
+
     spriteMeshFile="assets/meshes/tile_ground.obj",
     spriteImgFile="assets/images/missing_texture.png",
     spriteIsTransparent=false,
-
-    isSolid = false,
-    layerHeight = 1,
 }
+
+-- [[ Util Functions ]] --
+
+-- Returns true if self has the specified tag and false if not
+function Tile:hasTag(tag)
+    if self.tags == nil then
+        return false
+    end
+    for _, otherTag in ipairs(self.tags) do
+        if tag == otherTag then
+            return true
+        end
+    end
+    return false
+end
+-- \\ End Util Functions // --
 
 function Tile:setGridPos(x, y, z)
     self.gridX = x
     self.gridY = y
     self.gridZ = z
-    self.pos = Maf.vector(self.map:gridToWorldPos(x, y, z))
+    self:setPos(self.map:gridToWorldPos(x, y, z))
 end
 
 function Tile:start()

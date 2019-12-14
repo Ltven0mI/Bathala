@@ -3,17 +3,15 @@ local Maf = require "core.maf"
 local Signal = require "hump.signal"
 
 local Animations = require "core.animations"
-
 local SpriteLoader = require "core.spriteloader"
+local Util3D = require "core.util3d"
 
 local Entity = require "classes.entity"
 
 local Player = Class{
     __includes={Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 16, 16, 16)
-
-        -- self.collider = ColliderBox(self, -5, -4, 10, 4)
+        Entity.init(self, x, y, z)
 
         self.health = 10
 
@@ -33,7 +31,7 @@ local Player = Class{
 
         self.animation = Animations.new("player", "walk_down")
         self.animation:onLoop(function()
-            if self.animation.tagName == "death" then
+            if self.animation.peach.tagName == "death" then
                 self.animation:stop(true)
             end
         end)
@@ -44,6 +42,16 @@ local Player = Class{
 
         self.healthBarCanvas = love.graphics.newCanvas(69, 13)
     end,
+
+    width = 10,
+    height = 16,
+    depth = 4,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 8,
+    colliderOffsetZ = 2,
+    
+    isColliderSolid = false,
     
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/entities/player_icon.png",
@@ -53,10 +61,13 @@ local Player = Class{
     healthBarFillImg = love.graphics.newImage("assets/images/ui/health_bar_fill.png"),
     useItemBgImg = love.graphics.newImage("assets/images/ui/useitem_bg.png"),
     useItemTextImg = love.graphics.newImage("assets/images/ui/useitem_text.png"),
-    pickupText = love.graphics.newImage("assets/images/ui/pickup_text.png"),
+    pickupTextSprite = SpriteLoader.createSprite(Util3D.generateMesh(28, 7, 0), "assets/images/ui/pickup_text.png", true),
 
     speed = 64,
     maxHealth = 10,
+
+    pickupExpansion = 4,
+
     tags = {"player"},
 }
 
@@ -74,7 +85,7 @@ function Player:pickUpItem(item)
 end
 
 function Player:putDownHeldItem()
-    self.heldItem:putDown(self.pos, self.map)
+    self.heldItem:putDown(self.pos.x, self.pos.y, self.pos.z, self.map)
 end
 -- \\ End Util Functions // --
 
@@ -96,17 +107,17 @@ function Player:update(dt)
     local s = love.keyboard.isDown("s")
     local d = love.keyboard.isDown("d")
 
+    local q = love.keyboard.isDown("q")
+    local e = love.keyboard.isDown("e")
+
     local deltaX = (a and -1 or 0) + (d and 1 or 0)
+    local deltaY = (q and -1 or 0) + (e and 1 or 0)
     local deltaZ = (w and 1 or 0) + (s and -1 or 0)
-    local inputDelta = Maf.vector(deltaX, 0, deltaZ):normalize()
+    local inputDelta = Maf.vector(deltaX, deltaY, deltaZ):normalize()
 
-    self.moveProgress = self.moveProgress + #inputDelta * self.speed * dt
-    local flooredProgress = self.moveProgress --math.floor(self.moveProgress)
-    self.moveProgress = self.moveProgress - flooredProgress
+    self.velocity = inputDelta * self.speed
+    self:move((self.velocity * dt):unpack())
 
-    self.velocity = inputDelta * flooredProgress
-
-    self.pos = self.pos + self.velocity
 
     if deltaZ > 0 then
         self.animation:setTag("walk_up")
@@ -131,8 +142,6 @@ function Player:update(dt)
     elseif wasMovingBefore and not isMovingNow then
         self.animation:stop()
     end
-
-    self:doCollisionCheck()
 
     -- Kill player if outside of map bounds
     -- if self.pos.x < 0 or self.pos.x > self.map.width * self.map.tileSize or
@@ -167,23 +176,27 @@ function Player:draw()
     if self.heldItem then
         -- ? This may be incorrect
         self.heldItem:drawHeld(self.pos.x, self.pos.y + self.height, self.pos.z)
-    end
-
-    local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
-    local pickupable = nil
-    if pickupables then
-        for _, v in ipairs(pickupables) do
-            if v.canPickUp and v:canPickUp() then
-                pickupable = v
-                break
+    else
+        local x, y, z = self:getWorldCoords()
+        x = x - self.pickupExpansion / 2
+        y = y - self.pickupExpansion / 2
+        z = z - self.pickupExpansion / 2
+        local w, h, d = self.width + self.pickupExpansion, self.height + self.pickupExpansion, self.depth + self.pickupExpansion
+        local collided, colliders = self.map:checkCube(x, y, z, w, h, d, "pickupable")
+        if collided then
+            local canPickUp = false
+            for _, other in ipairs(colliders) do
+                if other.canPickUp and other:canPickUp() then
+                    canPickUp = true
+                    break
+                end
+            end
+            if canPickUp then
+                self.pickupTextSprite:draw(self.pos.x, self.pos.y + self.height + 4.5, self.pos.z)
             end
         end
     end
-    if pickupable and self.heldItem == nil then
-        local textW, textH = self.pickupText:getDimensions()
-        local halfTextW, halfTextH = math.floor(textW / 2), math.floor(textH / 2)
-        love.graphics.draw(self.pickupText, self.pos.x - halfTextW, self.pos.y - self.h - textH - 1)
-    end
+
 end
 
 function Player:drawUI(screenW, screenH)
@@ -244,24 +257,31 @@ function Player:mousepressed(btn, dir)
         end
     else
         if btn == 1 then
-            -- TODO: Rewrite this
-            -- local halfPlayerW = math.floor(self.w / 2)
-            -- local halfPlayerH = math.floor(self.h / 2)
-            -- local pickupables = self.map:getEntitiesInCollider(self.collider, "pickupable")
-            -- local pickupable = nil
-            -- if pickupables then
-            --     for _, v in ipairs(pickupables) do
-            --         if v.canPickUp and v:canPickUp() then
-            --             pickupable = v
-            --             break
-            --         end
-            --     end
-            -- end
-            -- if pickupable then
-            --     self:pickUpItem(pickupable)
-            -- elseif self.currentUseItem then
-            --     self.currentUseItem:use(self.map, self.pos.x, self.pos.y, dir)
-            -- end
+            local x, y, z = self:getWorldCoords()
+            x = x - self.pickupExpansion / 2
+            y = y - self.pickupExpansion / 2
+            z = z - self.pickupExpansion / 2
+            local w, h, d = self.width + self.pickupExpansion, self.height + self.pickupExpansion, self.depth + self.pickupExpansion
+            local collided, colliders = self.map:checkCube(x, y, z, w, h, d, "pickupable")
+            if collided then
+                local closestPickupable = nil
+                local closestDistance = math.huge
+                
+                for _, other in ipairs(colliders) do
+                    if other.canPickUp and other:canPickUp() then
+                        local distance = self.pos:distance(other.pos)
+                        if distance < closestDistance then
+                            closestPickupable = other
+                            closestDistance = distance
+                        end
+                    end
+                end
+                if closestPickupable then
+                    self:pickUpItem(closestPickupable)
+                elseif self.currentUseItem then
+                    self.currentUseItem:use(self.map, self.pos.x, self.pos.y, self.pos.z, dir)
+                end
+            end
         end
     end
 end
@@ -272,30 +292,5 @@ function Player:onGameOver()
     self.animation:play()
 end
 -- \\ End Callback Functions // --
-
-
-function Player:doCollisionCheck()
-    -- TODO: Need to reimplement this
-    -- local posX, posY = self.collider:getWorldCoords()
-    -- local minX = math.floor(posX)
-    -- local maxX = math.floor(posX + self.w)
-    -- local minY = math.floor(posY)
-    -- local maxY = math.floor(posY + self.h)
-
-    -- local gridMinX, gridMinY = self.map:worldToGridPos(minX, minY)
-    -- local gridMaxX, gridMaxY = self.map:worldToGridPos(maxX, maxY)
-
-    -- for x=gridMinX, gridMaxX do
-    --     for y=gridMinY, gridMaxY do
-    --         local tileData = self.map:getTileAt(x, y, 2)
-    --         if tileData and tileData.isSolid then
-    --             local worldX, worldY = self.map:gridToWorldPos(x, y)
-    --             -- TODO: Need to add colliders to tiles.
-    --             local collider = ColliderBox({pos=Maf.vector(worldX, worldY)}, tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)
-    --             self.collider:checkAndDispatchCollision(collider, self.velocity.x, self.velocity.y)
-    --         end
-    --     end
-    -- end
-end
 
 return Player

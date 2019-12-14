@@ -41,10 +41,10 @@ function m.generateMesh(width, height, depth)
     local halfHeight = height / 2
     local halfDepth = depth / 2
     local vertices = {
-        {-halfWidth, -halfHeight, -halfDepth, 0, 0, 1, 1, 1, 1}, -- Bottom Front Left
-        {halfWidth, -halfHeight, -halfDepth, 1, 0, 1, 1, 1, 1}, -- Bottom Front Right
-        {-halfWidth, halfHeight, halfDepth, 0, 1, 1, 1, 1, 1}, -- Top Back Left
-        {halfWidth, halfHeight, halfDepth, 1, 1, 1, 1, 1, 1} -- Top Back Right
+        {-halfWidth, -halfHeight, -halfDepth, 0, 1, 1, 1, 1, 1}, -- Bottom Front Left
+        {halfWidth, -halfHeight, -halfDepth, 1, 1, 1, 1, 1, 1}, -- Bottom Front Right
+        {-halfWidth, halfHeight, halfDepth, 0, 0, 1, 1, 1, 1}, -- Top Back Left
+        {halfWidth, halfHeight, halfDepth, 1, 0, 1, 1, 1, 1} -- Top Back Right
     }
     local indices = {1, 2, 4, 4, 3, 1}
     local mesh = love.graphics.newMesh(_local.vertexFormat, vertices, "triangles")

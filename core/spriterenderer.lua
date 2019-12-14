@@ -32,7 +32,7 @@ function m.drawSpriteDirect(sprite, x, y, z)
     love.graphics.draw(sprite.mesh, Util3D.getTranslationTransform(x, y, z))
 end
 
--- TODO: Move the camera to a upvalue so it isn't created every time.
+-- TODO: Take in a width and a height for the returned image
 function m.renderSpriteToImage(sprite)
     local camera = Camera(0, 0, 0, 16, 32, -128, 128, 1)
     local canvas = love.graphics.newCanvas(16, 32)

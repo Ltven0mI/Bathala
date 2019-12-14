@@ -5,7 +5,7 @@ local Entity = require "classes.entity"
 local Spawner = Class{
     __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 16, 16, 16)
+        Entity.init(self, x, y, z)
     end,
 
     spriteMeshFile="assets/meshes/billboard16x16_flat.obj",

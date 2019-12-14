@@ -4,19 +4,17 @@ local Signal = require "hump.signal"
 local SpriteLoader = require "core.spriteloader"
 local Util3D = require "core.util3d"
 
-local ColliderBox = require "classes.collider_box"
-
 local Entity = require "classes.entity"
 
 local Statue = Class{
     __includes = {Entity},
     init = function(self, x, y, z)
-        Entity.init(self, x, y, z, 24, 37, 24)
-        self.collider = ColliderBox(self, -12, -9, 24, 19)
+        Entity.init(self, x, y, z)
         self.health = 60
 
         self.healthbarW = self.width + 2
         self.healthbarH = 4
+        self.healthBarOffsetY = 37
 
         self.healthbarCanvas = love.graphics.newCanvas(self.healthbarW, self.healthbarH)
         local healthBarMesh = Util3D.generateMesh(self.healthbarW, self.healthbarH, 0)
@@ -25,6 +23,20 @@ local Statue = Class{
         self.figureSprite = SpriteLoader.createSprite(self.figureSpriteMeshFile,
         self.figureSpriteImgFile, self.figureSpriteIsTransparent)
     end,
+
+    width = 24,
+    height = 5,
+    depth = 24,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 2.5,
+    colliderOffsetZ = 0,
+    
+    isColliderSolid = true,
+
+    extraColliders = {
+        {0, 21, 0, 24, 32, 2}
+    },
 
     spriteMeshFile="assets/meshes/statue_base.obj",
     spriteImgFile="assets/images/entities/statue_base.png",
@@ -79,7 +91,6 @@ function Statue:redrawHealthbarCanvas()
     love.graphics.pop()
 end
 
--- TODO: Need to reimplement this
 function Statue:draw()
     local img = self.aliveImg
     if self.health == 0 then
@@ -89,7 +100,7 @@ function Statue:draw()
     self:redrawHealthbarCanvas()
     
     local barX = self.pos.x
-    local barY = self.pos.y + self.height + math.floor(self.healthbarH / 2) + 1
+    local barY = self.pos.y + self.healthBarOffsetY + math.floor(self.healthbarH / 2) + 1
     local barZ = self.pos.z
     self.healthbarSprite:draw(barX, barY, barZ)
 

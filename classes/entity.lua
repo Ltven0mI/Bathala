@@ -5,17 +5,24 @@ local SpriteRenderer = require "core.spriterenderer"
 
 local ColliderBox = require "classes.collider_box"
 
+local Collider = require "classes.collider"
+
 local Entity = Class{
-    __includes={},
-    init = function(self, x, y, z, width, height, depth)
-        self.collider = ColliderBox(self, 0, 0, width, height)
-        self.pos = Maf.vector(x, y, z)
-        self.width = width or 0
-        self.height = height or 0
-        self.depth = depth or 0
-        self.map = nil
+    __includes={Collider},
+    init = function(self, x, y, z)
+        Collider.init(self, x, y, z, self.width, self.height, self.depth)
         self.sprite = SpriteLoader.createSprite(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     end,
+
+    width = 16,
+    height = 16,
+    depth = 16,
+
+    colliderOffsetX = 0,
+    colliderOffsetY = 0,
+    colliderOffsetZ = 0,
+
+    colliderIsSolid = false,
 
     spriteMeshFile="assets/meshes/billboard16x16.obj",
     spriteImgFile="assets/images/missing_texture.png",
@@ -26,14 +33,11 @@ local Entity = Class{
 
 -- [[ Util Functions ]] --
 
-function Entity:setPos(x, y, z)
-    self.pos.x = x
-    self.pos.y = y
-    self.pos.z = z
-end
-
 -- Returns true if self has the specified tag and false if not
 function Entity:hasTag(tag)
+    if self.tags == nil then
+        return false
+    end
     for _, otherTag in ipairs(self.tags) do
         if tag == otherTag then
             return true
@@ -59,16 +63,6 @@ function Entity:draw()
     self.sprite:draw(self.pos:unpack())
 end
 
--- Called when an entity is registered to a map
-function Entity:onRegistered(map)
-    self.map = map
-end
-
--- Called when an entity is unregistered from a map
-function Entity:onUnregistered()
-    self.map = nil
-end
-
 function Entity:onLoaded()
     self.icon = self:renderToImage()
 end
@@ -76,6 +70,10 @@ end
 function Entity:renderToImage()
     local sprite = self.sprite or SpriteLoader.createSprite(self.spriteMeshFile, self.spriteImgFile, self.spriteIsTransparent)
     return SpriteRenderer.renderSpriteToImage(sprite)
+end
+
+function Entity:destroy()
+    self.map:unregisterEntity(self)
 end
 
 return Entity

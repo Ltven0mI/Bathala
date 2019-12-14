@@ -4,8 +4,8 @@ local Pickupable = require "assets.entities.pickupable"
 
 local UseItem = Class{
     __includes = {Pickupable},
-    init = function(self, x, y, z, width, height, depth)
-        Pickupable.init(self, x, y, z, width, height, depth)
+    init = function(self, x, y, z)
+        Pickupable.init(self, x, y, z)
         self.player = nil
     end,
 

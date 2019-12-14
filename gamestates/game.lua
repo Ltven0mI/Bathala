@@ -1,7 +1,7 @@
 local Camera = require "hump.camera"
 local Camera3D = require "core.camera3d"
 local Signal = require "hump.signal"
-local Vector = require "hump.vector"
+local Maf = require "core.maf"
 local Timer = require "hump.timer"
 local Gamestate = require "hump.gamestate"
 
@@ -138,9 +138,9 @@ function game:draw()
 end
 
 function game:mousepressed(x, y, btn)
-    local worldX, worldY = self.camera:worldCoords(x, y)
-    local dir = (Vector(worldX, worldY) - self.player.pos):normalized()
-self.player:mousepressed(btn, dir)
+    local worldX, worldY, worldZ = self.camera:worldCoords(x, y)
+    local dir = (Maf.vector(worldX, worldY, worldZ) - self.player.pos):normalize()
+    self.player:mousepressed(btn, dir)
 end
 
 function game:keypressed(key, isRepeat)
@@ -251,7 +251,6 @@ end
 
 function game:registerSignalCallbacks()
     Signal.register("vase-smashed", function(...) self.vase_smashed(self, ...) end)
-    Signal.register("statue-heal", function(...) self.statue_heal(self, ...) end)
     Signal.register("enemy-died", function(...) self.enemy_died(self, ...) end)
     Signal.register("statue-died", function(...) self.statue_died(self, ...) end)
     Signal.register("player-died", function(...) self.statue_died(self, ...) end)
@@ -259,37 +258,29 @@ end
 
 function game:clearSignalCallbacks()
     Signal.clear("vase-smashed")
-    Signal.clear("statue-heal")
     Signal.clear("enemy-died")
     Signal.clear("statue-died")
     Signal.clear("player-died")
     Signal.clear("gameover")
 end
 
-function game:vase_smashed(x, y)
+function game:vase_smashed(x, y, z)
     local rand = 1 --love.math.random(1, 2)
     if rand == 1 then
         local drop = self.luckydrops[love.math.random(1, #self.luckydrops)]
-        local dropInstance = drop(x, y)
+        local dropInstance = drop(x, y, z)
         self.map:registerEntity(dropInstance)
     end
 end
 
 function game:enemy_died(enemy)
     -- self.enemyCount = self.enemyCount - 1
-    local foundEnemies = self.map:getAllEntitiesWithTag("enemy")
+    local foundEnemies = self.map:findEntitiesWithTag("enemy")
 
     print("EnemyDied! Enemies left: "..(foundEnemies and #foundEnemies or 0))
     print(self.currentWave.spawnedEnemyCount, self.currentWave.totalEnemies)
     if self.currentWave.spawnedEnemyCount == self.currentWave.totalEnemies and foundEnemies == nil then
         Timer.after(_local.timeBetweenWaves, function() self:nextWave() end)
-    end
-end
-
-function game:statue_heal(amount)
-    local statue = self.map:findEntityOfType("statue")
-    if statue then
-        statue:heal(amount)
     end
 end
 

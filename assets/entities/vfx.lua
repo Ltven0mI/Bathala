@@ -8,7 +8,7 @@ local Entity = require "classes.entity"
 local VFX = Class{
     __includes = {Entity},
     init = function(self, x, y, z, rotation)
-        Entity.init(self, x, y, z, 16, 16, 16)
+        Entity.init(self, x, y, z)
 
         self.animation = Animations.new(self.animationName, self.animationTag)
         self.animation:onLoop(self.destroy, self)
@@ -51,10 +51,6 @@ function VFX:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
     self.sprite:draw(self.pos:unpack())
-end
-
-function VFX:destroy()
-    self.map:unregisterEntity(self)
 end
 
 return VFX

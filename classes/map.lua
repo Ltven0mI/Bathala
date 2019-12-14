@@ -4,11 +4,10 @@ local Vector = require "hump.vector"
 
 local Entities = require "core.entities"
 local Tiles = require "core.tiles"
-local DepthManager = require "core.depthmanager"
 
 local PathUtil = require "AssetBundle.PathUtil"
 
-local ColliderBox = require "classes.collider_box"
+local Bump = require "libs.bump-3dpd"
 
 local _local = {}
 
@@ -18,10 +17,13 @@ local Map = Class{
         self.height = mapData.height
         self.depth = mapData.depth
 
+        self.bumpWorld = Bump.newWorld(self.tileSize)
+
         self.grid = _local.generateGrid(self, mapData)
         self:updateTileNeighbours()
 
         self.entities = {}
+        self.entitiesToRemove = {}
         _local.createAndRegisterEntities(self, mapData)
 
         self.hasStarted = false
@@ -68,6 +70,10 @@ function Map:update(dt)
     for _, entity in ipairs(self.entities) do
         entity:update(dt)
     end
+
+    _local.removePendingEntities(self)
+
+    -- self:doCollisionPass(dt)
 end
 
 function Map:draw()
@@ -108,57 +114,29 @@ function Map:setTileAt(tileData, x, y, z)
     if self:checkIsOutsideMap(x, y, z)  then
         return nil
     end
+    local lastTile = self.grid[x][y][z]
+    if lastTile then
+        self:unregisterCollider(lastTile)
+    end
     self.grid[x][y][z] = tileData
+    if tileData then
+        self:registerCollider(tileData)
+    end
     self:updateTileNeighboursAround(x, y, z)
-end
-
-function Map:getTilesInCollider(collider, tagStr)
-    -- TODO: Reimplement this
-    return nil
-    -- if tagStr and type(tagStr) ~= "table" then
-    --     tagStr = {tagStr}
-    -- end
-
-    -- local results = {}
-    -- local worldX, worldY = collider:getWorldCoords()
-    -- local minGridX, minGridY = self:worldToGridPos(worldX, worldY)
-    -- local maxGridX, maxGridY = self:worldToGridPos(worldX + collider.w, worldY + collider.h)
-
-    -- -- print(minGridX, minGridY, maxGridX, maxGridY)
-
-    -- for x=minGridX, maxGridX do
-    --     for y=minGridY, maxGridY do
-    --         local tileData = self:getTileAt(x, y, self.collisionLayer)
-    --         if tileData and tileData.isSolid and tileData.collider and (tileData.tag == nil or tagStr == nil or _hasEntityGotTag(tileData, tagStr)) and
-    --             collider:intersect(ColliderBox({pos=Vector(self:gridToWorldPos(x, y))},
-    --                 tileData.collider.x, tileData.collider.y, tileData.collider.w, tileData.collider.h)) then
-    --                 table.insert(results, tileData)
-    --         end
-    --     end
-    -- end
-
-    -- return #results > 0 and results or nil
 end
 -- \\ End Tile Functions // --
 
 
 -- [[ Entity Functions ]] --
 
-function Map:findEntityWithTag(tag)
-    for _, entity in ipairs(self.entities) do
-        if entity:hasTag(tag) then
-            return entity
-        end
-    end
-end
-
 function Map:registerEntity(entity)
     if entity == nil then
         error("Attempted to register a nil entity to map!", 2)
     end
     table.insert(self.entities, entity)
-    entity:onRegistered(self)
+    self:registerCollider(entity)
 end
+
 
 function Map:unregisterEntity(entity)
     if entity == nil then
@@ -166,73 +144,168 @@ function Map:unregisterEntity(entity)
     end
     for k, e in ipairs(self.entities) do
         if e == entity then
-            table.remove(self.entities, k)
+            table.insert(self.entitiesToRemove, e)
             break
         end
     end
-    entity:onUnregistered()
 end
 
-
--- TODO: Combine Entity.type and Entity.tag
-local function _hasEntityGotTag(entity, tagStr)
-    for _, tag in ipairs(tagStr) do
-        if entity.tag == tag then
-            return true
-        end
-    end
-end
-
-function Map:findEntityOfType(typeStr)
-    for _, entity in ipairs(self.entities) do
-        if entity.type == typeStr then
-            return entity
-        end
-    end
-    return nil
-end
-
-function Map:getEntityAt(x, y, typeStr)
-    for _, entity in ipairs(self.entities) do
-        if typeStr == nil or entity.type == typeStr then
-            if entity.collider:intersectPoint(x, y) then
-                return entity
+function _local.removePendingEntities(self)
+    for _, entityToRemove in ipairs(self.entitiesToRemove) do
+        for k, other in ipairs(self.entities) do
+            if entityToRemove == other then
+                table.remove(self.entities, k)
+                self:unregisterCollider(entityToRemove)
+                break
             end
         end
     end
+    self.entitiesToRemove = {}
+end
+
+function _local.doesEntityMatchTags(entity, tags, requirement)
+    for _, tag in ipairs(tags) do
+        local doesHaveTag = entity:hasTag(tag)
+        if requirement == "none" and doesHaveTag then
+            return false
+        elseif requirement == "any" and doesHaveTag then
+            return true
+        elseif requirement == "all" and not doesHaveTag then
+            return false
+        end
+    end
+
+    if requirement == "none" then
+        return true
+    elseif requirement == "any" then
+        return false
+    elseif requirement == "all" then
+        return true
+    end
+end
+
+--- Finds the first entity matching a single or multiple tags.
+-- @param tag The tag to search for. Can be a single tag or a table of tags.
+-- @param requirement How strict are the tags. Can be "none" so entity must have none of the specified tags, "any" so entity can have any of the specified tags or "all" so entity must have all of the specified tags. Defaults to "all".
+-- @return entity, or nil if no entity was found.
+function Map:findEntityWithTag(tag, requirement)
+    local tags = tag
+    if type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
+
+    for _, entity in ipairs(self.entities) do
+        if _local.doesEntityMatchTags(entity, tags, requirement) then
+            return entity
+        end
+    end
+
     return nil
 end
 
-function Map:getAllEntitiesWithTag(tagStr)
-    if tagStr and type(tagStr) ~= "table" then
-        tagStr = {tagStr}
-    end
+--- Finds all entities matching a single or multiple tags.
+-- @param tag The tag to search for. Can be a single tag or a table of tags.
+-- @param[opt] requirement How strict are the tags. Can be "none" so entity must have none of the specified tags, "any" so entity can have any of the specified tags or "all" so entity must have all of the specified tags. Defaults to "all".
+-- @return table containing found entities, or nil if no entities were found.
+function Map:findEntitiesWithTag(tag, requirement)
+    local tags = tag
+    if type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
 
     local results = {}
     for _, entity in ipairs(self.entities) do
-        if tagStr == nil or _hasEntityGotTag(entity, tagStr) then
+        if _local.doesEntityMatchTags(entity, tags, requirement) then
             table.insert(results, entity)
         end
     end
 
     return (#results > 0) and results or nil
 end
-
-function Map:getEntitiesInCollider(collider, tagStr)
-    if tagStr and type(tagStr) ~= "table" then
-        tagStr = {tagStr}
-    end
-    local results = {}
-    for _, entity in ipairs(self.entities) do
-        if entity.collider and tagStr == nil or _hasEntityGotTag(entity, tagStr) then
-            if collider:intersect(entity.collider) then
-                table.insert(results, entity)
-            end
-        end
-    end
-    return #results > 0 and results or nil
-end
 -- \\ End Entity Functions // --
+
+
+-- [[ Collider Functions ]] --
+
+--- Checks for any colliders that intersect the passed collider
+-- @param collider The collider to check collisions for
+-- @param[opt] tag An optional tag to check for
+-- @param[optchain] requirement requirement How strict are the tags. Can be "none" so colliders must have none of the specified tags, "any" so colliders can have any of the specified tags or "all" so colliders must have all of the specified tags. Defaults to "all".
+-- @treturn[1] bool collided will be true if the collider collided with anything
+-- @treturn[1] {collider, ...} a table containing all colliders
+-- @treturn[2] bool collided will be false if the collider didn't collide with anything
+-- @treturn[2] nil
+function Map:checkCollider(collider, tag, requirement)
+    local x, y, z = collider:getWorldCoords()
+    local w, h, d = collider.width, collider.height, collider.depth
+
+    local tags = tag
+    if tag and type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
+
+    local filter = function(item)
+        if item == collider then
+            return false
+        end
+        if tags == nil then
+            return true
+        end
+        return _local.doesEntityMatchTags(item, tags, requirement)
+    end
+    
+    local items, len = self.bumpWorld:queryCube(x, y, z, w, h, d, filter)
+    
+    if not items or #items == 0 then return false else return true, items end
+end
+
+--- Checks for any colliders that intersect a cube formed by the passed arguments
+-- @param x Position in the world
+-- @param y Position in the world
+-- @param z Position in the world
+-- @param w The cubes width
+-- @param h The cubes height
+-- @param d The cubes depth
+-- @param[opt] tag An optional tag to check for
+-- @param[optchain] requirement requirement How strict are the tags. Can be "none" so colliders must have none of the specified tags, "any" so colliders can have any of the specified tags or "all" so colliders must have all of the specified tags. Defaults to "all".
+-- @treturn[1] bool collided will be true if the cube intersected anything
+-- @treturn[1] {collider, ...} a table containing all colliders
+-- @treturn[2] bool collided will be false if the cube didn't intersect anything
+-- @treturn[2] nil
+function Map:checkCube(x, y, z, w, h, d, tags, requirement)
+    local tags = tag
+    if tag and type(tag) ~= "table" then tags = {tag} end
+    requirement = requirement or "all"
+
+    local filter = function(item)
+        if tags == nil then
+            return true
+        end
+        return _local.doesEntityMatchTags(item, tags, requirement)
+    end
+    
+    local items, len = self.bumpWorld:queryCube(x, y, z, w, h, d, filter)
+    
+    if not items or #items == 0 then return false else return true, items end
+end
+
+function Map:registerCollider(collider)
+    local realX, realY, realZ = collider:getWorldCoords()
+    self.bumpWorld:add(collider, realX, realY, realZ, collider.width, collider.height, collider.depth)
+    if collider.onRegistered then
+        collider:onRegistered(self)
+    end
+end
+
+function Map:unregisterCollider(collider)
+    self.bumpWorld:remove(collider)
+    if collider.onUnregistered then
+        collider:onUnregistered()
+    end
+end
+
+function Map:moveCollider(collider, x, y, z)
+    local actualX, actualY, actualZ, cols, len = self.bumpWorld:move(collider, x, y, z)
+    return actualX, actualY, actualZ
+end
+-- \\ End Collider Functions // --
 
 
 -- [[ Core Functions ]] --
@@ -261,18 +334,20 @@ function Map:updateTileNeighbours()
     end
 end
 
-function _local.generateGrid(map, mapData)
+function _local.generateGrid(self, mapData)
     local grid = {}
 
-    for x=1, map.width do
+    for x=1, self.width do
         grid[x] = {}
-        for y=1, map.height do
+        for y=1, self.height do
             grid[x][y] = {}
-            for z=1, map.depth do
+            for z=1, self.depth do
                 local tileIndex = mapData.tileIndexGrid[x][y][z]
                 local tileName = mapData.tileIndex[tileIndex]
                 if tileName then
-                    grid[x][y][z] = Tiles.new(tileName, map, x, y, z)
+                    local tileData = Tiles.new(tileName, self, x, y, z)
+                    grid[x][y][z] = tileData
+                    self:registerCollider(tileData)
                 end
             end
         end
@@ -339,6 +414,18 @@ if newWidth < 1 or newHeight < 1 or newDepth < 1 then
     return false, "Cannot contract map to be smaller than 1 in any axis"
 end
 
+-- Unregister tile colliders
+for x=1, self.width do
+    for y=1, self.height do
+        for z=1, self.depth do
+            local tileData = self.grid[x][y][z]
+            if tileData then
+                self:unregisterCollider(tileData)
+            end
+        end
+    end
+end
+
 local newGrid = {}
 for x=1, newWidth do
     newGrid[x] = {}
@@ -350,6 +437,7 @@ for x=1, newWidth do
             tileData = self.grid[x+left][y+down][z+backward]
             if tileData ~= nil then
                 tileData:setGridPos(x, y, z)
+                self:registerCollider(tileData)
             end
             newGrid[x][y][z] = tileData
         end

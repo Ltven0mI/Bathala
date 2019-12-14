@@ -9,7 +9,7 @@ local Entity = require "classes.entity"
 local Projectile = Class{
     __includes = {Entity},
     init = function(self, x, y, z, dir)
-        Entity.init(self, x, y, z, 16, 16, 16)
+        Entity.init(self, x, y, z)
         self.dir = dir or Maf.vector(0, 0, 0)
         self.timer = 0
     end,
@@ -23,7 +23,7 @@ local Projectile = Class{
     damage = 1,
     speed = 64,
     timeToLive = 3,
-    tagMask = nil,
+    damageMask = nil,
 
     tags = {"projectile"},
 }
@@ -34,21 +34,22 @@ function Projectile:update(dt)
         self:destroy()
     end
 
-    self.pos = self.pos + self.dir * self.speed * dt
-    -- TODO: Reimplement projectile collisions
-    -- if self.map then
-    --     local hitEntities = self.map:getEntitiesInCollider(self.collider, self.tagMask)
-    --     if hitEntities then
-    --         if hitEntities[1].takeDamage then hitEntities[1]:takeDamage(self.damage) end
-    --         self:destroy()
-    --     else
-    --         local hitTiles = self.map:getTilesInCollider(self.collider, self.tagMask)
-    --         if hitTiles then
-    --             if hitTiles[1].takeDamage then hitTiles[1]:takeDamage(self.damage) end
-    --             self:destroy()
-    --         end
-    --     end
-    -- end
+    local collisions = self:move((self.dir * self.speed * dt):unpack())
+    if collisions and #collisions > 0 then
+        for _, collision in ipairs(collisions) do
+            local entity = collision.other
+            if self.damageMask and entity.takeDamage and entity.hasTag then
+                for _, tag in ipairs(self.damageMask) do
+                    if entity:hasTag(tag) then
+                        entity:takeDamage(self.damage)
+                        break
+                    end
+                end
+            end
+            self:destroy()
+            break
+        end
+    end
 end
 
 function Projectile:draw()
@@ -65,6 +66,17 @@ function Projectile:destroy()
         self.map:registerEntity(vfx)
     end
     self.map:unregisterEntity(self)
+end
+
+function Projectile:filter(other)
+    if self.damageMask and other.takeDamage and other.hasTag then
+        for _, tag in ipairs(self.damageMask) do
+            if other:hasTag(tag) then
+                return "cross"
+            end
+        end
+    end
+    return Entity.filter(self, other)
 end
 
 return Projectile
