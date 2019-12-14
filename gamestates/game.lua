@@ -275,7 +275,7 @@ end
 
 function game:enemy_died(enemy)
     -- self.enemyCount = self.enemyCount - 1
-    local foundEnemies = self.map:getAllEntitiesWithTag("enemy")
+    local foundEnemies = self.map:findEntitiesWithTag("enemy")
 
     print("EnemyDied! Enemies left: "..(foundEnemies and #foundEnemies or 0))
     print(self.currentWave.spawnedEnemyCount, self.currentWave.totalEnemies)

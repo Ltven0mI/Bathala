@@ -23,7 +23,7 @@ local Projectile = Class{
     damage = 1,
     speed = 64,
     timeToLive = 3,
-    tagMask = nil,
+    damageMask = nil,
 
     tags = {"projectile"},
 }
@@ -38,8 +38,13 @@ function Projectile:update(dt)
     if collisions and #collisions > 0 then
         for _, collision in ipairs(collisions) do
             local entity = collision.other
-            if entity.hasTag and entity:hasTag("enemy") then
-                if entity.takeDamage then entity:takeDamage(self.damage) end
+            if self.damageMask and entity.takeDamage and entity.hasTag then
+                for _, tag in ipairs(self.damageMask) do
+                    if entity:hasTag(tag) then
+                        entity:takeDamage(self.damage)
+                        break
+                    end
+                end
             end
             self:destroy()
             break
@@ -61,6 +66,17 @@ function Projectile:destroy()
         self.map:registerEntity(vfx)
     end
     self.map:unregisterEntity(self)
+end
+
+function Projectile:filter(other)
+    if self.damageMask and other.takeDamage and other.hasTag then
+        for _, tag in ipairs(self.damageMask) do
+            if other:hasTag(tag) then
+                return "cross"
+            end
+        end
+    end
+    return Entity.filter(self, other)
 end
 
 return Projectile

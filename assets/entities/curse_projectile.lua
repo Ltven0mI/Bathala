@@ -29,7 +29,7 @@ local CurseProjectile = Class{
     damage = 1,
     speed = 64,
     timeToLive = 3,
-    tagMask = "enemy",
+    damageMask = {"enemy"},
 
     tags = {"projectile-curse", "projectile"}
 }

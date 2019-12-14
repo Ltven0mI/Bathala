@@ -213,7 +213,7 @@ function Map:findEntitiesWithTag(tag, requirement)
 
     local results = {}
     for _, entity in ipairs(self.entities) do
-        if _local.doesEntityMatchTags(tags, requirement) then
+        if _local.doesEntityMatchTags(entity, tags, requirement) then
             table.insert(results, entity)
         end
     end

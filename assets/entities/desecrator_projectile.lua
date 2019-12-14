@@ -11,11 +11,11 @@ local DesecratorProjectile = Class{
     end,
 
     width = 10,
-    height = 0,
+    height = 2,
     depth = 6,
 
     colliderOffsetX = 0,
-    colliderOffsetY = 0,
+    colliderOffsetY = 1,
     colliderOffsetZ = 0,
     
     isColliderSolid = false,
@@ -29,7 +29,7 @@ local DesecratorProjectile = Class{
     damage = 1,
     speed = 64,
     timeToLive = 3,
-    tagMask = {"player", "statue", "barricade"},
+    damageMask = {"player", "statue", "barricade"},
 
     tags = {"projectile-desecrator", "projectile"}
 }

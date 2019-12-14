@@ -34,6 +34,7 @@ local Throwable = Class{
     brokenSpriteIsTransparent=false,
 
     damage=3,
+    damageMask = {"enemy"},
 
     minProgressAfterSmash = 0.6, -- throwProgress will be set to max(throwProgress, minProgressAfterSmash) when smash() is called
     throwProgressMultiplier = 2, -- how quickly throwProgress increases
@@ -74,8 +75,14 @@ function Throwable:update(dt)
             local collisions = self:move((self.velocity * dt):unpack())
             if not self.isSmashed and collisions and #collisions > 0 then
                 for _, collision in ipairs(collisions) do
-                    if collision.other.hasTag and collision.other:hasTag("enemy") and collision.other.takeDamage then
-                        collision.other:takeDamage(self.damage)
+                    local entity = collision.other
+                    if self.damageMask and entity.takeDamage and entity.hasTag then
+                        for _, tag in ipairs(self.damageMask) do
+                            if entity:hasTag(tag) then
+                                entity:takeDamage(self.damage)
+                                break
+                            end
+                        end
                     end
                 end
                 self:smash()
@@ -117,6 +124,17 @@ function Throwable:smash()
     if self.smashSFX then
         self.smashSFX:play()
     end
+end
+
+function Throwable:filter(other)
+    if self.damageMask and other.takeDamage and other.hasTag then
+        for _, tag in ipairs(self.damageMask) do
+            if other:hasTag(tag) then
+                return "cross"
+            end
+        end
+    end
+    return Pickupable.filter(self, other)
 end
 
 return Throwable
