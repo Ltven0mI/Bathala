@@ -67,9 +67,14 @@ function SinigangPowerup:draw()
 end
 
 function SinigangPowerup:use(map, x, y, z, dir)
-    Signal.emit("statue-heal", self.healAmount)
-    self.player.heldItem = nil
-    self.player = nil
+    local statue = map:findEntityWithTag("statue")
+    if statue then
+        if statue.health < statue.maxHealth then
+            statue:heal(self.healAmount)
+            self.player.heldItem = nil
+            self.player = nil
+        end
+    end
 end
 
 return SinigangPowerup

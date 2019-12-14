@@ -251,7 +251,6 @@ end
 
 function game:registerSignalCallbacks()
     Signal.register("vase-smashed", function(...) self.vase_smashed(self, ...) end)
-    Signal.register("statue-heal", function(...) self.statue_heal(self, ...) end)
     Signal.register("enemy-died", function(...) self.enemy_died(self, ...) end)
     Signal.register("statue-died", function(...) self.statue_died(self, ...) end)
     Signal.register("player-died", function(...) self.statue_died(self, ...) end)
@@ -259,7 +258,6 @@ end
 
 function game:clearSignalCallbacks()
     Signal.clear("vase-smashed")
-    Signal.clear("statue-heal")
     Signal.clear("enemy-died")
     Signal.clear("statue-died")
     Signal.clear("player-died")
@@ -283,13 +281,6 @@ function game:enemy_died(enemy)
     print(self.currentWave.spawnedEnemyCount, self.currentWave.totalEnemies)
     if self.currentWave.spawnedEnemyCount == self.currentWave.totalEnemies and foundEnemies == nil then
         Timer.after(_local.timeBetweenWaves, function() self:nextWave() end)
-    end
-end
-
-function game:statue_heal(amount)
-    local statue = self.map:findEntityOfType("statue")
-    if statue then
-        statue:heal(amount)
     end
 end
 
