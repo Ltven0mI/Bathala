@@ -4,10 +4,13 @@ local Signal = require "hump.signal"
 
 local Animations = require "core.animations"
 
+local BehaviourTree = require "libs.behaviourtree"
+
 local DesecratorProjectile = require "assets.entities.desecrator_projectile"
 
 local Entity = require "classes.entity"
 
+local _local = {}
 local Enemy = Class{
     __includes = {Entity},
     init = function(self, x, y, z)
@@ -17,7 +20,7 @@ local Enemy = Class{
         self.targetStatue = nil
         self.path = nil
         self.currentNode = nil
-        self.health = 2
+        self.health = self.maxHealth
         self.attackTimer = 0
 
         self.velocity = Maf.vector(0, 0, 0)
@@ -26,6 +29,15 @@ local Enemy = Class{
         self.targetDir = Maf.vector(0, 0, 0)
 
         self.lookDir = Maf.vector(0, 0, 0)
+
+        self.behaviourTree = BehaviourTree:new{
+            tree = BehaviourTree.Sequence:new{
+                nodes = {
+                    _local.TASK_FINDPATH
+                }
+            }
+        }
+        self.behaviourTree:setObject(self)
 
         self.animation = Animations.new("desecrator", "walk_down")
 
@@ -47,11 +59,30 @@ local Enemy = Class{
     spriteImgFile="assets/images/entities/desecrator_icon.png",
     spriteIsTransparent=false,
 
+    maxHealth = 3,
+
     speed = 32,
     stoppingDistance = 16,
     timeBetweenAttacks = 3,
 
     tags = {"enemy"}
+}
+
+_local.TASK_LOWHEALTH = BehaviourTree.Task:new{
+    run = function(task, obj)
+        if obj.health < obj.maxHealth / 2 then
+            task:success()
+        else
+            task:fail()
+        end
+    end
+}
+
+_local.TASK_FINDPATH = BehaviourTree.Task:new{
+    run = function(task, obj)
+        -- print("fukc shit I'm dying")
+        task:success()
+    end
 }
 
 -- local function _newPriorityQueue()
@@ -219,6 +250,7 @@ end
 -- TODO: Need to reimplement this
 function Enemy:update(dt)
     self.animation:update(dt)
+    self.behaviourTree:run()
 end
     --[[
 

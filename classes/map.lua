@@ -1,6 +1,7 @@
 local Class = require "hump.class"
 local AssetBundle = require "AssetBundle"
 local Vector = require "hump.vector"
+local AStar = require "classes.astar"
 
 local Entities = require "core.entities"
 local Tiles = require "core.tiles"
@@ -25,6 +26,8 @@ local Map = Class{
         self.entities = {}
         self.entitiesToRemove = {}
         _local.createAndRegisterEntities(self, mapData)
+
+        self.astar = AStar(self, 0.5)
 
         self.hasStarted = false
     end,
@@ -93,6 +96,8 @@ function Map:draw()
     for _, entity in ipairs(self.entities) do
         entity:draw()
     end
+
+    self.astar:drawNodeGrid()
 end
 -- \\ End Callback Functions // --
 
@@ -269,13 +274,16 @@ end
 -- @treturn[1] {collider, ...} a table containing all colliders
 -- @treturn[2] bool collided will be false if the cube didn't intersect anything
 -- @treturn[2] nil
-function Map:checkCube(x, y, z, w, h, d, tags, requirement)
+function Map:checkCube(x, y, z, w, h, d, tags, requirement, ignoreNonSolids)
     local tags = tag
     if tag and type(tag) ~= "table" then tags = {tag} end
     requirement = requirement or "all"
 
     local filter = function(item)
-        if tags == nil then
+        if ignoreNonSolids and not item.isColliderSolid then
+            return false
+        end
+        if tag == nil then
             return true
         end
         return _local.doesEntityMatchTags(item, tags, requirement)
